@@ -1,6 +1,12 @@
-# Forge.nvim
+![banner](./docs/forge-banner.png)
 
 ![demo](./docs/demo.png)
+
+## !!WARNING!!
+
+**Forge.nvim is still in an alpha state and does not have all of the listed functionality.**
+
+## Forge.nvim
 
 `Forge.nvim` provides a UI interface organizing and collecting several eseential plugins including `mason.nvim`, `nvim-treesitter`, and many more, as well as managing compiler and interpreter installations. 
 
@@ -11,6 +17,7 @@
 Syntax highlighters are mostly installed through `nvim-treesitter`, and linters (LSPs) are mostly installed through `mason.nvim`, which is why they are both dependencies to the plugin.
 
 ## Example Installation & Configuration
+
 - With `lazy.nvim`:
 ```lua
 {
