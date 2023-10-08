@@ -106,6 +106,22 @@ public.languages = {
 			{}
 		}
 	},
+	html = {
+		name = "HTML",
+		treesitters = { "html" },
+		compilers = {},
+		formatters = {
+			{ package = "prettier", name = "Prettier" }
+		},
+		lsps = {
+			{ package = "html-lsp", name = "HTML Language Server" }
+		},
+		debuggers = {
+		},
+		additional_tools = {
+			{}
+		}
+	},
 	java = {
 		name = "Java",
 		treesitters = { "java" },
@@ -184,6 +200,60 @@ public.languages = {
 			{}
 		}
 	},
+	lua = {
+		name = "Lua",
+		treesitters = { "lua" },
+		compilers = {
+			{ command = "lua", name = "Lua Compiler" }
+		},
+		lsps = {
+			{ package = "lua-language-server", name = "Lua Language Server" }
+		},
+		formatters = {
+			{ package = "stylua", name = "Stylua" }
+		},
+		debuggers = {
+		},
+		additional_tools = {
+			{}
+		}
+	},
+	python = {
+		name = "Python",
+		treesitters = { "python" },
+		compilers = {
+			{ command = "python", name = "Python Interpreter" }
+		},
+		lsps = {
+			{ package = "pyright", name = "Pyright" }
+		},
+		formatters = {
+			{ package = "black", name = "Black PEP8 Formatter" }
+		},
+		debuggers = {
+			{ package = "debugpy", name = "DebugPY" }
+		},
+		additional_tools = {
+			{}
+		}
+	},
+	ruby = {
+		name = "Ruby",
+		treesitters = { "ruby" },
+		compilers = {
+			{ command = "ruby", name = "Ruby Interpreter" }
+		},
+		lsps = {
+			{ package = "ruby-lsp", name = "Ruby Language Server" }
+		},
+		formatters = {
+			{ package = "rubyfmt", name = "Ruby Formatter" }
+		},
+		debuggers = {},
+		additional_tools = {
+			{}
+		}
+	},
 	rust = {
 		name = "Rust",
 		treesitters = { "rust", "toml" },
@@ -196,6 +266,20 @@ public.languages = {
 		lsps = {
 			{ package = "rust-analyzer", name = "Rust Analyzer" }
 		},
+		debuggers = {},
+		additional_tools = {
+			{}
+		}
+	},
+	swift = {
+		name = "Swift",
+		treesitters = { "swift" },
+		compilers = {
+			{ command = "swift", name = "Swift Compiler" }
+		},
+		lsps = {
+		},
+		formatters = {},
 		debuggers = {},
 		additional_tools = {
 			{}
@@ -215,6 +299,24 @@ public.languages = {
 		},
 		formatters = {
 			{ package = "prettier", name = "Prettier" }
+		},
+		debuggers = {
+
+		},
+		additional_tools = {
+			{}
+		}
+	},
+	v = {
+		name = "V",
+		treesitters = { "v" },
+		compilers = {
+			{ command = "v", name = "V Compiler" }
+		},
+		lsps = {
+			{ package = "vls", name = "V Language Server" }
+		},
+		formatters = {
 		},
 		debuggers = {
 
@@ -275,20 +377,9 @@ function public.refresh_installations()
 
 		-- Compiler
 		local installed_compilers = {}
-		print(language.compilers[1].command)
 		for _, compiler in ipairs(language.compilers) do
-			if config.config.developer_mode then
-				print(("Checking '%s' installation..."):format(compiler.command))
-			end
 			if command_exists(compiler.command) then
 				table.insert(installed_compilers, compiler)
-				if config.config.developer_mode then
-					print(("Command %s exists!"):format(compiler.command))
-				end
-			else
-				if config.config.developer_mode then
-					print(("Command %s doesn't exist!"):format(compiler.command))
-				end
 			end
 		end
 		language.installed_compilers = installed_compilers
