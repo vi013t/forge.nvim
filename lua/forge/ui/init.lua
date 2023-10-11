@@ -1,10 +1,22 @@
 local util = require("forge.util")
+local f = require("forge.util.fstring")
 local registry = require("forge.registry")
 local symbols = require("forge.ui.symbols")
 
 -- The public exports of forge-ui
 local public = {}
 
+---@alias line_type "language" | "compiler"
+
+---@type { type: line_type, language: string }[]
+public.lines = { {}, {}, {}, {} }
+for _, language_key in ipairs(registry.language_keys) do
+	table.insert(public.lines, { language = registry.languages[language_key].name, type = "language" })
+end
+
+local current_line = 0
+
+---@type string[]
 public.expanded_languages = {}
 
 -- Centers some text using the global width and height variables of the forge buffer.
@@ -35,8 +47,11 @@ end
 
 -- Writes a line of text to the forge buffer.
 --
+--
 ---@param text string The line to write
 ---@param options { alignment?: string, at_beginning?: boolean, colors?: table<string, integer[]> }?
+--
+---@return nil
 local function write_line(text, options)
 	if not options then options = {} end
 	if options.alignment == "center" then text = center(text) end
@@ -55,6 +70,8 @@ local function write_line(text, options)
 			vim.api.nvim_buf_add_highlight(public.buffer, -1, highlight_group, line, columns[1], columns[2] or #text - 1)
 		end
 	end
+
+	current_line = current_line + 1
 end
 
 -- Returns the text at a give line number in the forge buffer.
@@ -66,61 +83,76 @@ local function get_line(line_number)
 	return vim.api.nvim_buf_get_lines(public.buffer, line_number - 1, line_number, false)[1]
 end
 
+
 -- Draws the compiler info to the screen
 --
----@param language table
+---@param language language the language to draw the compiler of 
 --
 ---@return nil
 local function draw_compiler(language)
 	if language.installed_compilers[1] then
-		local name = language.installed_compilers[1].name
-		local command = language.installed_compilers[1].command
-		write_line(("       Compiler: %s (%s) ▸"):format(name, command), {
+		name = language.installed_compilers[1].name
+		command = language.installed_compilers[1].command
+		write_line(f"       Compiler: $name ($command) ▸", {
 			colors = {
-				["#00FE00"] = { 6, 9 }, -- TODO: multiple columns for same highlight group
-				["#00FF00"] = { 20, 20 + #name },
-				["Comment"] = { 21 + #name, 24 + #name + #command }
+				["#00FE00"] = { #"      ", #"      " }, -- TODO: multiple columns for same highlight group
+				["#00FF00"] = { #"       Compiler: ", #f"       Compiler: $name" },
+				["Comment"] = { #f"       Compiler: $name", #f"       Compiler: $name ($command)" }
 			}
 		})
 	else
-		write_line("       Compiler: None Installed ▸", {
-			colors = {
-				["#FF0000"] = { 6, 9 },
-				["#990000"] = { 20, 20 + #"None Installed" }
-			}
-		})
+		if #language.compilers > 0 then
+			write_line("       Compiler: None Installed ▸", {
+				colors = {
+					["#FF0000"] = { #"      ", #"      " },
+					["#990000"] = { #"       Compiler: ", #"       Compiler: None Installed" }
+				}
+			})
+		else
+			write_line("       Compiler: Not Supported ▸", {
+				colors = {
+					["#FFFE00"] = { #"      ", #"      " },
+					["#FFFF00"] = { #"       Compiler: ", #"       Compiler: Not Supported" }
+				}
+			})
+		end
 	end
 end
 
+---@param language language the language to draw the highlighter of
+--
 ---@return nil
 local function draw_highlighter(language)
 	if language.installed_highlighters[1] then
-		local name = language.installed_highlighters[1]
-		write_line(("       Highlighter: Treesitter (%s) ▸"):format(name), {
+		name = language.installed_highlighters[1]
+		write_line(f"       Highlighter: Treesitter ($name) ▸", {
 			colors = {
-				["#00FE00"] = { 6, 9 }, -- TODO: multiple highlights for same group
-				["#00FF00"] = { 23, 23 + #"Treesitter" },
-				["Comment"] = { 34, 36 + #name }
+				["#00FE00"] = { #"      ", #"      " },
+				["#00FF00"] = { #"       Highlighter: ", #"       Highlighter: Treesitter" },
+				["Comment"] = { #"       Highlighter: Treesitter ", #f"       Highlighter: Treesitter ($name)" }
 			}
 		})
 	else
-		write_line(("       Highlighter: None Installed (%d available) ▸"):format(#language.treesitters), {
+		treesitters_available = #language.treesitters
+		write_line(f"       Highlighter: None Installed ($treesitters_available available) ▸", {
 			colors = {
-				["#FF0000"] = { 6, 9 },
-				["#990000"] = { 23, 23 + #"None Installed" },
-				["Comment"] = { 24 + #"None Installed", 25 + #("None Installed (%d available)"):format(#language.treesitters) }
+				["#FF0000"] = { #"      ", #"      " },
+				["#990000"] = { #"       Highlighter:" , #"       Highlighter: None Installed" },
+				["Comment"] = { #"       Highlighter: None Installed ", #f"       Highlighter: None Installed ($treesitters_available available)" }
 			}
 		})
 	end
 end
 
+---@param language language
+--
 ---@return nil
 local function draw_linter(language)
 	if language.installed_linters[1] then
 		local linter = language.installed_linters[1]
 		write_line(("       Linter: %s (%s) ▸"):format(linter.name, linter.package), {
 			colors = {
-				["#00FE00"] = { 6, 9 }, -- TODO: multiple columns for same highlight group
+				["#00FE00"] = { #"      ", #"      " },
 				["#00FF00"] = { 18, 19 + #linter.name } ,
 				["Comment"] = { 19 + #linter.name, 21 + #linter.package + #linter.name }
 			}
@@ -128,7 +160,7 @@ local function draw_linter(language)
 	else
 		write_line(("       Linter: None Installed (%d available) ▸"):format(#language.lsps), {
 			colors = {
-				["#FF0000"] = { 6, 9 },
+				["#FF0000"] = { #"      ", #"      " },
 				["#990000"] = { 18, 18 + #"None Installed" },
 				["Comment"] = { 19 + #"None Installed", 20 + #("None Installed (%d available)"):format(#language.lsps) }
 			}
@@ -142,7 +174,7 @@ local function draw_formatter(language)
 		local formatter = language.installed_formatters[1]
 		write_line(("       Formatter: %s (%s) ▸"):format(formatter.name, formatter.package), {
 			colors = {
-				["#00FE00"] = { 6, 9 }, -- TODO: multiple columns for same highlight group
+				["#00FE00"] = { #"      ", #"      " },
 				["#00FF00"] = { 21, 21 + #formatter.name } ,
 				["Comment"] = { 22 + #formatter.name, 24 + #formatter.package + #formatter.name }
 			}
@@ -150,7 +182,7 @@ local function draw_formatter(language)
 	else
 		write_line(("       Formatter: None Installed (%d available) ▸"):format(#language.formatters), {
 			colors = {
-				["#FF0000"] = { 6, 9 },
+				["#FF0000"] = { #"      ", #"      " },
 				["#990000"] = { 21, 21 + #"None Installed" },
 				["Comment"] = { 22 + #"None Installed", 23 + #("None Installed (%d available)"):format(#language.formatters) }
 			}
@@ -164,17 +196,55 @@ local function draw_debugger(language)
 		local debugger = language.installed_debuggers[1]
 		write_line(("       Debugger: %s (%s) ▸"):format(debugger.name, debugger.package), {
 			colors = {
-				["#00FE00"] = { 6, 9 }, -- TODO: multiple columns for same highlight group
+				["#00FE00"] = { #"      ", #"      " },
 				["#00FF00"] = { 19, 20 + #debugger.name } ,
 				["Comment"] = { 21 + #debugger.name, 23 + #debugger.package + #debugger.name }
 			}
 		})
 	else
-		write_line(("       Debugger: None Installed (%d available) ▸"):format(#language.debuggers), {
+		if #language.debuggers > 0 then
+			write_line(("       Debugger: None Installed (%d available) ▸"):format(#language.debuggers), {
+				colors = {
+					["#FF0000"] = { #"      ", #"      " },
+					["#990000"] = { 20, 20 + #"None Installed" },
+					["Comment"] = { 21 + #"None Installed", 21 + #("None Installed (%d available)"):format(#language.debuggers) }
+				}
+			})
+		else
+			write_line("       Debugger: Not Supported ▸", {
+				colors = {
+					["#FFFF00"] = { #"      ", #"      " },
+					["#FFFE00"] = { 20, 20 + #"Not Supported" },
+				}
+			})
+		end
+	end
+end
+
+---@param language language The language to draw the additional tools of
+--
+---@return nil
+local function draw_additional_tools(language)
+	write_line("       Additional Tools: None Installed ▸", { colors = {
+		["#00FFFF"] = { 6, 9 },
+		["#00FFFE"] = { 28, 28 + #"None Installed" }
+	} })
+end
+
+---@param language language
+local function draw_expanded_language(language)
+	if language.name == public.get_language_under_cursor() then
+		write_line(("    %s %s ▾   (Press e to collapse, i to install all, or u to uninstall all)"):format(symbols.progress_icons[language.total][language.installed_total], language.name), {
 			colors = {
-				["#FF0000"] = { 6, 9 },
-				["#990000"] = { 20, 20 + #"None Installed" },
-				["Comment"] = { 21 + #"None Installed", 21 + #("None Installed (%d available)"):format(#language.debuggers) }
+				[symbols.progress_colors[language.total][language.installed_total]] = { 4, 7 }, -- Icon
+				["Comment"] = { 11 + #language.name, 77 + #language.name } -- Down arrow
+			}
+		})
+	else
+		write_line(("    %s %s ▾"):format(symbols.progress_icons[language.total][language.installed_total], language.name), {
+			colors = {
+				[symbols.progress_colors[language.total][language.installed_total]] = { 4, 7 }, -- Icon
+				["Comment"] = { 11 + #language.name, 12 + #language.name } -- Down arrow
 			}
 		})
 	end
@@ -186,53 +256,27 @@ local function draw_languages()
 
 	for _, key in ipairs(registry.language_keys) do
 		local language = registry.languages[key]
-		local total = 5
-
-		local actual_installed = 1
-		if language.installed_compilers[1] then actual_installed = actual_installed + 1 end
-		if language.installed_highlighters[1] then actual_installed = actual_installed + 1 end
-		if language.installed_linters[1] then actual_installed = actual_installed + 1 end
-		if language.installed_formatters[1] then actual_installed = actual_installed + 1 end
-		if language.installed_debuggers[1] then actual_installed = actual_installed + 1 end
 
 		if util.contains(public.expanded_languages, language.name) then
-			if language.name == public.get_language_under_cursor() then
-				write_line(("    %s %s ▾   (Press e to collapse)"):format(symbols.progress_icons[total][actual_installed], language.name), {
-					colors = {
-						[symbols.progress_colors[total][actual_installed]] = { 4, 7 }, -- Icon
-						["Comment"] = { 11 + #language.name, 36 + #language.name } -- Down arrow
-					}
-				})
-			else
-				write_line(("    %s %s ▾"):format(symbols.progress_icons[total][actual_installed], language.name), {
-					colors = {
-						[symbols.progress_colors[total][actual_installed]] = { 4, 7 }, -- Icon
-						["Comment"] = { 11 + #language.name, 12 + #language.name } -- Down arrow
-					}
-				})
-			end
-
+			draw_expanded_language(language)
 			draw_compiler(language)
 			draw_highlighter(language)
 			draw_linter(language)
 			draw_formatter(language)
 			draw_debugger(language)
-			write_line("       Additional Tools: None Installed ▸", { colors = {
-				["#00FFFF"] = { 6, 9 },
-				["#990000"] = { 28, 28 + #"None Installed" }
-			} })
+			draw_additional_tools(language)
 		else
 			if language.name == public.get_language_under_cursor() then
-				write_line(("    %s %s ▸   (Press e to expand)"):format(symbols.progress_icons[total][actual_installed], language.name), {
+				write_line(("    %s %s ▸   (Press e to expand, i to install all, or u to uninstall all)"):format(symbols.progress_icons[language.total][language.installed_total], language.name), {
 					colors = {
-						[symbols.progress_colors[total][actual_installed]] = { 4, 7 },
-						["Comment"] = { 11 + #language.name, 34 + #language.name }
+						[symbols.progress_colors[language.total][language.installed_total]] = { 4, 7 },
+						["Comment"] = { 11 + #language.name, 75 + #language.name }
 					}
 				})
 			else
-				write_line(("    %s %s ▸"):format(symbols.progress_icons[total][actual_installed], language.name), {
+				write_line(("    %s %s ▸"):format(symbols.progress_icons[language.total][language.installed_total], language.name), {
 					colors = {
-						[symbols.progress_colors[total][actual_installed]] = { 4, 7 },
+						[symbols.progress_colors[language.total][language.installed_total]] = { 4, 7 },
 						["Comment"] = { 11 + #language.name, 12 + #language.name }
 					}
 				})
@@ -248,6 +292,7 @@ public.cursor_row = 1
 -- Updates the forge buffer.
 function public.update_view()
 	vim.api.nvim_buf_set_option(public.buffer, 'modifiable', true)
+	current_line = 0
 	write_line("Forge", { alignment = "center", at_beginning = true })
 	write_line("")
 	write_line("Expand (e)   Install (i)   Uninstall (u)   Refresh (r)   Filter (f)   Help (?)   Quit (q)", { alignment = "center" })
@@ -265,7 +310,7 @@ end
 local function get_language_at_line(line_number)
 	local line_text = get_line(line_number)
 	if line_text == nil then
-		if line_number <= #registry.language_keys - 4 then
+		if line_number <= #registry.language_keys + 4 then
 			return registry.languages[registry.language_keys[line_number - 4]].name
 		else
 			return nil
@@ -321,7 +366,9 @@ function public.open_window()
 		q = "close_window",
 		e = "expand",
 		j = "move_cursor_down",
-		k = "move_cursor_up"
+		k = "move_cursor_up",
+		["<Up>"] = "move_cursor_up",
+		["<Down>"] = "move_cursor_down"
 	}
 
 	for key, action in pairs(mappings) do

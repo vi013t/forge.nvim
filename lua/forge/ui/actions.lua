@@ -13,11 +13,32 @@ end
 function public.expand()
 	local language_name = ui.get_language_under_cursor()
 
+	local index_of_language = nil
+	for index, line in ipairs(ui.lines) do
+		if line.type == "language" and line.language == language_name then
+			index_of_language = index
+			break
+		end
+	end
+
 	if util.contains(ui.expanded_languages, language_name) then
 		util.remove(ui.expanded_languages, language_name)
+		table.remove(ui.lines, index_of_language + 1)
+		table.remove(ui.lines, index_of_language + 1)
+		table.remove(ui.lines, index_of_language + 1)
+		table.remove(ui.lines, index_of_language + 1)
+		table.remove(ui.lines, index_of_language + 1)
+		table.remove(ui.lines, index_of_language + 1)
 	else
 		table.insert(ui.expanded_languages, language_name)
+		table.insert(ui.lines, index_of_language + 1, { type = "compiler", language = language_name })
+		table.insert(ui.lines, index_of_language + 2, { type = "highlighter", language = language_name })
+		table.insert(ui.lines, index_of_language + 3, { type = "linter", language = language_name })
+		table.insert(ui.lines, index_of_language + 4, { type = "formatter", language = language_name })
+		table.insert(ui.lines, index_of_language + 5, { type = "debugger", language = language_name })
+		table.insert(ui.lines, index_of_language + 6, { type = "additional tools", language = language_name })
 	end
+
 	ui.update_view()
 end
 

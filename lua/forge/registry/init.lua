@@ -2,8 +2,14 @@ local config = require("forge.config")
 local parsers = require("nvim-treesitter.parsers")
 local linters = require("mason-registry")
 
+---@type { languages: language[], language_keys: string[], refresh_installations: fun(): nil }
 local public = {}
 
+---@alias package { name: string, package: string }
+---@alias compiler { command: string, name: string }
+---@alias language { name: string, treesitters: string[], compilers: compiler[], formatters: package[], debuggers: package[], lsps: package[], additional_tools: any[], total?: integer, installed_highlighters?: string[], installed_debuggers?: package[], installed_formatters?: package[], installed_compilers?: compiler[], installed_linters?: package[], installed_total?: integer }
+
+---@type language[]
 public.languages = {
 	bash = {
 		name = "Bash",
@@ -103,6 +109,23 @@ public.languages = {
 			{ package = "go-debug-adapter", name = "Go Debug Adapter" }
 		},
 		additional_tools = {
+			{}
+		}
+	},
+	haskell = {
+		name = "Haskell",
+		treesitters = { "haskell" },
+		compilers = {
+			{ command = "haskell", name = "Haskell" }
+		},
+		lsps = {
+			{ package = "haskell-language-server", name = "Haskell Language Server" }
+		},
+		debuggers = {
+			{ package = "haskell-debug-adapter", name = "Haskell Debug Adapter" }
+		},
+		formatters = {},
+		additional_tooks = {
 			{}
 		}
 	},
@@ -213,6 +236,25 @@ public.languages = {
 			{ package = "stylua", name = "Stylua" }
 		},
 		debuggers = {
+		},
+		additional_tools = {
+			{}
+		}
+	},
+	ocaml = {
+		name = "OCaml",
+		treesitters = { "ocaml" },
+		compilers = {
+			{ command = "ocaml", name = "OCaml Compiler" }
+		},
+		lsps = {
+			{ package = "ocaml-lsp", name = "OCaml Language Server" }
+		},
+		formatters = {
+			{ package = "ocamlformat", name = "OCaml Format" }
+		},
+		debuggers = {
+
 		},
 		additional_tools = {
 			{}
@@ -431,7 +473,7 @@ function public.refresh_installations()
 	end
 end
 
-public.refresh_installations()
+public.refresh_installations() -- PERF: add lockfile
 for key, _ in pairs(public.languages) do
 	local language = public.languages[key]
 	language.total = 5
@@ -448,6 +490,5 @@ end
 table.sort(public.language_keys, function(first, second)
 	return public.languages[first].installed_total > public.languages[second].installed_total
 end)
-
 
 return public
