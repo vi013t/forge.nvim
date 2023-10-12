@@ -10,7 +10,7 @@
 
 ![demo](./docs/demo.png)
 
-<span style="color: red">**Warning: Forge.nvim is still in an alpha state and does not have all of the listed functionality.**</span>
+<span style="color: red">**Warning: Forge.nvim is still in a pre-alpha state and does not have all of the listed functionality.**</span>
 
 
 ## Example Installation & Configuration
@@ -45,4 +45,4 @@ In general, `forge.nvim` does not aim to provide any new or groundbreaking funct
 
 ## Issues
 
-`Forge.nvim` is still in an alpha state, and much of the promised functionality is not yet implemented. As such, many issues, bugs, and lacking features are known. However, feel free to make an issue regardless, and progress on that feature/bug can be tracked there.
+`Forge.nvim` is still in a pre-alpha state, and much of the promised functionality is not yet implemented. As such, many issues, bugs, and lacking features are known. However, feel free to make an issue regardless, and progress on that feature/bug can be tracked there.

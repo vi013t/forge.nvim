@@ -5,195 +5,208 @@ local linters = require("mason-registry")
 ---@type { languages: language[], language_keys: string[], refresh_installations: fun(): nil }
 local public = {}
 
----@alias package { name: string, package: string }
----@alias compiler { command: string, name: string }
----@alias language { name: string, treesitters: string[], compilers: compiler[], formatters: package[], debuggers: package[], lsps: package[], additional_tools: any[], total?: integer, installed_highlighters?: string[], installed_debuggers?: package[], installed_formatters?: package[], installed_compilers?: compiler[], installed_linters?: package[], installed_total?: integer }
+---@alias tool { name: string, internal_name: string }
+---@alias language { name: string, highlighters: tool[], compilers: tool[], formatters: tool[], debuggers: tool[], linters: tool[], additional_tools: any[], total?: integer, installed_highlighters?: string[], installed_debuggers?: tool[], installed_formatters?: tool[], installed_compilers?: tool[], installed_linters?: tool[], installed_additional_tools?: tool[], installed_total?: integer }
 
 ---@type language[]
 public.languages = {
 	bash = {
 		name = "Bash",
-		treesitters = { "bash" },
+		highlighters = {
+			{ internal_name = "bash", name = "TreeSitter" },
+		},
 		compilers = {
-			{ command = "bash", name = "Bash" }
+			{ internal_name = "bash", name = "Bash" }
 		},
 		formatters = {
 		},
-		lsps = {
-			{ package = "bash-language-server", name = "Bash Language Server" }
+		linters = {
+			{ internal_name = "bash-language-server", name = "Bash Language Server" }
 		},
 		debuggers = {
-			{ package = "bash-debug-adapter", name = "Bash Debug Adapter" }
+			{ internal_name = "bash-debug-adapter", name = "Bash Debug Adapter" }
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	c = {
 		name = "C",
-		treesitters = { "c", "make" },
+		highlighters = {
+			{ internal_name = "c", name = "TreeSitter" },
+		},
 		compilers = {
-			{ command = "cc", name = "Custom C Compiler" },
-			{ command = "gcc", name = "GNU C Compiler" },
-			{ command = "tcc", name = "Tiny C Compiler" },
-			{ command = "zig", name = "Zig C Compiler" },
-			{ command = "clang", name = "Clang Compiler" },
+			{ internal_name = "cc", name = "Custom C Compiler" },
+			{ internal_name = "gcc", name = "GNU C Compiler" },
+			{ internal_name = "tcc", name = "Tiny C Compiler" },
+			{ internal_name = "zig", name = "Zig C Compiler" },
+			{ internal_name = "clang", name = "Clang Compiler" },
 		},
 		formatters = {
-			{ package = "clang-format", name = "Clang Format" }
+			{ internal_name = "clang-format", name = "Clang Format" }
 		},
-		lsps = {
-			{ package = "clangd", name = "Clang Daemon" }
+		linters = {
+			{ internal_name = "clangd", name = "Clang Daemon" }
 		},
 		debuggers = {
-			{ package = "cpptools", name = "C++ Tools" }
+			{ internal_name = "cpptools", name = "C++ Tools" }
 		},
 		additional_tools = {
-			{ }
 		}
 	},
 	cpp = {
 		name = "C++",
-		treesitters = { "cpp", "make" },
+		highlighters = {
+			{ internal_name = "cpp", name = "TreeSitter" },
+		},
 		compilers = {
-			{ command = "cc", name = "Custom C Compiler" },
-			{ command = "gcc", name = "GNU C Compiler" },
-			{ command = "tcc", name = "Tiny C Compiler" },
-			{ command = "zig", name = "Zig C Compiler" },
-			{ command = "clang", name = "Clang Compiler" },
+			{ internal_name = "cc", name = "Custom C Compiler" },
+			{ internal_name = "gcc", name = "GNU C Compiler" },
+			{ internal_name = "tcc", name = "Tiny C Compiler" },
+			{ internal_name = "zig", name = "Zig C Compiler" },
+			{ internal_name = "clang", name = "Clang Compiler" },
 		},
 		formatters = {
-			{ package = "clang-format", name = "Clang Format" }
+			{ internal_name = "clang-format", name = "Clang Format" }
 		},
-		lsps = {
-			{ package = "clangd", name = "Clang Daemon" }
+		linters = {
+			{ internal_name = "clangd", name = "Clang Daemon" }
 		},
 		debuggers = {
-			{ package = "cpptools", name = "C++ Tools" }
+			{ internal_name = "cpptools", name = "C++ Tools" }
 		},
 		additional_tools = {
-			{ }
 		}
 	},
 	csharp = {
 		name = "C#",
-		treesitters = { "csharp" },
-		compilers = {
-			{ command = "dotnet", name = ".NET SDK" }
+		highlighters = {
+			{ internal_name = "csharp", name = "csharp" },
 		},
-		lsps = {
-			{ package = "omnisharp", name = "Omnisharp" }
+		compilers = {
+			{ internal_name = "dotnet", name = ".NET SDK" }
+		},
+		linters = {
+			{ internal_name = "omnisharp", name = "Omnisharp" }
 		},
 		debuggers = {
 		},
 		formatters = {
-			{ package = "csharpier", name = "C Sharpier" }
+			{ internal_name = "csharpier", name = "C Sharpier" }
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	go = {
 		name = "Go",
-		treesitters = { "go", "gomod", "gosum", "gowork" },
+		highlighters = {
+			{ internal_name = "go", name = "TreeSitter" }
+		},
 		compilers = {
-			{ command = "go", name = "Go Compiler" },
+			{ internal_name = "go", name = "Go Compiler" },
 		},
 		formatters = {
-			{ package = "gofumpt", name = "Strict Go Formatter" }
+			{ internal_name = "gofumpt", name = "Strict Go Formatter" }
 		},
-		lsps = {
-			{ package = "gopls", name = "Go Programming Language Server" }
+		linters = {
+			{ internal_name = "gopls", name = "Go Programming Language Server" }
 		},
 		debuggers = {
-			{ package = "go-debug-adapter", name = "Go Debug Adapter" }
+			{ internal_name = "go-debug-adapter", name = "Go Debug Adapter" }
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	haskell = {
 		name = "Haskell",
-		treesitters = { "haskell" },
-		compilers = {
-			{ command = "haskell", name = "Haskell" }
+		highlighters = {
+			{ internal_name = "haskell", name = "Haskell" }
 		},
-		lsps = {
-			{ package = "haskell-language-server", name = "Haskell Language Server" }
+		compilers = {
+			{ internal_name = "haskell", name = "Haskell" }
+		},
+		linters = {
+			{ internal_name = "haskell-language-server", name = "Haskell Language Server" }
 		},
 		debuggers = {
-			{ package = "haskell-debug-adapter", name = "Haskell Debug Adapter" }
+			{ internal_name = "haskell-debug-adapter", name = "Haskell Debug Adapter" }
 		},
 		formatters = {},
 		additional_tooks = {
-			{}
 		}
 	},
 	html = {
 		name = "HTML",
-		treesitters = { "html" },
+		highlighters = {
+			{ internal_name = "html", name = "TreeSitter" }
+		},
 		compilers = {},
 		formatters = {
-			{ package = "prettier", name = "Prettier" }
+			{ internal_name = "prettier", name = "Prettier" }
 		},
-		lsps = {
-			{ package = "html-lsp", name = "HTML Language Server" }
+		linters = {
+			{ internal_name = "html-lsp", name = "HTML Language Server" }
 		},
 		debuggers = {
 		},
 		additional_tools = {
-			{}
+			{
+				type = "plugin",
+				internal_name = "roobert/tailwindcss-colorizer-cmp.nvim",
+				description = "Tailwind CSS completion addon for nvim-cmp",
+				name = "Tailwind CSS colorizer & autocomplete"
+			}
 		}
 	},
 	java = {
 		name = "Java",
-		treesitters = { "java" },
+		highlighters = {
+			{ internal_name = "java", name = "TreeSitter" }
+		},
 		compilers = {
-			{ command = "java", name = "Java Compiler" }
+			{ internal_name = "java", name = "Java Compiler" }
 		},
 		formatters = {
-			{ package = "google-java-format", name = "Google Java Formatter" },
+			{ internal_name = "google-java-format", name = "Google Java Formatter" },
 		},
-		lsps = {
-			{ package = "java-language-server", name = "Java Language Server" },
+		linters = {
+			{ internal_name = "java-language-server", name = "Java Language Server" },
 		},
 		debuggers = {
-			{ package = "java-debug-adapter", name = "Java Debug Adapter" }
+			{ internal_name = "java-debug-adapter", name = "Java Debug Adapter" }
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	javascript = {
 		name = "JavaScript",
-		treesitters = {
-			"javascript",
-			"json",
+		highlighters = {
+			{ internal_name = "javascript", name = "TreeSitter" }
 		},
 		compilers = {
-			{ command = "node", name = "NodeJS" }
+			{ internal_name = "node", name = "NodeJS" }
 		},
-		lsps = {
-			{ package = "eslint-lsp", name = "EcmaScript Lint Language Server" }
+		linters = {
+			{ internal_name = "eslint-lsp", name = "EcmaScript Lint Language Server" }
 		},
 		formatters = {
-			{ package = "prettier", name = "Prettier" }
+			{ internal_name = "prettier", name = "Prettier" }
 		},
 		debuggers = {
-			{ package = "js-debug-adapter", name = "JavaScript Debug Adapter" }
+			{ internal_name = "js-debug-adapter", name = "JavaScript Debug Adapter" }
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	julia = {
 		name = "Julia",
-		treesitters = { "julia" },
-		compilers = {
-			{ command = "julia", name = "Julia Compiler" }
+		highlighters = {
+			{ internal_name = "julia", name = "TreeSitter" }
 		},
-		lsps = {
-			{ package = "julia-lsp", name = "Julia Language Server" }
+		compilers = {
+			{ internal_name = "julia", name = "Julia Compiler" }
+		},
+		linters = {
+			{ internal_name = "julia-lsp", name = "Julia Language Server" }
 		},
 		formatters = {
 		},
@@ -201,162 +214,179 @@ public.languages = {
 
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	kotlin = {
 		name = "Kotlin",
-		treesitters = { "kotlin" },
+		highlighters = {
+			{ internal_name = "kotlin", name = "TreeSitter" }
+		},
 		compilers = {
-			{ command = "kotlin", name = "Kotlin Compiler" }
+			{ internal_name = "kotlin", name = "Kotlin Compiler" }
 		},
 		formatters = {
-			{ package = "ktlint", name = "Kotlin Linter (with Formatter)" }
+			{ internal_name = "ktlint", name = "Kotlin Linter (with Formatter)" }
 		},
-		lsps = {
-			{ package = "kotlin-language-server", name = "Kotlin Language Server" }
+		linters = {
+			{ internal_name = "kotlin-language-server", name = "Kotlin Language Server" }
 		},
 		debuggers = {
-			{ package = "kotlin-debug-adapter", name = "Kotlin Debug Adapter" }
+			{ internal_name = "kotlin-debug-adapter", name = "Kotlin Debug Adapter" }
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	lua = {
 		name = "Lua",
-		treesitters = { "lua" },
-		compilers = {
-			{ command = "lua", name = "Lua Compiler" }
+		highlighters = {
+			{ internal_name = "lua", name = "TreeSitter" }
 		},
-		lsps = {
-			{ package = "lua-language-server", name = "Lua Language Server" }
+		compilers = {
+			{ internal_name = "lua", name = "Lua Compiler" }
+		},
+		linters = {
+			{ internal_name = "lua-language-server", name = "Lua Language Server" }
 		},
 		formatters = {
-			{ package = "stylua", name = "Stylua" }
+			{ internal_name = "stylua", name = "Stylua" }
 		},
 		debuggers = {
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	ocaml = {
 		name = "OCaml",
-		treesitters = { "ocaml" },
-		compilers = {
-			{ command = "ocaml", name = "OCaml Compiler" }
+		highlighters = {
+			{ internal_name = "ocaml", name = "TreeSitter" }
 		},
-		lsps = {
-			{ package = "ocaml-lsp", name = "OCaml Language Server" }
+		compilers = {
+			{ internal_name = "ocaml", name = "OCaml Compiler" }
+		},
+		linters = {
+			{ internal_name = "ocaml-lsp", name = "OCaml Language Server" }
 		},
 		formatters = {
-			{ package = "ocamlformat", name = "OCaml Format" }
+			{ internal_name = "ocamlformat", name = "OCaml Format" }
 		},
 		debuggers = {
-
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	python = {
 		name = "Python",
-		treesitters = { "python" },
-		compilers = {
-			{ command = "python", name = "Python Interpreter" }
+		highlighters = {
+			{ internal_name = "python", name = "TreeSitter" }
 		},
-		lsps = {
-			{ package = "pyright", name = "Pyright" }
+		compilers = {
+			{ internal_name = "python", name = "Python Interpreter" }
+		},
+		linters = {
+			{ internal_name = "pyright", name = "Pyright" }
 		},
 		formatters = {
-			{ package = "black", name = "Black PEP8 Formatter" }
+			{ internal_name = "black", name = "Black PEP8 Formatter" }
 		},
 		debuggers = {
-			{ package = "debugpy", name = "DebugPY" }
+			{ internal_name = "debugpy", name = "DebugPY" }
 		},
 		additional_tools = {
-			{}
+			{
+				type = "plugin",
+				internal_name = "AcksID/swenv.nvim",
+				description = "Quickly switch Python virtual environments without restarting",
+				name = "Swenv"
+			}
 		}
 	},
 	ruby = {
 		name = "Ruby",
-		treesitters = { "ruby" },
-		compilers = {
-			{ command = "ruby", name = "Ruby Interpreter" }
+		highlighters = {
+			{ internal_name = "ruby", name = "TreeSitter" }
 		},
-		lsps = {
-			{ package = "ruby-lsp", name = "Ruby Language Server" }
+		compilers = {
+			{ internal_name = "ruby", name = "Ruby Interpreter" }
+		},
+		linters = {
+			{ internal_name = "ruby-lsp", name = "Ruby Language Server" }
 		},
 		formatters = {
-			{ package = "rubyfmt", name = "Ruby Formatter" }
+			{ internal_name = "rubyfmt", name = "Ruby Formatter" }
 		},
 		debuggers = {},
 		additional_tools = {
-			{}
 		}
 	},
 	rust = {
 		name = "Rust",
-		treesitters = { "rust", "toml" },
+		highlighters = {
+			{ internal_name = "rust", name = "TreeSitter" }
+		},
 		compilers = {
-			{ command = "cargo", name = "Cargo" }
+			{ internal_name = "cargo", name = "Cargo" }
 		},
 		formatters = {
-			{ package = "rustfmt", name = "Rust Format" }
+			{ internal_name = "rustfmt", name = "Rust Format" }
 		},
-		lsps = {
-			{ package = "rust-analyzer", name = "Rust Analyzer" }
+		linters = {
+			{ internal_name = "rust-analyzer", name = "Rust Analyzer" }
 		},
 		debuggers = {},
 		additional_tools = {
-			{}
+			{
+				type = "plugin",
+				internal_name = "rust-lang/rust.vim",
+				description = "Up-to-date support for Rust tooling in Neovim, including integration with Syntastic, Tagbar, Playpen, and more, and enables auto-formatting with rustfmt on save without an external formatter.",
+				name = "Rust Vim Support"
+			}
 		}
 	},
 	swift = {
 		name = "Swift",
-		treesitters = { "swift" },
-		compilers = {
-			{ command = "swift", name = "Swift Compiler" }
+		highlighters = {
+			{ internal_name = "swift", name = "TreeSitter" }
 		},
-		lsps = {
+		compilers = {
+			{ internal_name = "swift", name = "Swift Compiler" }
+		},
+		linters = {
 		},
 		formatters = {},
 		debuggers = {},
 		additional_tools = {
-			{}
 		}
 	},
 	typescript = {
 		name = "TypeScript",
-		treesitters = {
-			"typescript",
-			"json"
+		highlighters = {
+			{ internal_name = "typescript", name = "TreeSitter" }
 		},
 		compilers = {
-			{ command = "tsc", name = "TypeScript Transpiler" }
+			{ internal_name = "tsc", name = "TypeScript Transpiler" }
 		},
-		lsps = {
-			{ package = "typescript-language-server", name = "TypeScript Language Server" }
+		linters = {
+			{ internal_name = "typescript-language-server", name = "TypeScript Language Server" }
 		},
 		formatters = {
-			{ package = "prettier", name = "Prettier" }
+			{ internal_name = "prettier", name = "Prettier" }
 		},
 		debuggers = {
 
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	v = {
 		name = "V",
-		treesitters = { "v" },
-		compilers = {
-			{ command = "v", name = "V Compiler" }
+		highlighters = {
+			{ internal_name = "v", name = "TreeSitter" }
 		},
-		lsps = {
-			{ package = "vls", name = "V Language Server" }
+		compilers = {
+			{ internal_name = "v", name = "V Compiler" }
+		},
+		linters = {
+			{ internal_name = "vls", name = "V Language Server" }
 		},
 		formatters = {
 		},
@@ -364,20 +394,21 @@ public.languages = {
 
 		},
 		additional_tools = {
-			{}
 		}
 	},
 	zig = {
 		name = "Zig",
-		treesitters = { "zig" },
+		highlighters = {
+			{ internal_name = "zig", name = "TreeSitter" }
+		},
 		compilers = {
-			{ command = "zig", name = "Zig Compiler" }
+			{ internal_name = "zig", name = "Zig Compiler" }
 		},
 		formatters = {
 
 		},
-		lsps = {
-			{ package = "zls", name = "Zig Language Server" }
+		linters = {
+			{ internal_name = "zls", name = "Zig Language Server" }
 		},
 		debuggers = {},
 		additional_tools = {}
@@ -420,7 +451,7 @@ function public.refresh_installations()
 		-- Compiler
 		local installed_compilers = {}
 		for _, compiler in ipairs(language.compilers) do
-			if command_exists(compiler.command) then
+			if command_exists(compiler.internal_name) then
 				table.insert(installed_compilers, compiler)
 			end
 		end
@@ -428,8 +459,8 @@ function public.refresh_installations()
 
 		-- Highlighter
 		local installed_highlighters = {}
-		for _, highlighter in ipairs(language.treesitters) do
-			if parsers.has_parser(highlighter) then
+		for _, highlighter in ipairs(language.highlighters) do
+			if parsers.has_parser(highlighter.internal_name) then
 				table.insert(installed_highlighters, highlighter)
 			end
 		end
@@ -437,9 +468,9 @@ function public.refresh_installations()
 
 		-- Linter
 		local installed_linters = {}
-		for _, linter in ipairs(language.lsps) do
-			for _, package in ipairs(linters.get_installed_package_names()) do
-				if package == linter.package then
+		for _, linter in ipairs(language.linters) do
+			for _, internal_name in ipairs(linters.get_installed_package_names()) do
+				if internal_name == linter.internal_name then
 					table.insert(installed_linters, linter)
 					break
 				end
@@ -450,8 +481,8 @@ function public.refresh_installations()
 		-- Formatter 
 		local installed_formatters = {}
 		for _, formatter in ipairs(language.formatters) do
-			for _, package in ipairs(linters.get_installed_package_names()) do
-				if package == formatter.package then
+			for _, internal_name in ipairs(linters.get_installed_package_names()) do
+				if internal_name == formatter.internal_name then
 					table.insert(installed_formatters, formatter)
 					break
 				end
@@ -462,15 +493,18 @@ function public.refresh_installations()
 		-- Debugger
 		local installed_debuggers = {}
 		for _, debugger in ipairs(language.debuggers) do
-			for _, package in ipairs(linters.get_installed_package_names()) do
-				if package == debugger.package then
+			for _, internal_name in ipairs(linters.get_installed_package_names()) do
+				if internal_name == debugger.internal_name then
 					table.insert(installed_debuggers, debugger)
 					break
 				end
 			end
 		end
 		language.installed_debuggers = installed_debuggers
+	
+		language.installed_additional_tools = {}
 	end
+
 end
 
 public.refresh_installations() -- PERF: add lockfile

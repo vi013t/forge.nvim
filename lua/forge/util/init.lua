@@ -34,7 +34,18 @@ end
 --
 ---@return boolean is_hex_color Whether the given string is a hex color
 function public.is_hex_color(color)
+	if not color then return false end
 	return color:match("^#%x%x%x%x%x%x$")
+end
+
+---@param str string
+function public.snake_case_to_title_case(str)
+    local words = {}
+    for word in str:gmatch("([^_]+)") do
+        word = word:gsub("^%l", string.upper)
+        table.insert(words, word)
+    end
+    return table.concat(words, " ")
 end
 
 return public
