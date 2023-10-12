@@ -440,13 +440,8 @@ local function command_exists(command_name)
 end
 
 function public.refresh_installations()
-	if config.config.developer_mode then
-		print("Refreshing installations...")
-		print(("User is on %s"):format(get_os()))
-	end
 	for _, language_name in ipairs(public.language_keys) do
 		local language = public.languages[language_name]
-		print(("Checking installations for %s"):format(language.name))
 
 		-- Compiler
 		local installed_compilers = {}
@@ -501,13 +496,13 @@ function public.refresh_installations()
 			end
 		end
 		language.installed_debuggers = installed_debuggers
-	
+
 		language.installed_additional_tools = {}
 	end
 
 end
 
-public.refresh_installations() -- PERF: add lockfile
+public.refresh_installations()
 for key, _ in pairs(public.languages) do
 	local language = public.languages[key]
 	language.total = 5

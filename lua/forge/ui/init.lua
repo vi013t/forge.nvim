@@ -7,7 +7,7 @@ local public = {}
 
 ---@alias line_type "language" | "compiler"
 
----@type { type: line_type, language: string }[]
+---@type { type: line_type, language: string, name?: string }[]
 public.lines = { {}, {}, {}, {}, }
 local function reset_lines()
 	public.lines = { {}, {}, {}, {}, }
@@ -22,6 +22,21 @@ public.expanded_languages = {}
 
 ---@type string[]
 public.expanded_compilers = {}
+
+---@type string[]
+public.expanded_linters = {}
+
+---@type string[]
+public.expanded_highlighters = {}
+
+---@type string[]
+public.expanded_formatters = {}
+
+---@type string[]
+public.expanded_debuggers = {}
+
+---@type string[]
+public.expanded_additional_tools = {}
 
 local highlight_groups = {}
 
@@ -69,7 +84,7 @@ end
 
 ---@param option_list { text: string, foreground?: string, background?: string, italicize?: boolean, bold?: boolean }[]
 ---@param is_centered? boolean
-local function write_table(option_list, is_centered)
+local function write_line(option_list, is_centered)
 	local text = ""
 	for _, options in ipairs(option_list) do
 		text = text .. options.text
@@ -109,10 +124,13 @@ end
 --
 ---@return nil
 local function draw_tool(language, tool_name)
-	local strings = { { text = "      " } }
+	local strings = { { text = "    " } }
 
 	local proper_tool_name = util.snake_case_to_title_case(tool_name)
 	if tool_name ~= "additional_tools" then proper_tool_name = proper_tool_name:sub(1, -2) end
+
+	if tool_name == "additional_tools" then table.insert(strings, { text = "└ ", foreground = "Comment" })
+	else table.insert(strings, { text = "│ ", foreground = "Comment" }) end
 
 	-- Icon, compiler name, compiler command
 	if language["installed_" .. tool_name][1] then
@@ -134,17 +152,71 @@ local function draw_tool(language, tool_name)
 	table.insert(strings, { text = " ▸" })
 
 	-- Prompt
-	-- if public.lines[public.cursor_row].type == "compiler" and public.lines[public.cursor_row].language == language.name then
-		-- table.insert(strings, { text = "   (Press e to expand, i to install recommended, or u to uninstall)", foreground = "Comment" })
-	-- end
+	if public.lines[public.cursor_row].type == tool_name:sub(1, -2) and public.lines[public.cursor_row].language == language.name then
+		table.insert(strings, { text = "   (Press ", foreground = "Comment" })
+		table.insert(strings, { text = "e", foreground = "#AAAA77" })
+		table.insert(strings, { text = " to ", foreground = "Comment" })
+		table.insert(strings, { text = "expand", foreground = "#AAAA77" })
+		table.insert(strings, { text = ", ", foreground = "Comment" })
+		table.insert(strings, { text = "i", foreground = "#77AAAA" })
+		table.insert(strings, { text = " to ", foreground = "Comment" })
+		table.insert(strings, { text = "install recommended", foreground = "#77AAAA" })
+		table.insert(strings, { text = ", or ", foreground = "Comment" })
+		table.insert(strings, { text = "u", foreground = "#AA77AA" })
+		table.insert(strings, { text = " to ", foreground = "Comment" })
+		table.insert(strings, { text = "uninstall all", foreground = "#AA77AA" })
+		table.insert(strings, { text = ")", foreground = "Comment" })
+	end
 
-	write_table(strings)
+	write_line(strings)
+
+	-- Expanded tool
+	if util.contains(public["expanded_" .. tool_name], language.name) then
+		for index, tool in ipairs(language[tool_name]) do
+			strings = {}
+			local bars = "    │ │"
+			if index == #language[tool_name] then bars = "    │ └" end
+			local line = public.lines[public.cursor_row]
+			if util.contains(language["installed_" .. tool_name], tool) then
+				table.insert(strings, { text = bars, foreground = "Comment" })
+				table.insert(strings, { text = "  ", foreground = "#00FF00" })
+				table.insert(strings, { text = tool.name })
+				table.insert(strings, { text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
+
+				if line.type == tool_name:sub(1, -2) .. "_listing" and line.language == language.name and line.name == tool.name then
+					table.insert(strings, { text = "   (Press ", foreground = "Comment" })
+					table.insert(strings, { text = "u", foreground = "#AA77AA" })
+					table.insert(strings, { text = " to ", foreground = "Comment" })
+					table.insert(strings, { text = "uninstall", foreground = "#AA77AA" })
+					table.insert(strings, { text = ")", foreground = "Comment" })
+				end
+			else
+				table.insert(strings, { text = bars, foreground = "Comment" })
+				table.insert(strings, { text = "  ", foreground = "#FF0000" })
+				table.insert(strings, { text = tool.name })
+				table.insert(strings, { text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
+
+				if line.type == tool_name:sub(1, -2) .. "_listing" and line.language == language.name and line.name == tool.name then
+					table.insert(strings, { text = "   (Press ", foreground = "Comment" })
+					table.insert(strings, { text = "i", foreground = "#77AAAA" })
+					table.insert(strings, { text = " to ", foreground = "Comment" })
+					table.insert(strings, { text = "install", foreground = "#77AAAA" })
+					table.insert(strings, { text = ")", foreground = "Comment" })
+				end
+			end
+			write_line(strings)
+		end
+	end
 end
 
----@param language language
+-- Draws a language name that's expanded
+--
+---@param language language The language name to draw
+--
+---@return nil
 local function draw_expanded_language(language)
 	if language.name == public.get_language_under_cursor() then
-		write_table({
+		write_line({
 			{ text = "    " .. symbols.progress_icons[language.total][language.installed_total], foreground = symbols.progress_colors[language.total][language.installed_total] },
 			{ text = " " .. language.name },
 			{ text = " ▾", foreground = "Comment" },
@@ -163,7 +235,7 @@ local function draw_expanded_language(language)
 			{ text = ")", foreground = "Comment" }
 		})
 	else
-		write_table({
+		write_line({
 			{ text = "    " },
 			{ text = symbols.progress_icons[language.total][language.installed_total], foreground = symbols.progress_colors[language.total][language.installed_total] },
 			{ text = " " },
@@ -177,7 +249,7 @@ end
 --
 ---@return nil
 local function draw_languages()
-	write_table({ { text = "  Languages"} })
+	write_line({ { text = "  Languages"} })
 
 	for _, key in ipairs(registry.language_keys) do
 		local language = registry.languages[key]
@@ -192,7 +264,7 @@ local function draw_languages()
 			draw_tool(language, "additional_tools")
 		else
 			if language.name == public.get_language_under_cursor() then
-				write_table({
+				write_line({
 					{ text = "    " .. symbols.progress_icons[language.total][language.installed_total], foreground = symbols.progress_colors[language.total][language.installed_total] },
 					{ text = " " .. language.name },
 					{ text = " ▸", foreground = "Comment" },
@@ -211,7 +283,7 @@ local function draw_languages()
 					{ text = ")", foreground = "Comment" }
 				})
 			else
-				write_table({
+				write_line({
 					{ text = "    " },
 					{ text = symbols.progress_icons[language.total][language.installed_total], foreground = symbols.progress_colors[language.total][language.installed_total] },
 					{ text = " " },
@@ -235,9 +307,9 @@ is_first_draw_call = true
 function public.update_view()
 	is_first_draw_call = true
 	vim.api.nvim_buf_set_option(public.buffer, 'modifiable', true)
-	write_table({ { text = " Forge ", background = "#CC99FF", foreground = "#000000" } }, true)
-	write_table({ { text = "" } })
-	write_table({
+	write_line({ { text = " Forge ", background = "#CC99FF", foreground = "#000000" } }, true)
+	write_line({ { text = "" } })
+	write_line({
 		{ text = " Expand (e) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Install (i) ", background = "#99FFFF", foreground = "#000000" },
@@ -249,7 +321,7 @@ function public.update_view()
 		{ text = " Quit (q) ", background = "#99FFFF", foreground = "#000000" }
 	}, true)
 	draw_languages()
-	write_table({ { text = "" } })
+	write_line({ { text = "" } })
 	vim.fn.cursor({ public.cursor_row, 0 })
 	vim.api.nvim_buf_set_option(public.buffer, 'modifiable', false)
 end

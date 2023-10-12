@@ -58,8 +58,8 @@ function public.expand()
 			end
 		end
 
-		for _, _ in ipairs(language.compilers) do
-			table.insert(ui.lines, index_of_compiler + 1, { type = "compiler_listing", language = language_name })
+		for index, compiler in ipairs(language.compilers) do
+			table.insert(ui.lines, index_of_compiler + index, { type = "compiler_listing", language = language_name, name = compiler.name })
 		end
 
 		table.insert(ui.expanded_compilers, language_name)
