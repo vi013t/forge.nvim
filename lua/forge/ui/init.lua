@@ -8,9 +8,9 @@ local public = {}
 ---@alias line_type "language" | "compiler"
 
 ---@type { type: line_type, language: string, name?: string }[]
-public.lines = { {}, {}, {}, {}, }
+public.lines = { {}, {}, {}, {} }
 local function reset_lines()
-	public.lines = { {}, {}, {}, {}, }
+	public.lines = { {}, {}, {}, {} }
 	for _, language_key in ipairs(registry.language_keys) do
 		table.insert(public.lines, { language = registry.languages[language_key].name, type = "language" })
 	end
@@ -49,22 +49,26 @@ local highlight_groups = {}
 local function get_highlight_group_for_color(options)
 	if not options then options = {} end
 
+	-- Generate highlight group name
 	local name = "ForgeColor"
 	if options.foreground then name = name .. "Fg" .. options.foreground:sub(2) end
 	if options.background then name = name .. "Bg" .. options.background:sub(2) end
-
 	if options.italicize then name = name .. "Italics" end
 	if options.bold then name = name .. "Bold" end
 
+	-- Check if it already exists
 	if highlight_groups[name] then return highlight_groups[name] end
 	highlight_groups[name] = name
 
+	-- Foreground
 	local guifg = nil
 	if options.foreground then guifg = "guifg=" .. options.foreground end
 
+	-- Background
 	local guibg = nil
 	if options.background then guibg = "guibg=" .. options.background end
 
+	-- Word effects (italics, bold, etc.)
 	local gui = "gui="
 	if options.italicize then
 		gui = gui .. "italic"
@@ -73,6 +77,7 @@ local function get_highlight_group_for_color(options)
 		gui = gui .. "bold"
 	end
 
+	-- Generate Vim command
 	local highlight_command = ("highlight %s"):format(name)
 	if guifg then highlight_command = highlight_command .. " " .. guifg end
 	if guibg then highlight_command = highlight_command .. " " .. guibg end
@@ -82,8 +87,12 @@ local function get_highlight_group_for_color(options)
 	return name
 end
 
+-- Writes a line at the end of the forge buffer
+--
 ---@param option_list { text: string, foreground?: string, background?: string, italicize?: boolean, bold?: boolean }[]
 ---@param is_centered? boolean
+--
+---@return nil
 local function write_line(option_list, is_centered)
 	local text = ""
 	for _, options in ipairs(option_list) do
@@ -124,87 +133,93 @@ end
 --
 ---@return nil
 local function draw_tool(language, tool_name)
-	local strings = { { text = "    " } }
+	local write_buffer = setmetatable({ { text = "    " } }, { __index = table })
 
 	local proper_tool_name = util.snake_case_to_title_case(tool_name)
 	if tool_name ~= "additional_tools" then proper_tool_name = proper_tool_name:sub(1, -2) end
 
-	if tool_name == "additional_tools" then table.insert(strings, { text = "└ ", foreground = "Comment" })
-	else table.insert(strings, { text = "│ ", foreground = "Comment" }) end
+	if tool_name == "additional_tools" then write_buffer:insert({ text = "└ ", foreground = "Comment" })
+	else write_buffer:insert({ text = "│ ", foreground = "Comment" }) end
 
 	-- Icon, compiler name, compiler command
 	if language["installed_" .. tool_name][1] then
-		table.insert(strings, { text = "", foreground = "#00FF00" })
-		table.insert(strings, { text = " " .. proper_tool_name .. ": "})
-		table.insert(strings, { text = language["installed_" .. tool_name][1].name, foreground = "#00FF00" })
-		table.insert(strings, { text = " (" .. language["installed_" .. tool_name][1].internal_name .. ")", foreground = "Comment" })
+		write_buffer:insert({ text = "", foreground = "#00FF00" })
+		write_buffer:insert({ text = " " .. proper_tool_name .. ": "})
+		write_buffer:insert({ text = language["installed_" .. tool_name][1].name, foreground = "#00FF00" })
+		write_buffer:insert({ text = " (" .. language["installed_" .. tool_name][1].internal_name .. ")", foreground = "Comment" })
 	elseif #language[tool_name] > 0 then
-		table.insert(strings, { text = "", foreground = "#FF0000" })
-		table.insert(strings, { text = " " .. proper_tool_name .. ": "})
-		table.insert(strings, { text = "None Installed", foreground = "#FF0000" })
-		table.insert(strings, { text = " (" .. #language[tool_name] .. " available)", foreground = "Comment" })
+		write_buffer:insert({ text = "", foreground = "#FF0000" })
+		write_buffer:insert({ text = " " .. proper_tool_name .. ": "})
+		write_buffer:insert({ text = "None Installed", foreground = "#FF0000" })
+		write_buffer:insert({ text = " (" .. #language[tool_name] .. " available)", foreground = "Comment" })
 	else
-		table.insert(strings, { text = "", foreground = "#FFFF00" })
-		table.insert(strings, { text = " " .. proper_tool_name .. ": "})
-		table.insert(strings, { text = "Not Supported", foreground = "#FFFF00" })
+		write_buffer:insert({ text = "", foreground = "#FFFF00" })
+		write_buffer:insert({ text = " " .. proper_tool_name .. ": "})
+		write_buffer:insert({ text = "Not Supported", foreground = "#FFFF00" })
 	end
 
-	table.insert(strings, { text = " ▸" })
+	write_buffer:insert({ text = " ▸" })
 
 	-- Prompt
 	if public.lines[public.cursor_row].type == tool_name:sub(1, -2) and public.lines[public.cursor_row].language == language.name then
-		table.insert(strings, { text = "   (Press ", foreground = "Comment" })
-		table.insert(strings, { text = "e", foreground = "#AAAA77" })
-		table.insert(strings, { text = " to ", foreground = "Comment" })
-		table.insert(strings, { text = "expand", foreground = "#AAAA77" })
-		table.insert(strings, { text = ", ", foreground = "Comment" })
-		table.insert(strings, { text = "i", foreground = "#77AAAA" })
-		table.insert(strings, { text = " to ", foreground = "Comment" })
-		table.insert(strings, { text = "install recommended", foreground = "#77AAAA" })
-		table.insert(strings, { text = ", or ", foreground = "Comment" })
-		table.insert(strings, { text = "u", foreground = "#AA77AA" })
-		table.insert(strings, { text = " to ", foreground = "Comment" })
-		table.insert(strings, { text = "uninstall all", foreground = "#AA77AA" })
-		table.insert(strings, { text = ")", foreground = "Comment" })
+		write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
+		write_buffer:insert({ text = "e", foreground = "#AAAA77" })
+		write_buffer:insert({ text = " to ", foreground = "Comment" })
+		write_buffer:insert({ text = "expand", foreground = "#AAAA77" })
+		write_buffer:insert({ text = ", ", foreground = "Comment" })
+		write_buffer:insert({ text = "i", foreground = "#77AAAA" })
+		write_buffer:insert({ text = " to ", foreground = "Comment" })
+		write_buffer:insert({ text = "install recommended", foreground = "#77AAAA" })
+		write_buffer:insert({ text = ", or ", foreground = "Comment" })
+		write_buffer:insert({ text = "u", foreground = "#AA77AA" })
+		write_buffer:insert({ text = " to ", foreground = "Comment" })
+		write_buffer:insert({ text = "uninstall all", foreground = "#AA77AA" })
+		write_buffer:insert({ text = ")", foreground = "Comment" })
 	end
 
-	write_line(strings)
+	write_line(write_buffer)
 
 	-- Expanded tool
 	if util.contains(public["expanded_" .. tool_name], language.name) then
 		for index, tool in ipairs(language[tool_name]) do
-			strings = {}
+			write_buffer = setmetatable({}, { __index = table })
 			local bars = "    │ │"
-			if index == #language[tool_name] then bars = "    │ └" end
+			if tool_name == "additional_tools" then bars = "      │" end
+			if index == #language[tool_name] then
+				bars = "    │ └"
+				if tool_name == "additional_tools" then bars = "      └" end
+			end
 			local line = public.lines[public.cursor_row]
 			if util.contains(language["installed_" .. tool_name], tool) then
-				table.insert(strings, { text = bars, foreground = "Comment" })
-				table.insert(strings, { text = "  ", foreground = "#00FF00" })
-				table.insert(strings, { text = tool.name })
-				table.insert(strings, { text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
+				write_buffer:insert({ text = bars, foreground = "Comment" })
+				write_buffer:insert({ text = "  ", foreground = "#00FF00" })
+				write_buffer:insert({ text = tool.name, foreground = "#00FF00" })
+				write_buffer:insert({ text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
 
+				-- Prompt
 				if line.type == tool_name:sub(1, -2) .. "_listing" and line.language == language.name and line.name == tool.name then
-					table.insert(strings, { text = "   (Press ", foreground = "Comment" })
-					table.insert(strings, { text = "u", foreground = "#AA77AA" })
-					table.insert(strings, { text = " to ", foreground = "Comment" })
-					table.insert(strings, { text = "uninstall", foreground = "#AA77AA" })
-					table.insert(strings, { text = ")", foreground = "Comment" })
+					write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
+					write_buffer:insert({ text = "u", foreground = "#AA77AA" })
+					write_buffer:insert({ text = " to ", foreground = "Comment" })
+					write_buffer:insert({ text = "uninstall", foreground = "#AA77AA" })
+					write_buffer:insert({ text = ")", foreground = "Comment" })
 				end
 			else
-				table.insert(strings, { text = bars, foreground = "Comment" })
-				table.insert(strings, { text = "  ", foreground = "#FF0000" })
-				table.insert(strings, { text = tool.name })
-				table.insert(strings, { text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
+				write_buffer:insert({ text = bars, foreground = "Comment" })
+				write_buffer:insert({ text = "  ", foreground = "#FF0000" })
+				write_buffer:insert({ text = tool.name, foreground = "#FF0000" })
+				write_buffer:insert({ text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
 
+				-- Prompt
 				if line.type == tool_name:sub(1, -2) .. "_listing" and line.language == language.name and line.name == tool.name then
-					table.insert(strings, { text = "   (Press ", foreground = "Comment" })
-					table.insert(strings, { text = "i", foreground = "#77AAAA" })
-					table.insert(strings, { text = " to ", foreground = "Comment" })
-					table.insert(strings, { text = "install", foreground = "#77AAAA" })
-					table.insert(strings, { text = ")", foreground = "Comment" })
+					write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
+					write_buffer:insert({ text = "i", foreground = "#77AAAA" })
+					write_buffer:insert({ text = " to ", foreground = "Comment" })
+					write_buffer:insert({ text = "install", foreground = "#77AAAA" })
+					write_buffer:insert({ text = ")", foreground = "Comment" })
 				end
 			end
-			write_line(strings)
+			write_line(write_buffer)
 		end
 	end
 end
