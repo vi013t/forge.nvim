@@ -8,9 +8,11 @@ local public = {}
 ---@alias line_type "language" | "compiler"
 
 ---@type { type: line_type, language: string, name?: string }[]
-public.lines = { {}, {}, {}, {} }
+public.lines = { {}, {}, {}, {} } -- 4 lines before the first language
+
+-- Resets the lines list
 local function reset_lines()
-	public.lines = { {}, {}, {}, {} }
+	public.lines = { {}, {}, {}, {} } -- 4 lines before the first language
 	for _, language_key in ipairs(registry.language_keys) do
 		table.insert(public.lines, { language = registry.languages[language_key].name, type = "language" })
 	end
@@ -38,6 +40,9 @@ public.expanded_debuggers = {}
 ---@type string[]
 public.expanded_additional_tools = {}
 
+public.is_refreshing = false
+
+---@type table<string, string>
 local highlight_groups = {}
 
 -- Returns the associated highlight group for a given hex color, or creates and returns a new one if none
@@ -86,6 +91,8 @@ local function get_highlight_group_for_color(options)
 
 	return name
 end
+
+local is_first_draw_call = true
 
 -- Writes a line at the end of the forge buffer
 --
@@ -158,7 +165,9 @@ local function draw_tool(language, tool_name)
 		write_buffer:insert({ text = "Not Supported", foreground = "#FFFF00" })
 	end
 
-	write_buffer:insert({ text = " ▸" })
+	-- Arrow
+	if util.contains(public["expanded_" .. tool_name], language.name) then write_buffer:insert({ text = " ▾" })
+	else write_buffer:insert({ text = " ▸" }) end
 
 	-- Prompt
 	if public.lines[public.cursor_row].type == tool_name:sub(1, -2) and public.lines[public.cursor_row].language == language.name then
@@ -190,7 +199,17 @@ local function draw_tool(language, tool_name)
 				if tool_name == "additional_tools" then bars = "      └" end
 			end
 			local line = public.lines[public.cursor_row]
-			if util.contains(language["installed_" .. tool_name], tool) then
+
+			-- Tool is currently installing
+			if public.currently_installing and public.currently_installing.language == language.name and public.currently_installing.type == tool_name .. "_listing" then
+				write_buffer:insert({ text = bars, foreground = "Comment" })
+				write_buffer:insert({ text = "  ", foreground = "#00AAFF" })
+				write_buffer:insert({ text = tool.name, foreground = "#00AAFF" })
+				write_buffer:insert({ text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
+				write_buffer:insert({ text = "   (Installing...)", foreground = "#00AAFF" })
+
+			-- Tool is installed
+			elseif util.contains(language["installed_" .. tool_name], tool) then
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#00FF00" })
 				write_buffer:insert({ text = tool.name, foreground = "#00FF00" })
@@ -204,6 +223,8 @@ local function draw_tool(language, tool_name)
 					write_buffer:insert({ text = "uninstall", foreground = "#AA77AA" })
 					write_buffer:insert({ text = ")", foreground = "Comment" })
 				end
+
+			-- Tool is not installed
 			else
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#FF0000" })
@@ -219,6 +240,31 @@ local function draw_tool(language, tool_name)
 					write_buffer:insert({ text = ")", foreground = "Comment" })
 				end
 			end
+
+			-- Write out the buffer
+			write_line(write_buffer)
+		end
+
+		-- None available
+		if #language[tool_name] < 1 then
+			write_buffer = setmetatable({}, { __index = table })
+
+			if tool_name == "additional_tools" then write_buffer:insert({ text = "      └ ", foreground = "Comment" })
+			else write_buffer:insert({ text = "    │ └ " , foreground = "Comment" }) end
+
+			write_buffer:insert({ text = " ", foreground = "#FFFF00" })
+			write_buffer:insert({ text = "Currently, there " })
+
+			if tool_name == "additional_tools" then write_buffer:insert({ text = "are"})
+			else write_buffer:insert({ text = "is" }) end
+
+			write_buffer:insert({ text = " no "})
+
+			if tool_name == "additional_tools" then write_buffer:insert({ text = "additional tools" })
+			else write_buffer:insert({ text = tool_name:sub(1, -2) }) end
+
+			write_buffer:insert({ text = " available for "})
+			write_buffer:insert({ text = language.name })
 			write_line(write_buffer)
 		end
 	end
@@ -264,7 +310,12 @@ end
 --
 ---@return nil
 local function draw_languages()
-	write_line({ { text = "  Languages"} })
+	local languages_line = setmetatable({}, { __index = table })
+	languages_line:insert({ text = "  Languages"})
+	if public.is_refreshing then
+		languages_line:insert({ text = "   (Refreshing...)", foreground = "#00AAFF" })
+	end
+	write_line(languages_line)
 
 	for _, key in ipairs(registry.language_keys) do
 		local language = registry.languages[key]
@@ -314,8 +365,6 @@ end
 ---@type integer
 public.cursor_row = 1
 
-is_first_draw_call = true
-
 -- Updates the forge buffer.
 --
 ---@return nil
@@ -330,6 +379,8 @@ function public.update_view()
 		{ text = " Install (i) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Uninstall (u) ", background = "#99FFFF", foreground = "#000000" },
+		{ text = "   " },
+		{ text = " Prefer (p) ", background = "#99FFFF", foreground = '#000000' },
 		{ text = "   " },
 		{ text = " Refresh (r) ", background = "#99FFFF", foreground = "#000000"},
 		{ text = "   " },
@@ -387,6 +438,11 @@ function public.open_window()
 		k = "move_cursor_up",
 		gg = "set_cursor_to_top",
 		G = "set_cursor_to_bottom",
+		i = "install",
+		u = "uninstall",
+		r = "refresh",
+		["<C-d>"] = "do_nothing",
+		["<CR>"] = "do_nothing",
 		["<Up>"] = "move_cursor_up",
 		["<Down>"] = "move_cursor_down"
 	}

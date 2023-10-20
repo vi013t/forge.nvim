@@ -1,14 +1,13 @@
-local config = require("forge.config")
+local os_utils = require("forge.util.os")
 local parsers = require("nvim-treesitter.parsers")
-local linters = require("mason-registry")
+local mason_registry = require("mason-registry")
 
----@type { languages: language[], language_keys: string[], refresh_installations: fun(): nil }
 local public = {}
 
 ---@alias tool { name: string, internal_name: string }
 ---@alias language { name: string, highlighters: tool[], compilers: tool[], formatters: tool[], debuggers: tool[], linters: tool[], additional_tools: any[], total?: integer, installed_highlighters?: string[], installed_debuggers?: tool[], installed_formatters?: tool[], installed_compilers?: tool[], installed_linters?: tool[], installed_additional_tools?: tool[], installed_total?: integer }
 
----@type language[]
+---@type table<string, language>
 public.languages = {
 	bash = {
 		name = "Bash",
@@ -26,8 +25,7 @@ public.languages = {
 		debuggers = {
 			{ internal_name = "bash-debug-adapter", name = "Bash Debug Adapter" }
 		},
-		additional_tools = {
-		}
+		additional_tools = {}
 	},
 	c = {
 		name = "C",
@@ -50,8 +48,7 @@ public.languages = {
 		debuggers = {
 			{ internal_name = "cpptools", name = "C++ Tools" }
 		},
-		additional_tools = {
-		}
+		additional_tools = {}
 	},
 	cpp = {
 		name = "C++",
@@ -69,7 +66,8 @@ public.languages = {
 			{ internal_name = "clang-format", name = "Clang Format" }
 		},
 		linters = {
-			{ internal_name = "clangd", name = "Clang Daemon" }
+			{ internal_name = "clangd", name = "Clang Daemon" },
+			{ internal_name = "cpplint", name = "C++ Linter" }
 		},
 		debuggers = {
 			{ internal_name = "cpptools", name = "C++ Tools" }
@@ -80,7 +78,7 @@ public.languages = {
 	csharp = {
 		name = "C#",
 		highlighters = {
-			{ internal_name = "csharp", name = "csharp" },
+			{ internal_name = "c_sharp", name = "TreeSitter" },
 		},
 		compilers = {
 			{ internal_name = "dotnet", name = ".NET SDK" }
@@ -95,6 +93,21 @@ public.languages = {
 		},
 		additional_tools = {
 		}
+	},
+	elixir = {
+		name = "Elixir",
+		compilers = {
+			{ internal_name = "elixir", name = "Elixir Compiler" }
+		},
+		highlighters = {
+			{ internal_name = "elixir", name = "TreeSitter" }
+		},
+		linters = {
+			{ internal_name = "elixir-ls", name = "Elixir Language Server" }
+		},
+		debuggers = {},
+		formatters = {},
+		additional_tools = {}
 	},
 	go = {
 		name = "Go",
@@ -131,7 +144,7 @@ public.languages = {
 			{ internal_name = "haskell-debug-adapter", name = "Haskell Debug Adapter" }
 		},
 		formatters = {},
-		additional_tooks = {
+		additional_tools = {
 		}
 	},
 	html = {
@@ -144,7 +157,11 @@ public.languages = {
 			{ internal_name = "prettier", name = "Prettier" }
 		},
 		linters = {
-			{ internal_name = "html-lsp", name = "HTML Language Server" }
+			{ internal_name = "html-lsp", name = "HTML Language Server" },
+			{ internal_name = "emmet-language-server", name = "Emmet Language Server" },
+			{ internal_name = "emmet-ls", name = "Emmet Language Server" },
+			{ internal_name = "tailwindcss-language-server", name = "Tailwind CSS Language Server" },
+			{ internal_name = "rustywind", name = "Rusty Wind"}
 		},
 		debuggers = {
 		},
@@ -170,11 +187,13 @@ public.languages = {
 		},
 		linters = {
 			{ internal_name = "java-language-server", name = "Java Language Server" },
+			{ internal_name = "gradle-language-server", name = "Gradle Language Server" },
 		},
 		debuggers = {
 			{ internal_name = "java-debug-adapter", name = "Java Debug Adapter" }
 		},
 		additional_tools = {
+			{ internal_name = "vscode-java-decompiler", name = "Java Decompiler", type = "mason" }
 		}
 	},
 	javascript = {
@@ -192,7 +211,8 @@ public.languages = {
 			{ internal_name = "prettier", name = "Prettier" }
 		},
 		debuggers = {
-			{ internal_name = "js-debug-adapter", name = "JavaScript Debug Adapter" }
+			{ internal_name = "js-debug-adapter", name = "JavaScript Debug Adapter" },
+			{ internal_name = "chrome-debug-adapter", name = "Chrome Debug Adapter" }
 		},
 		additional_tools = {
 		}
@@ -242,7 +262,8 @@ public.languages = {
 			{ internal_name = "lua", name = "TreeSitter" }
 		},
 		compilers = {
-			{ internal_name = "lua", name = "Lua Compiler" }
+			{ internal_name = "lua", name = "Lua Compiler" },
+			{ internal_name = "luajit", name = "Lua Just-in-Time Compiler" }
 		},
 		linters = {
 			{ internal_name = "lua-language-server", name = "Lua Language Server" }
@@ -300,6 +321,22 @@ public.languages = {
 			}
 		}
 	},
+	r = {
+		name = "R",
+		compilers = {
+			{ internal_name = "R", name = "R Interpreter" },
+			{ internal_name = "Rscript", name = "R-Script" }
+		},
+		highlighters = {
+			{ internal_name = "r", name = "TreeSitter" }
+		},
+		linters = {
+			{ internal_name = "r-languageserver", name = "R Language Server" }
+		},
+		formatters = {},
+		debuggers = {},
+		additional_tools = {}
+	},
 	ruby = {
 		name = "Ruby",
 		highlighters = {
@@ -324,7 +361,12 @@ public.languages = {
 			{ internal_name = "rust", name = "TreeSitter" }
 		},
 		compilers = {
-			{ internal_name = "cargo", name = "Cargo" }
+			{
+				internal_name = "cargo",
+				name = "Cargo",
+				linux_install = "curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh",
+				windows_install = "choco install rustup.install"
+			}
 		},
 		formatters = {
 			{ internal_name = "rustfmt", name = "Rust Format" }
@@ -342,6 +384,21 @@ public.languages = {
 			}
 		}
 	},
+	svelte = {
+		name = "Svelte",
+		compilers = {
+			{ internal_name = "npm", name = "Node Package Manager" }
+		},
+		highlighters = {
+			{ internal_name = "svelte", name = "TreeSitter" },
+		},
+		linters = {
+			{ internal_name = "svelte-language-server", name = "Svelte Language Server" }
+		},
+		formatters = {},
+		debuggers = {},
+		additional_tools = {}
+	},
 	swift = {
 		name = "Swift",
 		highlighters = {
@@ -357,6 +414,21 @@ public.languages = {
 		additional_tools = {
 		}
 	},
+	teal = {
+		name = "Teal",
+		compilers = {
+			{ internal_name = "tl", name = "Teal Transpiler" }
+		},
+		highlighters = {
+			{ internal_name = "teal", name = "TreeSitter" }
+		},
+		linters = {
+			{ internal_name = "teal-language-server", name = "Teal Language Server" }
+		},
+		formatters = {},
+		debuggers = {},
+		additional_tools = {}
+	},
 	typescript = {
 		name = "TypeScript",
 		highlighters = {
@@ -366,7 +438,8 @@ public.languages = {
 			{ internal_name = "tsc", name = "TypeScript Transpiler" }
 		},
 		linters = {
-			{ internal_name = "typescript-language-server", name = "TypeScript Language Server" }
+			{ internal_name = "typescript-language-server", name = "TypeScript Language Server" },
+			{ internal_name = "angular-language-server", name = "Angular Language Server" }
 		},
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" }
@@ -411,42 +484,22 @@ public.languages = {
 			{ internal_name = "zls", name = "Zig Language Server" }
 		},
 		debuggers = {},
-		additional_tools = {}
+		additional_tools = {
+			{ internal_name = "NTBBloodbath/zig-tools.nvim", name = "Zig Tools for Neovim" }
+		}
 	}
 }
 
-public.language_keys = {}
-for key, _ in pairs(public.languages) do
-	table.insert(public.language_keys, key)
-end
-
-local function get_os()
-	if package.config:sub(1, 1) == '\\' then return "windows" else return "unix" end
-end
-
--- Checks whether a shell command can be found
---
----@param command_name string
---
----@return boolean exists whether the command can be found
-local function command_exists(command_name)
-	if get_os() == "windows" then
-		local exit_code = os.execute(("where %s > nul 2>&1"):format(command_name))
-		return exit_code == 0
-	end
-
-	local exit_code = os.execute(("command -v %s"):format(command_name))
-	return exit_code == 0
-end
-
 function public.refresh_installations()
+	public.before_refresh()
+
 	for _, language_name in ipairs(public.language_keys) do
 		local language = public.languages[language_name]
 
 		-- Compiler
 		local installed_compilers = {}
 		for _, compiler in ipairs(language.compilers) do
-			if command_exists(compiler.internal_name) then
+			if os_utils.command_exists(compiler.internal_name) then
 				table.insert(installed_compilers, compiler)
 			end
 		end
@@ -464,7 +517,7 @@ function public.refresh_installations()
 		-- Linter
 		local installed_linters = {}
 		for _, linter in ipairs(language.linters) do
-			for _, internal_name in ipairs(linters.get_installed_package_names()) do
+			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 				if internal_name == linter.internal_name then
 					table.insert(installed_linters, linter)
 					break
@@ -476,7 +529,7 @@ function public.refresh_installations()
 		-- Formatter 
 		local installed_formatters = {}
 		for _, formatter in ipairs(language.formatters) do
-			for _, internal_name in ipairs(linters.get_installed_package_names()) do
+			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 				if internal_name == formatter.internal_name then
 					table.insert(installed_formatters, formatter)
 					break
@@ -488,7 +541,7 @@ function public.refresh_installations()
 		-- Debugger
 		local installed_debuggers = {}
 		for _, debugger in ipairs(language.debuggers) do
-			for _, internal_name in ipairs(linters.get_installed_package_names()) do
+			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 				if internal_name == debugger.internal_name then
 					table.insert(installed_debuggers, debugger)
 					break
@@ -500,24 +553,35 @@ function public.refresh_installations()
 		language.installed_additional_tools = {}
 	end
 
+	-- Get the actual number of installatinons
+	for key, _ in pairs(public.languages) do
+		local language = public.languages[key]
+		language.total = 5
+
+		local actual_installed = 1
+		if language.installed_compilers[1] then actual_installed = actual_installed + 1 end
+		if language.installed_highlighters[1] then actual_installed = actual_installed + 1 end
+		if language.installed_linters[1] then actual_installed = actual_installed + 1 end
+		if language.installed_formatters[1] then actual_installed = actual_installed + 1 end
+		if language.installed_debuggers[1] then actual_installed = actual_installed + 1 end
+		language.installed_total = actual_installed
+	end
+
+	public.after_refresh()
+
 end
 
-public.refresh_installations()
-for key, _ in pairs(public.languages) do
-	local language = public.languages[key]
-	language.total = 5
-
-	local actual_installed = 1
-	if language.installed_compilers[1] then actual_installed = actual_installed + 1 end
-	if language.installed_highlighters[1] then actual_installed = actual_installed + 1 end
-	if language.installed_linters[1] then actual_installed = actual_installed + 1 end
-	if language.installed_formatters[1] then actual_installed = actual_installed + 1 end
-	if language.installed_debuggers[1] then actual_installed = actual_installed + 1 end
-	language.installed_total = actual_installed
+function public.before_refresh()
+	public.language_keys = {}
+	for key, _ in pairs(public.languages) do
+		table.insert(public.language_keys, key)
+	end
 end
 
-table.sort(public.language_keys, function(first, second)
-	return public.languages[first].installed_total > public.languages[second].installed_total
-end)
+function public.after_refresh()
+	table.sort(public.language_keys, function(first, second)
+		return public.languages[first].installed_total > public.languages[second].installed_total
+	end)
+end
 
 return public
