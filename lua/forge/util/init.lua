@@ -1,5 +1,12 @@
 local public = {}
 
+-- Returns whether or not the given array contains the given value
+--
+---@generic T
+---@param tab T[] The array of values to check
+---@param val T the value to check for 
+--
+---@return boolean is_contained Whether the given array contains the given value
 function public.contains(tab, val)
     for _, value in ipairs(tab) do
         if public.equals(value, val) then
@@ -53,6 +60,8 @@ function public.wait(seconds)
 	while os.clock() < end_time do end
 end
 
+-- Checks if two objects are equal, with proper checking for tables.
+--
 -- https://stackoverflow.com/questions/20325332/how-to-check-if-two-tablesobjects-have-the-same-value-in-lua
 --
 ---@param o1 any|table First object to compare
@@ -68,7 +77,6 @@ function public.equals(o1, o2, ignore_mt)
     if not ignore_mt then
         local mt1 = getmetatable(o1)
         if mt1 and mt1.__eq then
-            --compare using built in method
             return o1 == o2
         end
     end

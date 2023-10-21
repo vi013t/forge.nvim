@@ -364,8 +364,10 @@ public.languages = {
 			{
 				internal_name = "cargo",
 				name = "Cargo",
-				linux_install = "curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh",
-				windows_install = "choco install rustup.install"
+				unix_install = "curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh",
+				windows_install = "choco install rustup.install",
+				unix_uninstall = "rustup self uninstall",
+				windows_uninstall = "rustup self uninstall"
 			}
 		},
 		formatters = {
@@ -569,6 +571,17 @@ function public.refresh_installations()
 
 	public.after_refresh()
 
+end
+
+---@param language language
+function public.refresh_installed_totals(language)
+	local actual_installed = 1
+	if language.installed_compilers[1] then actual_installed = actual_installed + 1 end
+	if language.installed_highlighters[1] then actual_installed = actual_installed + 1 end
+	if language.installed_linters[1] then actual_installed = actual_installed + 1 end
+	if language.installed_formatters[1] then actual_installed = actual_installed + 1 end
+	if language.installed_debuggers[1] then actual_installed = actual_installed + 1 end
+	language.installed_total = actual_installed
 end
 
 function public.before_refresh()

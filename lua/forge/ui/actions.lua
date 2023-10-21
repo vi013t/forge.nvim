@@ -3,6 +3,8 @@ local util = require("forge.util")
 local registry = require("forge.registry")
 local treesitter_parsers = require("nvim-treesitter.parsers")
 local lock = require("forge.lock")
+local mason_ui = require("mason.ui")
+local mason_utils = require("forge.util.mason_utils")
 
 local public = {}
 
@@ -20,7 +22,7 @@ function public.close_window()
 	vim.api.nvim_win_close(ui.window, true)
 end
 
-function public.install()
+function public.toggle_install()
 	local line = ui.lines[ui.cursor_row]
 
 	---@type language
@@ -34,18 +36,42 @@ function public.install()
 
 	-- Highlighter
 	if line.type == "highlighter_listing" then
-		if treesitter_parsers.has_parser(language.highlighters[1].internal_name) then
-			vim.cmd(("TSUninstall %s"):format(language.highlighters[1].internal_name))
+		if treesitter_parsers.has_parser(line.internal_name) then
+			vim.cmd(("TSUninstall %s"):format(line.internal_name))
 		else
-			vim.cmd(("TSInstall %s"):format(language.highlighters[1].internal_name))
+			vim.cmd(("TSInstall %s"):format(line.internal_name))
 		end
 
 		ui.currently_installing = { language = language.name, type = "highlighters_listing" }
 		ui.update_view()
+	elseif line.type == "linter_listing" then
+		if mason_utils.package_is_installed(line.internal_name) then
+			vim.cmd(("MasonUninstall %s"):format(line.internal_name))
+			vim.schedule(function() vim.cmd("bdelete") end)
+			print(("%s was successfully uninstalled"):format(line.internal_name))
+
+			local index = nil
+			for linter_index, linter in ipairs(language.installed_linters) do
+				if linter.internal_name == line.internal_name then
+					index = linter_index
+					break
+				end
+			end
+
+			table.remove(language.installed_linters, index)
+			registry.refresh_installed_totals(language)
+			registry.after_refresh()
+			ui.update_view()
+		else
+			vim.cmd(("MasonInstall %s"):format(line.internal_name))
+			vim.schedule(function() vim.cmd("bdelete") end)
+			table.insert(language.installed_linters, { name = line.name, internal_name = line.internal_name })
+			registry.refresh_installed_totals(language)
+			registry.after_refresh()
+			ui.update_view()
+		end
 	end
 end
-
-public.uninstall = public.install
 
 -- Expands a folder under the cursor.
 --
@@ -97,7 +123,7 @@ function public.expand()
 					util.remove(ui["expanded_" .. plural_tool], language_name)
 				else
 					for index, language_tool in ipairs(language[plural_tool]) do
-						table.insert(ui.lines, index_of_tool + index, { type = tool .. "_listing", language = language_name, name = language_tool.name })
+						table.insert(ui.lines, index_of_tool + index, { type = tool .. "_listing", language = language_name, name = language_tool.name, internal_name = language_tool.internal_name })
 					end
 					table.insert(ui["expanded_" .. plural_tool], language_name)
 				end

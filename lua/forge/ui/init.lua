@@ -7,7 +7,7 @@ local public = {}
 
 ---@alias line_type "language" | "compiler"
 
----@type { type: line_type, language: string, name?: string }[]
+---@type { type: line_type, language: string, name?: string, internal_name?: string }[]
 public.lines = { {}, {}, {}, {} } -- 4 lines before the first language
 
 -- Resets the lines list
@@ -438,11 +438,11 @@ function public.open_window()
 		k = "move_cursor_up",
 		gg = "set_cursor_to_top",
 		G = "set_cursor_to_bottom",
-		i = "install",
-		u = "uninstall",
+		i = "toggle_install",
+		u = "toggle_install",
 		r = "refresh",
 		["<C-d>"] = "do_nothing",
-		["<CR>"] = "do_nothing",
+		["<CR>"] = "move_cursor_down",
 		["<Up>"] = "move_cursor_up",
 		["<Down>"] = "move_cursor_down"
 	}

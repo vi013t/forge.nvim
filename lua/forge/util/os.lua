@@ -29,4 +29,14 @@ function public.language_is_installed(language)
 	return false
 end
 
+function public.is_admin()
+	if public.get_os() == "windows" and vim.fn.getenv("ADMIN") then
+		return true
+	elseif public.get_os() == "unix" and vim.fn.getenv("SUDO_USER") then
+		return true
+	else
+		return false
+	end
+end
+
 return public
