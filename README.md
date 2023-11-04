@@ -2,7 +2,7 @@
 
 <center>
 
-`Forge.nvim` provides a UI interface organizing and collecting several essential plugins including `mason.nvim`, `nvim-treesitter`, and many more, as well as managing compiler and interpreter installations. `forge.nvim` also automatically sets up language servers, autocomplete, and autoformatters with no configuration necessary.
+`Forge.nvim` provides a GUI organizing and collecting several essential plugins including `mason.nvim`, `nvim-treesitter`, and many more, as well as managing compiler and interpreter installations. `forge.nvim` also automatically sets up language servers, autocomplete, and autoformatters with no configuration necessary.
 
 </center>
 
@@ -37,11 +37,11 @@
 }
 ```
 
-That's it! `Forge.nvim` will automatically handle the hassle of setting up `lspconfig`, language servers, autocomplete, autoformatting, and more.
+That's it! `Forge.nvim` will automatically handle the hassle of setting up `lspconfig`, language servers, autocomplete, autoformatting, and more. Every plugin listed as a dependency here will be set up and configured automatically.
 
 ## What is `Forge.nvim`?
 
-`Forge.nvim` comes with a UI floating window with a list of over 20 programming languages. Each language can have its compiler, syntax highlighter, linter, and formatter installed through the UI with no commands or manual downloads necessary. When multiple options are available (e.g. `gcc` vs `clang` vs `zig`), the user can pick a specific one, or install the recommended automatically.
+`Forge.nvim` comes with a GUI floating window with a list of over 20 programming languages. Each language can have its compiler, syntax highlighter, linter, and formatter installed through the UI with no commands or manual downloads necessary. When multiple options are available (e.g. `gcc` vs `clang` vs `zig`), the user can pick a specific one, or install the recommended automatically.
 
 Syntax highlighters are mostly installed through `nvim-treesitter`, and linters (LSPs) are mostly installed through `mason.nvim`, which is why they are both dependencies to the plugin.
 
