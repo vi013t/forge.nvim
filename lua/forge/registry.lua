@@ -2,7 +2,7 @@ local os_utils = require("forge.util.os")
 local parsers = require("nvim-treesitter.parsers")
 local mason_registry = require("mason-registry")
 
-local public = {}
+local public = Table {}
 
 ---@alias tool { name: string, internal_name: string }
 ---@alias language { name: string, highlighters: tool[], compilers: tool[], formatters: tool[], debuggers: tool[], linters: tool[], additional_tools: any[], total?: integer, installed_highlighters?: string[], installed_debuggers?: tool[], installed_formatters?: tool[], installed_compilers?: tool[], installed_linters?: tool[], installed_additional_tools?: tool[], installed_total?: integer }
@@ -205,7 +205,7 @@ public.languages = {
 			{ internal_name = "node", name = "NodeJS" }
 		},
 		linters = {
-			{ internal_name = "eslint-lsp", name = "EcmaScript Lint Language Server" }
+			{ internal_name = "eslint", name = "EcmaScript Lint Language Server" }
 		},
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" }
@@ -216,6 +216,21 @@ public.languages = {
 		},
 		additional_tools = {
 		}
+	},
+	json = {
+		name = "JSON",
+		highlighters = {
+			{ internal_name = "json", name = "TreeSitter" },
+		},
+		compilers = {},
+		linters = {
+			{ internal_name = "json-lsp", name = "JSON Language Server" }
+		},
+		formatters = {
+			{ internal_name = "prettier", name = "Prettier" }
+		},
+		debuggers = {},
+		additional_tools = {}
 	},
 	julia = {
 		name = "Julia",
@@ -274,6 +289,12 @@ public.languages = {
 		debuggers = {
 		},
 		additional_tools = {
+			{
+				type = "plugin",
+				internal_name = "folke/neodev.nvim",
+				description = "Support for Neovim development in Lua",
+				name = "Neodev"
+			}
 		}
 	},
 	ocaml = {
@@ -397,7 +418,9 @@ public.languages = {
 		linters = {
 			{ internal_name = "svelte-language-server", name = "Svelte Language Server" }
 		},
-		formatters = {},
+		formatters = {
+			{ internal_name = "prettier", name = "Prettier" }
+		},
 		debuggers = {},
 		additional_tools = {}
 	},
@@ -499,29 +522,29 @@ function public.refresh_installations()
 		local language = public.languages[language_name]
 
 		-- Compiler
-		local installed_compilers = {}
+		local installed_compilers = Table {}
 		for _, compiler in ipairs(language.compilers) do
 			if os_utils.command_exists(compiler.internal_name) then
-				table.insert(installed_compilers, compiler)
+				installed_compilers:insert(compiler)
 			end
 		end
 		language.installed_compilers = installed_compilers
 
 		-- Highlighter
-		local installed_highlighters = {}
+		local installed_highlighters = Table {}
 		for _, highlighter in ipairs(language.highlighters) do
 			if parsers.has_parser(highlighter.internal_name) then
-				table.insert(installed_highlighters, highlighter)
+				installed_highlighters:insert(highlighter)
 			end
 		end
 		language.installed_highlighters = installed_highlighters
 
 		-- Linter
-		local installed_linters = {}
+		local installed_linters = Table {}
 		for _, linter in ipairs(language.linters) do
 			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 				if internal_name == linter.internal_name then
-					table.insert(installed_linters, linter)
+					installed_linters:insert(linter)
 					break
 				end
 			end
@@ -529,11 +552,11 @@ function public.refresh_installations()
 		language.installed_linters = installed_linters
 
 		-- Formatter 
-		local installed_formatters = {}
+		local installed_formatters = Table {}
 		for _, formatter in ipairs(language.formatters) do
 			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 				if internal_name == formatter.internal_name then
-					table.insert(installed_formatters, formatter)
+					installed_formatters:insert(formatter)
 					break
 				end
 			end
@@ -541,24 +564,30 @@ function public.refresh_installations()
 		language.installed_formatters = installed_formatters
 
 		-- Debugger
-		local installed_debuggers = {}
+		local installed_debuggers = Table {}
 		for _, debugger in ipairs(language.debuggers) do
 			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 				if internal_name == debugger.internal_name then
-					table.insert(installed_debuggers, debugger)
+					installed_debuggers:insert(debugger)
 					break
 				end
 			end
 		end
 		language.installed_debuggers = installed_debuggers
 
-		language.installed_additional_tools = {}
+		language.installed_additional_tools = Table {}
 	end
 
 	-- Get the actual number of installatinons
 	for key, _ in pairs(public.languages) do
 		local language = public.languages[key]
-		language.total = 5
+
+		language.total = 1
+		if #language.compilers > 0 then language.total = language.total + 1 end
+		if #language.highlighters > 0 then language.total = language.total + 1 end
+		if #language.linters > 0 then language.total = language.total + 1 end
+		if #language.formatters > 0 then language.total = language.total + 1 end
+		if #language.debuggers > 0 then language.total = language.total + 1 end
 
 		local actual_installed = 1
 		if language.installed_compilers[1] then actual_installed = actual_installed + 1 end
@@ -566,6 +595,7 @@ function public.refresh_installations()
 		if language.installed_linters[1] then actual_installed = actual_installed + 1 end
 		if language.installed_formatters[1] then actual_installed = actual_installed + 1 end
 		if language.installed_debuggers[1] then actual_installed = actual_installed + 1 end
+
 		language.installed_total = actual_installed
 	end
 
@@ -585,15 +615,20 @@ function public.refresh_installed_totals(language)
 end
 
 function public.before_refresh()
-	public.language_keys = {}
+	public.language_keys = Table {}
 	for key, _ in pairs(public.languages) do
-		table.insert(public.language_keys, key)
+		public.language_keys:insert(key)
 	end
 end
 
 function public.after_refresh()
-	table.sort(public.language_keys, function(first, second)
-		return public.languages[first].installed_total > public.languages[second].installed_total
+	public.language_keys:sort(function(first, second)
+		local first_percent = math.floor(100 * ((public.languages[first].installed_total - 1) / (public.languages[first].total - 1)))
+		local second_percent = math.floor(100 * ((public.languages[second].installed_total - 1) / (public.languages[second].total - 1)))
+
+		if first_percent > second_percent then return true
+		elseif first_percent < second_percent then return false
+		else return public.languages[first].name:lower() < public.languages[second].name:lower() end
 	end)
 end
 

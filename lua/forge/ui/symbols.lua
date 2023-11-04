@@ -1,6 +1,7 @@
 local public = {}
 
 public.progress_icons = {
+	{ "" },
 	{ "", "" },
 	{ "", "", "" },
 	{ "", "", "", "" },
@@ -9,6 +10,7 @@ public.progress_icons = {
 }
 
 public.progress_colors = {
+	{ "#FF0000" },
 	{ "#FF0000", "#00FF00" },
 	{ "#FF0000", "#FFFF00", "#00FF00" },
 	{ "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" },

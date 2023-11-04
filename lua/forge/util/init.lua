@@ -1,40 +1,5 @@
 local public = {}
 
--- Returns whether or not the given array contains the given value
---
----@generic T
----@param tab T[] The array of values to check
----@param val T the value to check for 
---
----@return boolean is_contained Whether the given array contains the given value
-function public.contains(tab, val)
-    for _, value in ipairs(tab) do
-        if public.equals(value, val) then
-            return true
-        end
-    end
-
-    return false
-end
-
--- Removes the given value from the given array
---
----@param tab any[] The array of values to remove from
----@param to_remove any The element to remove
-function public.remove(tab, to_remove)
-	local index_to_remove = nil
-	for index, value in ipairs(tab) do
-		if value == to_remove then
-			index_to_remove = index
-			break
-		end
-	end
-
-	if index_to_remove ~= nil then
-		table.remove(tab, index_to_remove)
-	end
-end
-
 -- Checks whether the given string is a hex color.
 --
 ---@param color string The string to check
@@ -45,19 +10,18 @@ function public.is_hex_color(color)
 	return color:match("^#%x%x%x%x%x%x$")
 end
 
----@param str string
+-- Converts a string from snake_case to Title Case.
+--
+---@param str string The string in snake case to convert.
+--
+---@return string title_case The string in title case
 function public.snake_case_to_title_case(str)
-    local words = {}
+    local words = Table {}
     for word in str:gmatch("([^_]+)") do
         word = word:gsub("^%l", string.upper)
-        table.insert(words, word)
+        words:insert(word)
     end
-    return table.concat(words, " ")
-end
-
-function public.wait(seconds)
-	local end_time = tonumber(os.clock() + seconds)
-	while os.clock() < end_time do end
+    return words:concat(" ")
 end
 
 -- Checks if two objects are equal, with proper checking for tables.

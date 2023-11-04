@@ -19,7 +19,13 @@
 ```lua
 {
     "neph-iap/forge.nvim",
-    dependencies = { "nvim-treesitter/nvim-treesitter", "williamboman/mason.nvim" },
+    dependencies = {
+        "nvim-treesitter/nvim-treesitter",
+        "williamboman/mason.nvim",
+        "neovim/nvim-lspconfig",
+        "williamboman/mason-lspconfig.nvim",
+        "folke/neodev.nvim"
+    },
     opts = {},
     keys = { { "<leader>fr", "<cmd>Forge<cr>", desc = "Forge" } }
 }

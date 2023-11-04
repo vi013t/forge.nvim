@@ -1,4 +1,4 @@
-local public = {}
+local public = Table {}
 
 public.default_config = {
 	developer_mode = false,

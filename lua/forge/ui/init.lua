@@ -3,47 +3,46 @@ local registry = require("forge.registry")
 local symbols = require("forge.ui.symbols")
 
 -- The public exports of forge-ui
-local public = {}
+---@type table<any, any>
+local public = Table {}
 
 ---@alias line_type "language" | "compiler"
 
 ---@type { type: line_type, language: string, name?: string, internal_name?: string }[]
-public.lines = { {}, {}, {}, {} } -- 4 lines before the first language
+public.lines = Table { {}, {}, {}, {} } -- 4 lines before the first language
 
 -- Resets the lines list
 local function reset_lines()
-	public.lines = { {}, {}, {}, {} } -- 4 lines before the first language
+	public.lines = Table { {}, {}, {}, {} } -- 4 lines before the first language
 	for _, language_key in ipairs(registry.language_keys) do
-		table.insert(public.lines, { language = registry.languages[language_key].name, type = "language" })
+		public.lines:insert({ language = registry.languages[language_key].name, type = "language" })
 	end
-	table.insert(public.lines, {})
+	public.lines:insert({})
 end
 
 ---@type string[]
-public.expanded_languages = {}
+public.expanded_languages = Table {}
 
 ---@type string[]
-public.expanded_compilers = {}
+public.expanded_compilers = Table {}
 
 ---@type string[]
-public.expanded_linters = {}
+public.expanded_linters = Table {}
 
 ---@type string[]
-public.expanded_highlighters = {}
+public.expanded_highlighters = Table {}
 
 ---@type string[]
-public.expanded_formatters = {}
+public.expanded_formatters = Table {}
 
 ---@type string[]
-public.expanded_debuggers = {}
+public.expanded_debuggers = Table {}
 
 ---@type string[]
-public.expanded_additional_tools = {}
-
-public.is_refreshing = false
+public.expanded_additional_tools = Table {}
 
 ---@type table<string, string>
-local highlight_groups = {}
+local highlight_groups = Table {}
 
 -- Returns the associated highlight group for a given hex color, or creates and returns a new one if none
 -- currently exists.
@@ -140,7 +139,7 @@ end
 --
 ---@return nil
 local function draw_tool(language, tool_name)
-	local write_buffer = setmetatable({ { text = "    " } }, { __index = table })
+	local write_buffer = Table { { text = "    " } }
 
 	local proper_tool_name = util.snake_case_to_title_case(tool_name)
 	if tool_name ~= "additional_tools" then proper_tool_name = proper_tool_name:sub(1, -2) end
@@ -166,7 +165,7 @@ local function draw_tool(language, tool_name)
 	end
 
 	-- Arrow
-	if util.contains(public["expanded_" .. tool_name], language.name) then write_buffer:insert({ text = " ▾" })
+	if public["expanded_" .. tool_name]:contains(language.name) then write_buffer:insert({ text = " ▾" })
 	else write_buffer:insert({ text = " ▸" }) end
 
 	-- Prompt
@@ -189,9 +188,9 @@ local function draw_tool(language, tool_name)
 	write_line(write_buffer)
 
 	-- Expanded tool
-	if util.contains(public["expanded_" .. tool_name], language.name) then
+	if public["expanded_" .. tool_name]:contains(language.name) then
 		for index, tool in ipairs(language[tool_name]) do
-			write_buffer = setmetatable({}, { __index = table })
+			write_buffer = Table {}
 			local bars = "    │ │"
 			if tool_name == "additional_tools" then bars = "      │" end
 			if index == #language[tool_name] then
@@ -208,8 +207,8 @@ local function draw_tool(language, tool_name)
 				write_buffer:insert({ text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
 				write_buffer:insert({ text = "   (Installing...)", foreground = "#00AAFF" })
 
-			-- Tool is installed
-			elseif util.contains(language["installed_" .. tool_name], tool) then
+			-- Tool is installed already
+			elseif table.contains(language["installed_" .. tool_name], tool) then
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#00FF00" })
 				write_buffer:insert({ text = tool.name, foreground = "#00FF00" })
@@ -247,8 +246,7 @@ local function draw_tool(language, tool_name)
 
 		-- None available
 		if #language[tool_name] < 1 then
-			write_buffer = setmetatable({}, { __index = table })
-
+			write_buffer = Table {}
 			if tool_name == "additional_tools" then write_buffer:insert({ text = "      └ ", foreground = "Comment" })
 			else write_buffer:insert({ text = "    │ └ " , foreground = "Comment" }) end
 
@@ -310,17 +308,14 @@ end
 --
 ---@return nil
 local function draw_languages()
-	local languages_line = setmetatable({}, { __index = table })
+	local languages_line = Table {}
 	languages_line:insert({ text = "  Languages"})
-	if public.is_refreshing then
-		languages_line:insert({ text = "   (Refreshing...)", foreground = "#00AAFF" })
-	end
 	write_line(languages_line)
 
 	for _, key in ipairs(registry.language_keys) do
 		local language = registry.languages[key]
 
-		if util.contains(public.expanded_languages, language.name) then
+		if public.expanded_languages:contains(language.name) then
 			draw_expanded_language(language)
 			draw_tool(language, "compilers")
 			draw_tool(language, "highlighters")

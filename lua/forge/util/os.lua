@@ -1,5 +1,8 @@
 local public = {}
 
+-- Gets the current operating system.
+--
+---@return string os the operating system
 function public.get_os()
 	if package.config:sub(1, 1) == '\\' then return "windows" else return "unix" end
 end
@@ -29,6 +32,9 @@ function public.language_is_installed(language)
 	return false
 end
 
+-- Checks if the current user is an admin.
+--
+---@return boolean is_admin whether the current user is an admin
 function public.is_admin()
 	if public.get_os() == "windows" and vim.fn.getenv("ADMIN") then
 		return true
