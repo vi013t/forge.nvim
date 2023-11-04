@@ -213,6 +213,8 @@ function public.toggle_install()
 			ui.update_view()
 		end
 	end
+
+	lock.save()
 end
 
 -- Expands a folder under the cursor.

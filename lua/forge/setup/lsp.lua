@@ -1,61 +1,50 @@
 local public = {}
 
 function public.setup_lsps()
-	require("nvim-treesitter.install").compilers = { "clang" }
-	require('nvim-treesitter.configs').setup({
-		ensure_installed = {},
-		sync_install = false,
-		highlight = {
-			enable = true,
-		},
-		playground = {
-			enable = true
-		},
-	})
-
 	local opts = {
 		diagnostics = {
 			underline = true,
 			update_in_insert = false,
 			virtual_text = {
 				spacing = 4,
-				source = 'if_many',
-				prefix = "●"
+				source = "if_many",
+				prefix = "●",
 			},
-			severity_sort = true
+			severity_sort = true,
 		},
 		inlay_hints = {
-			enabled = false
+			enabled = false,
 		},
 		capabilities = {},
 		format = {
 			formatting_options = nil,
-			timeout_ms = nil
+			timeout_ms = nil,
 		},
 		servers = {
 			lua_ls = {
 				settings = {
 					Lua = {
 						workspace = {
-							checkThirdParty = false
+							checkThirdParty = false,
 						},
 						completion = {
 							callSnippet = "Replace",
-						}
-					}
-				}
-			}
+						},
+					},
+				},
+			},
 		},
 		setup = {},
 	}
 
+	require("mason").setup({})
 	require("neodev").setup({})
 
 	local icons = {
 		Error = " ",
-		Warn  = " ",
-		Hint  = " ",
-		Info  = " ",
+		Warn = " ",
+		Hint = " ",
+		Info = " ",
 	}
 
 	local register_capability = vim.lsp.handlers["client/registerCapability"]
@@ -81,7 +70,7 @@ function public.setup_lsps()
 				if client.supports_method("textDocument/inlayHint") then
 					inlay_hint(buffer, true)
 				end
-			end
+			end,
 		})
 	end
 
@@ -125,17 +114,13 @@ function public.setup_lsps()
 	end
 
 	-- get all the servers that are available through mason-lspconfig
-	local have_mason, mlsp = pcall(require, "mason-lspconfig")
-	local all_mslp_servers = {}
-	if have_mason then
-		all_mslp_servers = vim.tbl_keys(require("mason-lspconfig.mappings.server").lspconfig_to_package)
-	end
+	local mlsp = require("mason-lspconfig")
+	local all_mslp_servers = vim.tbl_keys(require("mason-lspconfig.mappings.server").lspconfig_to_package)
 
 	local ensure_installed = {} ---@type string[]
 	for server, server_opts in pairs(servers) do
 		if server_opts then
 			server_opts = server_opts == true and {} or server_opts
-			-- run manual setup if mason=false or if this is a server that cannot be installed with mason-lspconfig
 			if server_opts.mason == false or not vim.tbl_contains(all_mslp_servers, server) then
 				setup_server(server)
 			else
@@ -144,9 +129,7 @@ function public.setup_lsps()
 		end
 	end
 
-	if have_mason then
-		mlsp.setup({ ensure_installed = ensure_installed, handlers = { setup_server } })
-	end
+	mlsp.setup({ ensure_installed = ensure_installed, handlers = { setup_server } })
 end
 
 return public

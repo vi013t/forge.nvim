@@ -5,7 +5,7 @@ local mason_registry = require("mason-registry")
 local public = Table {}
 
 ---@alias tool { name: string, internal_name: string }
----@alias language { name: string, highlighters: tool[], compilers: tool[], formatters: tool[], debuggers: tool[], linters: tool[], additional_tools: any[], total?: integer, installed_highlighters?: string[], installed_debuggers?: tool[], installed_formatters?: tool[], installed_compilers?: tool[], installed_linters?: tool[], installed_additional_tools?: tool[], installed_total?: integer }
+---@alias language { name: string, highlighters: tool[], compilers: tool[], formatters: tool[], debuggers: tool[], linters: tool[], additional_tools: any[], extensions: string[], total?: integer, installed_highlighters?: string[], installed_debuggers?: tool[], installed_formatters?: tool[], installed_compilers?: tool[], installed_linters?: tool[], installed_additional_tools?: tool[], installed_total?: integer }
 
 ---@type table<string, language>
 public.languages = {
@@ -25,7 +25,8 @@ public.languages = {
 		debuggers = {
 			{ internal_name = "bash-debug-adapter", name = "Bash Debug Adapter" }
 		},
-		additional_tools = {}
+		additional_tools = {},
+		extensions = { "sh", "bash" }
 	},
 	c = {
 		name = "C",
@@ -48,7 +49,8 @@ public.languages = {
 		debuggers = {
 			{ internal_name = "cpptools", name = "C++ Tools" }
 		},
-		additional_tools = {}
+		additional_tools = {},
+		extensions = { "c", "h" }
 	},
 	cpp = {
 		name = "C++",
@@ -72,8 +74,8 @@ public.languages = {
 		debuggers = {
 			{ internal_name = "cpptools", name = "C++ Tools" }
 		},
-		additional_tools = {
-		}
+		additional_tools = {},
+		extensions = { "h", "cpp", "hpp", "cxx", "cc", "c++", "hxx", "hh", "h++" }
 	},
 	csharp = {
 		name = "C#",
@@ -91,8 +93,8 @@ public.languages = {
 		formatters = {
 			{ internal_name = "csharpier", name = "C Sharpier" }
 		},
-		additional_tools = {
-		}
+		additional_tools = {},
+		extensions = { "cs" }
 	},
 	elixir = {
 		name = "Elixir",
@@ -107,7 +109,8 @@ public.languages = {
 		},
 		debuggers = {},
 		formatters = {},
-		additional_tools = {}
+		additional_tools = {},
+		extensions = { "ex", "exs" }
 	},
 	go = {
 		name = "Go",
@@ -126,8 +129,8 @@ public.languages = {
 		debuggers = {
 			{ internal_name = "go-debug-adapter", name = "Go Debug Adapter" }
 		},
-		additional_tools = {
-		}
+		additional_tools = {},
+		extensions = { "go" }
 	},
 	haskell = {
 		name = "Haskell",
@@ -144,8 +147,8 @@ public.languages = {
 			{ internal_name = "haskell-debug-adapter", name = "Haskell Debug Adapter" }
 		},
 		formatters = {},
-		additional_tools = {
-		}
+		additional_tools = {},
+		extensions = { "hs" }
 	},
 	html = {
 		name = "HTML",
@@ -163,8 +166,7 @@ public.languages = {
 			{ internal_name = "tailwindcss-language-server", name = "Tailwind CSS Language Server" },
 			{ internal_name = "rustywind", name = "Rusty Wind"}
 		},
-		debuggers = {
-		},
+		debuggers = {},
 		additional_tools = {
 			{
 				type = "plugin",
@@ -172,7 +174,8 @@ public.languages = {
 				description = "Tailwind CSS completion addon for nvim-cmp",
 				name = "Tailwind CSS colorizer & autocomplete"
 			}
-		}
+		},
+		extensions = { "html", "htm" }
 	},
 	java = {
 		name = "Java",
@@ -194,7 +197,8 @@ public.languages = {
 		},
 		additional_tools = {
 			{ internal_name = "vscode-java-decompiler", name = "Java Decompiler", type = "mason" }
-		}
+		},
+		extensions = { "java" }
 	},
 	javascript = {
 		name = "JavaScript",
@@ -205,7 +209,7 @@ public.languages = {
 			{ internal_name = "node", name = "NodeJS" }
 		},
 		linters = {
-			{ internal_name = "eslint", name = "EcmaScript Lint Language Server" }
+			{ internal_name = "eslint-lsp", name = "EcmaScript Lint Language Server" }
 		},
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" }
@@ -214,8 +218,8 @@ public.languages = {
 			{ internal_name = "js-debug-adapter", name = "JavaScript Debug Adapter" },
 			{ internal_name = "chrome-debug-adapter", name = "Chrome Debug Adapter" }
 		},
-		additional_tools = {
-		}
+		additional_tools = {},
+		extensions = { "js", "jsx" }
 	},
 	json = {
 		name = "JSON",
@@ -230,7 +234,8 @@ public.languages = {
 			{ internal_name = "prettier", name = "Prettier" }
 		},
 		debuggers = {},
-		additional_tools = {}
+		additional_tools = {},
+		extensions = { "json" }
 	},
 	julia = {
 		name = "Julia",
@@ -245,11 +250,9 @@ public.languages = {
 		},
 		formatters = {
 		},
-		debuggers = {
-
-		},
-		additional_tools = {
-		}
+		debuggers = {},
+		additional_tools = {},
+		extensions = { "jl" }
 	},
 	kotlin = {
 		name = "Kotlin",
@@ -268,8 +271,8 @@ public.languages = {
 		debuggers = {
 			{ internal_name = "kotlin-debug-adapter", name = "Kotlin Debug Adapter" }
 		},
-		additional_tools = {
-		}
+		additional_tools = {},
+		extensions = { "kt" }
 	},
 	lua = {
 		name = "Lua",
@@ -286,8 +289,7 @@ public.languages = {
 		formatters = {
 			{ internal_name = "stylua", name = "Stylua" }
 		},
-		debuggers = {
-		},
+		debuggers = {},
 		additional_tools = {
 			{
 				type = "plugin",
@@ -295,7 +297,8 @@ public.languages = {
 				description = "Support for Neovim development in Lua",
 				name = "Neodev"
 			}
-		}
+		},
+		extensions = { "lua" }
 	},
 	ocaml = {
 		name = "OCaml",
@@ -311,10 +314,9 @@ public.languages = {
 		formatters = {
 			{ internal_name = "ocamlformat", name = "OCaml Format" }
 		},
-		debuggers = {
-		},
-		additional_tools = {
-		}
+		debuggers = {},
+		additional_tools = {},
+		extensions = { "ml", "mli" }
 	},
 	python = {
 		name = "Python",
@@ -340,7 +342,8 @@ public.languages = {
 				description = "Quickly switch Python virtual environments without restarting",
 				name = "Swenv"
 			}
-		}
+		},
+		extensions = { "py" }
 	},
 	r = {
 		name = "R",
@@ -356,7 +359,8 @@ public.languages = {
 		},
 		formatters = {},
 		debuggers = {},
-		additional_tools = {}
+		additional_tools = {},
+		extensions = { "r" }
 	},
 	ruby = {
 		name = "Ruby",
@@ -373,8 +377,8 @@ public.languages = {
 			{ internal_name = "rubyfmt", name = "Ruby Formatter" }
 		},
 		debuggers = {},
-		additional_tools = {
-		}
+		additional_tools = {},
+		extensions = { "rb" }
 	},
 	rust = {
 		name = "Rust",
@@ -405,7 +409,8 @@ public.languages = {
 				description = "Up-to-date support for Rust tooling in Neovim, including integration with Syntastic, Tagbar, Playpen, and more, and enables auto-formatting with rustfmt on save without an external formatter.",
 				name = "Rust Vim Support"
 			}
-		}
+		},
+		extensions = { "rs" }
 	},
 	svelte = {
 		name = "Svelte",
@@ -422,7 +427,8 @@ public.languages = {
 			{ internal_name = "prettier", name = "Prettier" }
 		},
 		debuggers = {},
-		additional_tools = {}
+		additional_tools = {},
+		extensions = { "svelte" }
 	},
 	swift = {
 		name = "Swift",
@@ -432,12 +438,11 @@ public.languages = {
 		compilers = {
 			{ internal_name = "swift", name = "Swift Compiler" }
 		},
-		linters = {
-		},
+		linters = {},
 		formatters = {},
 		debuggers = {},
-		additional_tools = {
-		}
+		additional_tools = {},
+		extensions = { "swift" }
 	},
 	teal = {
 		name = "Teal",
@@ -452,7 +457,8 @@ public.languages = {
 		},
 		formatters = {},
 		debuggers = {},
-		additional_tools = {}
+		additional_tools = {},
+		extensions = { "tl" }
 	},
 	typescript = {
 		name = "TypeScript",
@@ -469,11 +475,9 @@ public.languages = {
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" }
 		},
-		debuggers = {
-
-		},
-		additional_tools = {
-		}
+		debuggers = {},
+		additional_tools = {},
+		extensions = { "ts", "tsx" }
 	},
 	v = {
 		name = "V",
@@ -486,13 +490,10 @@ public.languages = {
 		linters = {
 			{ internal_name = "vls", name = "V Language Server" }
 		},
-		formatters = {
-		},
-		debuggers = {
-
-		},
-		additional_tools = {
-		}
+		formatters = {},
+		debuggers = {},
+		additional_tools = {},
+		extensions = { "v" }
 	},
 	zig = {
 		name = "Zig",
@@ -511,7 +512,8 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {
 			{ internal_name = "NTBBloodbath/zig-tools.nvim", name = "Zig Tools for Neovim" }
-		}
+		},
+		extensions = { "zig" }
 	}
 }
 
