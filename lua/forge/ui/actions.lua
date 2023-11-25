@@ -4,19 +4,19 @@ local treesitter_parsers = require("nvim-treesitter.parsers")
 local lock = require("forge.lock")
 local mason_utils = require("forge.util.mason_utils")
 
-local public = Table {}
+local public = Table({})
 
 function public.do_nothing() end
 
 -- Closes the forge buffer
 function public.close_window()
-	ui.expanded_languages = Table {}
-	ui.expanded_compilers = Table {}
-	ui.expanded_highlighters = Table {}
-	ui.expanded_linters = Table {}
-	ui.expanded_formatters = Table {}
-	ui.expanded_debuggers = Table {}
-	ui.expanded_additional_tools = Table {}
+	ui.expanded_languages = Table({})
+	ui.expanded_compilers = Table({})
+	ui.expanded_highlighters = Table({})
+	ui.expanded_linters = Table({})
+	ui.expanded_formatters = Table({})
+	ui.expanded_debuggers = Table({})
+	ui.expanded_additional_tools = Table({})
 	vim.api.nvim_win_close(ui.window, true)
 end
 
@@ -51,7 +51,7 @@ function public.toggle_install()
 			ui.update_view()
 		else
 			vim.cmd(("TSInstall %s"):format(line.internal_name))
-			table.insert(language.installed_linters, { name = line.name, internal_name = line.internal_name })
+			table.insert(language.installed_highlighters, { name = line.name, internal_name = line.internal_name })
 			registry.refresh_installed_totals(language)
 			registry.after_refresh()
 			ui.update_view()
@@ -62,7 +62,9 @@ function public.toggle_install()
 		if mason_utils.package_is_installed(line.internal_name) then
 			print("Uninstalling " .. line.internal_name .. "...")
 			vim.cmd(("MasonUninstall %s"):format(line.internal_name))
-			vim.schedule(function() vim.cmd("bdelete") end)
+			vim.schedule(function()
+				vim.cmd("bdelete")
+			end)
 			print(("%s was successfully uninstalled"):format(line.internal_name))
 
 			local index = nil
@@ -74,6 +76,16 @@ function public.toggle_install()
 			end
 
 			table.remove(language.installed_linters, index)
+			for _, language_key in ipairs(registry.language_keys) do
+				local other_language = registry.languages[language_key]
+				for linter_index, linter in ipairs(other_language.installed_linters) do
+					if linter.internal_name == line.internal_name then
+						table.remove(other_language.installed_linters, linter_index)
+						break
+					end
+				end
+			end
+
 			registry.refresh_installed_totals(language)
 			registry.after_refresh()
 
@@ -91,8 +103,24 @@ function public.toggle_install()
 		else
 			print("Installing " .. line.internal_name .. "...")
 			vim.cmd(("MasonInstall %s"):format(line.internal_name))
-			vim.schedule(function() vim.cmd("bdelete") end)
+			vim.schedule(function()
+				vim.cmd("bdelete")
+			end)
 			table.insert(language.installed_linters, { name = line.name, internal_name = line.internal_name })
+
+			for _, language_key in ipairs(registry.language_keys) do
+				local other_language = registry.languages[language_key]
+				for _, linter in ipairs(other_language.installed_linters) do
+					if linter.internal_name == line.internal_name then
+						table.insert(
+							other_language.installed_linters,
+							{ name = line.name, internal_name = line.internal_name }
+						)
+						break
+					end
+				end
+			end
+
 			registry.refresh_installed_totals(language)
 			registry.after_refresh()
 
@@ -114,7 +142,9 @@ function public.toggle_install()
 		if mason_utils.package_is_installed(line.internal_name) then
 			print("Installing " .. line.internal_name .. "...")
 			vim.cmd(("MasonUninstall %s"):format(line.internal_name))
-			vim.schedule(function() vim.cmd("bdelete") end)
+			vim.schedule(function()
+				vim.cmd("bdelete")
+			end)
 			print(("%s was successfully uninstalled"):format(line.internal_name))
 
 			local index = nil
@@ -125,7 +155,18 @@ function public.toggle_install()
 				end
 			end
 
+			-- Remove the formatter from the list of installed formatters
 			table.remove(language.installed_formatters, index)
+			for _, language_key in ipairs(registry.language_keys) do
+				local other_language = registry.languages[language_key]
+				for formatter_index, formatter in ipairs(other_language.installed_formatters) do
+					if formatter.internal_name == line.internal_name then
+						table.remove(other_language.installed_formatters, formatter_index)
+						break
+					end
+				end
+			end
+
 			registry.refresh_installed_totals(language)
 			registry.after_refresh()
 
@@ -143,8 +184,25 @@ function public.toggle_install()
 		else
 			print("Installing " .. line.internal_name .. "...")
 			vim.cmd(("MasonInstall %s"):format(line.internal_name))
-			vim.schedule(function() vim.cmd("bdelete") end)
+			vim.schedule(function()
+				vim.cmd("bdelete")
+			end)
+
+			-- Add the formatter to the list of installed formatters
 			table.insert(language.installed_formatters, { name = line.name, internal_name = line.internal_name })
+			for _, language_key in ipairs(registry.language_keys) do
+				local other_language = registry.languages[language_key]
+				for _, formatter in ipairs(other_language.installed_formatters) do
+					if formatter.internal_name == line.internal_name then
+						table.insert(
+							other_language.installed_formatters,
+							{ name = line.name, internal_name = line.internal_name }
+						)
+						break
+					end
+				end
+			end
+
 			registry.refresh_installed_totals(language)
 			registry.after_refresh()
 
@@ -161,12 +219,14 @@ function public.toggle_install()
 			ui.update_view()
 		end
 
-	-- Debugger 
+	-- Debugger
 	elseif line.type == "debugger_listing" then
 		if mason_utils.package_is_installed(line.internal_name) then
 			print("Uninstalling " .. line.internal_name .. "...")
 			vim.cmd(("MasonUninstall %s"):format(line.internal_name))
-			vim.schedule(function() vim.cmd("bdelete") end)
+			vim.schedule(function()
+				vim.cmd("bdelete")
+			end)
 			print(("%s was successfully uninstalled"):format(line.internal_name))
 
 			local index = nil
@@ -177,7 +237,18 @@ function public.toggle_install()
 				end
 			end
 
+			-- Remove the debugger from the list of installed debuggers
 			table.remove(language.installed_debuggers, index)
+			for _, language_key in ipairs(registry.language_keys) do
+				local other_language = registry.languages[language_key]
+				for debugger_index, debugger in ipairs(other_language.installed_debuggers) do
+					if debugger.internal_name == line.internal_name then
+						table.remove(other_language.installed_debuggers, debugger_index)
+						break
+					end
+				end
+			end
+
 			registry.refresh_installed_totals(language)
 			registry.after_refresh()
 
@@ -195,8 +266,25 @@ function public.toggle_install()
 		else
 			print("Installing " .. line.internal_name .. "...")
 			vim.cmd(("MasonInstall %s"):format(line.internal_name))
-			vim.schedule(function() vim.cmd("bdelete") end)
+			vim.schedule(function()
+				vim.cmd("bdelete")
+			end)
+
+			-- Add the debugger to the list of installed debuggers
 			table.insert(language.installed_debuggers, { name = line.name, internal_name = line.internal_name })
+			for _, language_key in ipairs(registry.language_keys) do
+				local other_language = registry.languages[language_key]
+				for _, debugger in ipairs(other_language.installed_debuggers) do
+					if debugger.internal_name == line.internal_name then
+						table.insert(
+							other_language.installed_debuggers,
+							{ name = line.name, internal_name = line.internal_name }
+						)
+						break
+					end
+				end
+			end
+
 			registry.refresh_installed_totals(language)
 			registry.after_refresh()
 
@@ -246,9 +334,11 @@ function public.expand()
 		for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
 			if ui.lines[ui.cursor_row].type == tool then
 				local plural_tool = tool .. "s"
-				if tool == "additional_tools" then plural_tool = tool end
+				if tool == "additional_tools" then
+					plural_tool = tool
+				end
 
-				local index_of_tool= ui.cursor_row
+				local index_of_tool = ui.cursor_row
 				local language_name = ui.lines[ui.cursor_row].language
 
 				---@type language
@@ -262,12 +352,17 @@ function public.expand()
 
 				if ui["expanded_" .. plural_tool]:contains(language_name) then
 					for _, _ in ipairs(language[plural_tool]) do
-						ui.lines:remove(index_of_tool+ 1)
+						ui.lines:remove(index_of_tool + 1)
 					end
 					ui["expanded_" .. plural_tool]:remove_value(language_name)
 				else
 					for index, language_tool in ipairs(language[plural_tool]) do
-						ui.lines:insert(index_of_tool + index, { type = tool .. "_listing", language = language_name, name = language_tool.name, internal_name = language_tool.internal_name })
+						ui.lines:insert(index_of_tool + index, {
+							type = tool .. "_listing",
+							language = language_name,
+							name = language_tool.name,
+							internal_name = language_tool.internal_name,
+						})
 					end
 					ui["expanded_" .. plural_tool]:insert(language_name)
 				end
@@ -310,7 +405,7 @@ function public.set_cursor_to_bottom()
 	ui.update_view()
 end
 
--- Refreshes installations 
+-- Refreshes installations
 --
 ---@return nil
 function public.refresh()

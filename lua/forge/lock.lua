@@ -1,9 +1,10 @@
 local registry = require("forge.registry")
 local config = require("forge.config")
 
-local public = Table {}
+local public = Table({})
 
-public.install_chocolately = [[@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))]]
+public.install_chocolately =
+	[[@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))]]
 
 -- Saves the registry languages to the lockfile
 --

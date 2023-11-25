@@ -11,6 +11,13 @@ function public.setup_formatters()
 		end
 	end
 
+	local additional_filetypes = {
+		typescriptreact = registry.languages.typescript.installed_formatters[1].internal_name,
+		javascriptreact = registry.languages.javascript.installed_formatters[1].internal_name,
+	}
+
+	formatters_by_ft = vim.tbl_extend("force", formatters_by_ft, additional_filetypes)
+
 	-- Set up formatters
 	require("conform").setup({
 		formatters_by_ft = formatters_by_ft,

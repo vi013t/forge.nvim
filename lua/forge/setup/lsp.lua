@@ -47,6 +47,41 @@ function public.setup_lsps()
 		Info = " ",
 	}
 
+	-- Setup keymaps
+	-- vim.api.nvim_create_autocmd("LspAttach", {
+	-- 	callback = function(args)
+	-- 		local buffer = args.buf
+	-- 		local client = vim.lsp.get_client_by_id(args.data.client_id)
+	--
+	-- 		local Keys = require("lazy.core.handler.keys")
+	--
+	-- 		-- resolve
+	-- 		local keymaps = (function()
+	-- 			if not keys.resolve then
+	-- 				return {}
+	-- 			end
+	-- 			local spec = get() --todo
+	-- 			local opts = fff -- todo
+	-- 			local clients = getclients -- todo
+	-- 			for _, client in ipairs(clients) do
+	-- 				local maps = opts.servers[client.name] and opts.servers[client.name].keys or {}
+	-- 				vim.list_extend(spec, maps)
+	-- 			end
+	-- 			return Keys.resolve(spec)
+	-- 		end)()
+	--
+	-- 		for _, keys in pairs(keymaps) do
+	-- 			if not keys.has or has(buffer, keys.has) then
+	-- 				local opts = Keys.opts(keys)
+	-- 				opts.has = nil
+	-- 				opts.silent = opts.silent ~= false
+	-- 				opts.buffer = buffer
+	-- 				vim.keymap.set(keys.mode or "n", keys.lhs, keys.rhs, opts)
+	-- 			end
+	-- 		end
+	-- 	end,
+	-- })
+
 	local register_capability = vim.lsp.handlers["client/registerCapability"]
 
 	---@diagnostic disable-next-line: duplicate-set-field

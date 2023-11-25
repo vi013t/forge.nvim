@@ -16,14 +16,15 @@ function public.setup(user_config)
 	config.set_config(user_config)
 	lockfile.load()
 
-	highlighter.setup_highlighters()
-	formatter.setup_formatters()
+	highlighter.setup_highlighters() -- Set up treesitter
+	formatter.setup_formatters() -- Set up conform.nvim
 
 	vim.api.nvim_create_autocmd("VimEnter", {
-		callback = function()
-			lsp.setup_lsps()
-			autocomplete.setup_autocomplete()
-		end,
+		callback = lsp.setup_lsps, -- Set up lspconfig / mason
+	})
+
+	vim.api.nvim_create_autocmd("InsertEnter", {
+		callback = autocomplete.setup_autocomplete, -- Set up nvim-cmp
 	})
 
 	vim.api.nvim_create_user_command("Forge", function()
