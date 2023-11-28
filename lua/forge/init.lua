@@ -20,7 +20,10 @@ function public.setup(user_config)
 	formatter.setup_formatters() -- Set up conform.nvim
 
 	vim.api.nvim_create_autocmd("VimEnter", {
-		callback = lsp.setup_lsps, -- Set up lspconfig / mason
+		callback = function()
+			lsp.setup_lsps() -- Set up lspconfig / mason
+			vim.cmd("LspStart")
+		end,
 	})
 
 	vim.api.nvim_create_autocmd("InsertEnter", {
