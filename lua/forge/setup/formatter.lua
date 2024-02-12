@@ -12,8 +12,8 @@ function public.setup_formatters()
 	end
 
 	local additional_filetypes = {
-		typescriptreact = { registry.languages.typescript.installed_formatters[1].internal_name },
-		javascriptreact = { registry.languages.javascript.installed_formatters[1].internal_name },
+		--typescriptreact = { registry.languages.typescript.installed_formatters[1].internal_name },
+		--javascriptreact = { registry.languages.javascript.installed_formatters[1].internal_name },
 	}
 
 	formatters_by_ft = vim.tbl_extend("force", formatters_by_ft, additional_filetypes)
