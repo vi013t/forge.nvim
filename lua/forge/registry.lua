@@ -5,12 +5,13 @@ local mason_registry = require("mason-registry")
 local public = Table({})
 
 ---@alias tool { name: string, internal_name: string }
----@alias language { name: string, highlighters: tool[], compilers: tool[], formatters: tool[], debuggers: tool[], linters: tool[], additional_tools: any[], extensions: string[], total?: integer, installed_highlighters?: string[], installed_debuggers?: tool[], installed_formatters?: tool[], installed_compilers?: tool[], installed_linters?: tool[], installed_additional_tools?: tool[], installed_total?: integer }
+---@alias language { compiler_type: string, name: string, highlighters: tool[], compilers: tool[], formatters: tool[], debuggers: tool[], linters: tool[], additional_tools: any[], extensions: string[], total?: integer, installed_highlighters?: string[], installed_debuggers?: tool[], installed_formatters?: tool[], installed_compilers?: tool[], installed_linters?: tool[], installed_additional_tools?: tool[], installed_total?: integer }
 
 ---@type table<string, language>
 public.languages = {
 	bash = {
 		name = "Bash",
+		compiler_type = "interpreter",
 		highlighters = {
 			{ internal_name = "bash", name = "TreeSitter" },
 		},
@@ -29,6 +30,7 @@ public.languages = {
 	},
 	c = {
 		name = "C",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "c", name = "TreeSitter" },
 		},
@@ -53,6 +55,7 @@ public.languages = {
 	},
 	cpp = {
 		name = "C++",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "cpp", name = "TreeSitter" },
 		},
@@ -78,6 +81,7 @@ public.languages = {
 	},
 	csharp = {
 		name = "C#",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "c_sharp", name = "TreeSitter" },
 		},
@@ -91,11 +95,19 @@ public.languages = {
 		formatters = {
 			{ internal_name = "csharpier", name = "C Sharpier" },
 		},
-		additional_tools = {},
+		additional_tools = {
+			{
+				type = "plugin",
+				internal_name = "iabdelkareem/csharp.nvim",
+				description = "Development enhancements for C# in Neovim",
+				name = "C# Tools for Neovim",
+			},
+		},
 		extensions = { "cs" },
 	},
 	elixir = {
 		name = "Elixir",
+		compiler_type = "compiler",
 		compilers = {
 			{ internal_name = "elixir", name = "Elixir Compiler" },
 		},
@@ -112,6 +124,7 @@ public.languages = {
 	},
 	go = {
 		name = "Go",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "go", name = "TreeSitter" },
 		},
@@ -132,6 +145,7 @@ public.languages = {
 	},
 	haskell = {
 		name = "Haskell",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "haskell", name = "Haskell" },
 		},
@@ -177,6 +191,7 @@ public.languages = {
 	},
 	java = {
 		name = "Java",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "java", name = "TreeSitter" },
 		},
@@ -200,6 +215,7 @@ public.languages = {
 	},
 	javascript = {
 		name = "JavaScript",
+		compiler_type = "interpreter",
 		highlighters = {
 			{ internal_name = "javascript", name = "TreeSitter" },
 		},
@@ -237,6 +253,7 @@ public.languages = {
 	},
 	julia = {
 		name = "Julia",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "julia", name = "TreeSitter" },
 		},
@@ -253,6 +270,7 @@ public.languages = {
 	},
 	kotlin = {
 		name = "Kotlin",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "kotlin", name = "TreeSitter" },
 		},
@@ -273,6 +291,7 @@ public.languages = {
 	},
 	lua = {
 		name = "Lua",
+		compiler_type = "interpreter",
 		highlighters = {
 			{ internal_name = "lua", name = "TreeSitter" },
 		},
@@ -312,6 +331,7 @@ public.languages = {
 	},
 	ocaml = {
 		name = "OCaml",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "ocaml", name = "TreeSitter" },
 		},
@@ -330,6 +350,7 @@ public.languages = {
 	},
 	python = {
 		name = "Python",
+		compiler_type = "interpreter",
 		highlighters = {
 			{ internal_name = "python", name = "TreeSitter" },
 		},
@@ -357,6 +378,7 @@ public.languages = {
 	},
 	r = {
 		name = "R",
+		compiler_type = "interpreter",
 		compilers = {
 			{ internal_name = "R", name = "R Interpreter" },
 			{ internal_name = "Rscript", name = "R-Script" },
@@ -374,6 +396,7 @@ public.languages = {
 	},
 	ruby = {
 		name = "Ruby",
+		compiler_type = "interpreter",
 		highlighters = {
 			{ internal_name = "ruby", name = "TreeSitter" },
 		},
@@ -392,6 +415,7 @@ public.languages = {
 	},
 	rust = {
 		name = "Rust",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "rust", name = "TreeSitter" },
 		},
@@ -442,6 +466,7 @@ public.languages = {
 	},
 	swift = {
 		name = "Swift",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "swift", name = "TreeSitter" },
 		},
@@ -456,6 +481,7 @@ public.languages = {
 	},
 	teal = {
 		name = "Teal",
+		compiler_type = "transpiler",
 		compilers = {
 			{ internal_name = "tl", name = "Teal Transpiler" },
 		},
@@ -472,6 +498,7 @@ public.languages = {
 	},
 	typescript = {
 		name = "TypeScript",
+		compiler_type = "transpiler",
 		highlighters = {
 			{ internal_name = "typescript", name = "TreeSitter" },
 		},
@@ -491,6 +518,7 @@ public.languages = {
 	},
 	v = {
 		name = "V",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "v", name = "TreeSitter" },
 		},
@@ -507,6 +535,7 @@ public.languages = {
 	},
 	zig = {
 		name = "Zig",
+		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "zig", name = "TreeSitter" },
 		},
@@ -632,7 +661,11 @@ function public.refresh_installations()
 	public.after_refresh()
 end
 
+-- Refreshes the `installed_total` field of a language to accurately reflect the number of tool types installed for it.
+--
 ---@param language language
+--
+---@return nil
 function public.refresh_installed_totals(language)
 	local actual_installed = 1
 	if language.installed_compilers[1] then

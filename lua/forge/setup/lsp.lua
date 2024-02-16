@@ -3,15 +3,13 @@ local config = require("forge.config")
 local public = {}
 
 function public.setup_lsps()
-	require("mason").setup({})
-	require("neodev").setup({})
+	-- Neodev
+	local has_neodev, neodev = pcall(require, "neodev")
+	if has_neodev then
+		neodev.setup({})
+	end
 
-	local icons = {
-		Error = " ",
-		Warn = " ",
-		Hint = " ",
-		Info = " ",
-	}
+	require("mason").setup({})
 
 	local register_capability = vim.lsp.handlers["client/registerCapability"]
 
@@ -20,14 +18,14 @@ function public.setup_lsps()
 		return register_capability(err, res, ctx)
 	end
 
-	for name, icon in pairs(icons) do
+	for name, icon in pairs(config.options.lsp.icons) do
 		name = "DiagnosticSign" .. name
 		vim.fn.sign_define(name, { text = icon, texthl = name, numhl = "" })
 	end
 
 	local inlay_hint = vim.lsp.buf.inlay_hint or vim.lsp.inlay_hint
 
-	if config.options.lsp_options.inlay_hints.enabled and inlay_hint then
+	if config.options.lsp.inlay_hints.enabled and inlay_hint then
 		vim.api.nvim_create_autocmd("LspAttach", {
 			callback = function(args)
 				local buffer = args.buf ---@type number
@@ -40,11 +38,11 @@ function public.setup_lsps()
 	end
 
 	if
-		type(config.options.lsp_options.diagnostics.virtual_text) == "table"
-		and config.options.lsp_options.diagnostics.virtual_text.prefix == "icons"
+		type(config.options.lsp.diagnostics.virtual_text) == "table"
+		and config.options.lsp.diagnostics.virtual_text.prefix == "icons"
 	then
-		config.options.lsp_options.diagnostics.virtual_text.prefix = function(diagnostic)
-			for d, icon in pairs(icons) do
+		config.options.lsp.diagnostics.virtual_text.prefix = function(diagnostic)
+			for d, icon in pairs(config.options.lsp.icons) do
 				if diagnostic.severity == vim.diagnostic.severity[d:upper()] then
 					return icon
 				end
@@ -52,16 +50,16 @@ function public.setup_lsps()
 		end
 	end
 
-	vim.diagnostic.config(vim.deepcopy(config.options.lsp_options.diagnostics))
+	vim.diagnostic.config(vim.deepcopy(config.options.lsp.diagnostics))
 
-	local servers = config.options.lsp_options.servers
+	local servers = config.options.lsp.servers
 	local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 	local capabilities = vim.tbl_deep_extend(
 		"force",
 		{},
 		vim.lsp.protocol.make_client_capabilities(),
 		has_cmp and cmp_nvim_lsp.default_capabilities() or {},
-		config.options.lsp_options.capabilities or {}
+		config.options.lsp.capabilities or {}
 	)
 
 	local function setup_server(server)
@@ -69,12 +67,12 @@ function public.setup_lsps()
 			capabilities = vim.deepcopy(capabilities),
 		}, servers[server] or {})
 
-		if config.options.lsp_options.setup[server] then
-			if config.options.lsp_options.setup[server](server, server_opts) then
+		if config.options.lsp.setup[server] then
+			if config.options.lsp.setup[server](server, server_opts) then
 				return
 			end
-		elseif config.options.lsp_options.setup["*"] then
-			if config.options.lsp_options.setup["*"](server, server_opts) then
+		elseif config.options.lsp.setup["*"] then
+			if config.options.lsp.setup["*"](server, server_opts) then
 				return
 			end
 		end
@@ -98,6 +96,11 @@ function public.setup_lsps()
 	end
 
 	mlsp.setup({ ensure_installed = ensure_installed, handlers = { setup_server } })
+
+	local has_eagle, eagle = pcall(require, "eagle")
+	if has_eagle then
+		eagle.setup({})
+	end
 end
 
 return public

@@ -179,7 +179,15 @@ end
 local function draw_tool(language, tool_name)
 	local write_buffer = Table({ { text = "    " } })
 
-	local proper_tool_name = util.snake_case_to_title_case(tool_name)
+	local snake_tool_name = tool_name
+	if tool_name == "compilers" then
+		if not language.compiler_type then
+			return
+		end
+		snake_tool_name = language.compiler_type .. "s"
+	end
+
+	local proper_tool_name = util.snake_case_to_title_case(snake_tool_name)
 	if tool_name ~= "additional_tools" then
 		proper_tool_name = proper_tool_name:sub(1, -2)
 	end
@@ -466,6 +474,8 @@ function public.update_view()
 		{ text = "   " },
 		{ text = " Prefer (p) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
+		{ text = " Options (o) ", background = "#99FFFF", foreground = "#000000" },
+		{ text = "   " },
 		{ text = " Refresh (r) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Quit (q) ", background = "#99FFFF", foreground = "#000000" },
@@ -529,6 +539,7 @@ function public.open_window()
 		i = "toggle_install",
 		u = "toggle_install",
 		r = "refresh",
+		o = "open_options",
 		["<C-d>"] = "do_nothing",
 		["<CR>"] = "move_cursor_down",
 		["<Up>"] = "move_cursor_up",

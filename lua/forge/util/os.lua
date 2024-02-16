@@ -4,10 +4,16 @@ local public = {}
 --
 ---@return string os the operating system
 function public.get_os()
-	if package.config:sub(1, 1) == '\\' then return "windows" else return "unix" end
+	if package.config:sub(1, 1) == "\\" then
+		return "windows"
+	else
+		return "unix"
+	end
 end
 
 -- Checks whether a shell command can be found
+--
+-- PERF: make this async for better performance
 --
 ---@param command_name string
 --
@@ -18,8 +24,9 @@ function public.command_exists(command_name)
 		return exit_code == 0
 	end
 
-	local exit_code = os.execute(("command -v %s"):format(command_name))
-	return exit_code == 0
+	-- local exit_code = os.execute(("command -v %s"):format(command_name))
+	-- return exit_code == 0
+	return io.popen(("command -v %s"):format(command_name)):read("*a") ~= ""
 end
 
 -- Checks if a compiler/interpreter is installed.
@@ -27,7 +34,9 @@ end
 ---@return boolean is_installed whether the compiler is installed
 function public.language_is_installed(language)
 	for _, command in ipairs(language.compilers) do
-		if public.command_exists(command) then return true end
+		if public.command_exists(command) then
+			return true
+		end
 	end
 	return false
 end

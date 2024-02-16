@@ -7,14 +7,21 @@ public.default_config = {
 		down_arrow = "▾",
 	},
 	lockfile = vim.fn.stdpath("data") .. "/forge.lock",
-	lsp_options = {
+	format_on_save = true,
+	lsp = {
+		icons = {
+			Error = " ",
+			Warn = " ",
+			Hint = " ",
+			Info = " ",
+		},
 		diagnostics = {
 			underline = true,
 			update_in_insert = false,
 			virtual_text = {
 				spacing = 4,
 				source = "if_many",
-				prefix = "●",
+				prefix = "",
 			},
 			severity_sort = true,
 		},
@@ -38,6 +45,12 @@ public.default_config = {
 						},
 					},
 				},
+			},
+			omnisharp = {
+				cmd = {
+					"mono",
+				},
+				use_mono = true,
 			},
 		},
 		setup = {},
