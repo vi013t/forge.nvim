@@ -1,6 +1,6 @@
 local util = require("forge.util")
 local registry = require("forge.registry")
-local symbols = require("forge.ui.symbols")
+local config = require("forge.config")
 
 -- The public exports of forge-ui
 ---@type table<any, any>
@@ -250,7 +250,11 @@ local function draw_tool(language, tool_name)
 	-- Expanded tool
 	if public["expanded_" .. tool_name]:contains(language.name) then
 		for index, tool in ipairs(language[tool_name]) do
+			-- Initialization
 			write_buffer = Table({})
+			local line = public.lines[public.cursor_row]
+
+			-- Get indentationbars
 			local bars = "    │ │"
 			if tool_name == "additional_tools" then
 				bars = "      │"
@@ -261,7 +265,6 @@ local function draw_tool(language, tool_name)
 					bars = "      └"
 				end
 			end
-			local line = public.lines[public.cursor_row]
 
 			-- Tool is currently installing
 			if
@@ -362,8 +365,8 @@ local function draw_expanded_language(language)
 	if language.name == public.get_language_under_cursor() then
 		write_line({
 			{
-				text = "    " .. symbols.progress_icons[language.total][language.installed_total],
-				foreground = symbols.progress_colors[language.total][language.installed_total],
+				text = "    " .. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
+				foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
 			},
 			{ text = " " .. language.name },
 			{ text = " ▾", foreground = "Comment" },
@@ -385,8 +388,8 @@ local function draw_expanded_language(language)
 		write_line({
 			{ text = "    " },
 			{
-				text = symbols.progress_icons[language.total][language.installed_total],
-				foreground = symbols.progress_colors[language.total][language.installed_total],
+				text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
+				foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
 			},
 			{ text = " " },
 			{ text = language.name },
@@ -418,8 +421,9 @@ local function draw_languages()
 			if language.name == public.get_language_under_cursor() then
 				write_line({
 					{
-						text = "    " .. symbols.progress_icons[language.total][language.installed_total],
-						foreground = symbols.progress_colors[language.total][language.installed_total],
+						text = "    "
+							.. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
+						foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
 					},
 					{ text = " " .. language.name },
 					{ text = " ▸", foreground = "Comment" },
@@ -441,8 +445,8 @@ local function draw_languages()
 				write_line({
 					{ text = "    " },
 					{
-						text = symbols.progress_icons[language.total][language.installed_total],
-						foreground = symbols.progress_colors[language.total][language.installed_total],
+						text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
+						foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
 					},
 					{ text = " " },
 					{ text = language.name },
@@ -529,24 +533,7 @@ function public.open_window()
 		col = math.ceil((vim_width - public.width) / 2),
 	}
 
-	local mappings = {
-		q = "close_window",
-		e = "expand",
-		j = "move_cursor_down",
-		k = "move_cursor_up",
-		gg = "set_cursor_to_top",
-		G = "set_cursor_to_bottom",
-		i = "toggle_install",
-		u = "toggle_install",
-		r = "refresh",
-		o = "open_options",
-		["<C-d>"] = "do_nothing",
-		["<CR>"] = "move_cursor_down",
-		["<Up>"] = "move_cursor_up",
-		["<Down>"] = "move_cursor_down",
-	}
-
-	for key, action in pairs(mappings) do
+	for key, action in pairs(config.options.ui.mappings) do
 		vim.api.nvim_buf_set_keymap(
 			public.buffer,
 			"n",

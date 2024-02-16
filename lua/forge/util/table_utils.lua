@@ -1,6 +1,11 @@
 local util = require("forge.util")
 
--- Checks whether a table contains a value.
+-- Checks whether a list-like table contains a value.
+--
+-- TODO: This should just use vim's built-in vim.tbl_contains, but when I tried replacing it
+-- with that, it didn't work. At some point I need to find the difference and switch to the
+-- built-in function. The other functions in this file may have similar issues, I should carefully
+-- review the vim api at some point and make sure I'm not reinventing the wheel here.
 --
 ---@param value any
 --
@@ -18,7 +23,7 @@ end
 --
 ---@generic T
 ---@param value T
--- 
+--
 ---@return T?
 function table:index_of(value)
 	for index, table_value in ipairs(self) do

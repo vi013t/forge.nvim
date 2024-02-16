@@ -3,28 +3,30 @@ local config = require("forge.config")
 local public = {}
 
 function public.setup_lsps()
-	-- Neodev
+	-- Neodev (must be set up before lspconfig)
 	local has_neodev, neodev = pcall(require, "neodev")
 	if has_neodev then
 		neodev.setup({})
 	end
 
+	-- Mason
 	require("mason").setup({})
 
+	-- Capabilities
 	local register_capability = vim.lsp.handlers["client/registerCapability"]
-
 	---@diagnostic disable-next-line: duplicate-set-field
 	vim.lsp.handlers["client/registerCapability"] = function(err, res, ctx)
 		return register_capability(err, res, ctx)
 	end
 
+	-- Icons
 	for name, icon in pairs(config.options.lsp.icons) do
 		name = "DiagnosticSign" .. name
 		vim.fn.sign_define(name, { text = icon, texthl = name, numhl = "" })
 	end
 
+	-- Inlay Hints
 	local inlay_hint = vim.lsp.buf.inlay_hint or vim.lsp.inlay_hint
-
 	if config.options.lsp.inlay_hints.enabled and inlay_hint then
 		vim.api.nvim_create_autocmd("LspAttach", {
 			callback = function(args)
@@ -37,6 +39,7 @@ function public.setup_lsps()
 		})
 	end
 
+	-- Prefix virtual text with icons
 	if
 		type(config.options.lsp.diagnostics.virtual_text) == "table"
 		and config.options.lsp.diagnostics.virtual_text.prefix == "icons"
@@ -50,8 +53,10 @@ function public.setup_lsps()
 		end
 	end
 
+	-- Diagnostics
 	vim.diagnostic.config(vim.deepcopy(config.options.lsp.diagnostics))
 
+	-- Server setup
 	local servers = config.options.lsp.servers
 	local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 	local capabilities = vim.tbl_deep_extend(
@@ -61,7 +66,6 @@ function public.setup_lsps()
 		has_cmp and cmp_nvim_lsp.default_capabilities() or {},
 		config.options.lsp.capabilities or {}
 	)
-
 	local function setup_server(server)
 		local server_opts = vim.tbl_deep_extend("force", {
 			capabilities = vim.deepcopy(capabilities),
@@ -78,11 +82,8 @@ function public.setup_lsps()
 		end
 		require("lspconfig")[server].setup(server_opts)
 	end
-
-	-- get all the servers that are available through mason-lspconfig
 	local mlsp = require("mason-lspconfig")
 	local all_mslp_servers = vim.tbl_keys(require("mason-lspconfig.mappings.server").lspconfig_to_package)
-
 	local ensure_installed = {} ---@type string[]
 	for server, server_opts in pairs(servers) do
 		if server_opts then
@@ -94,9 +95,9 @@ function public.setup_lsps()
 			end
 		end
 	end
-
 	mlsp.setup({ ensure_installed = ensure_installed, handlers = { setup_server } })
 
+	-- Eagle.nvim
 	local has_eagle, eagle = pcall(require, "eagle")
 	if has_eagle then
 		eagle.setup({})
