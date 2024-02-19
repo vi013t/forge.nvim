@@ -12,32 +12,245 @@
 
 <span style="color: red">**Warning: Forge.nvim is still in a pre-alpha state and does not have all of the listed functionality.**</span>
 
-## Example Installation & Configuration
+# Example Installations & Configuration
 
-- With `lazy.nvim`:
+Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future.
+
+<details>
+<summary>Full-feature no-hassle setup</summary>
+
 ```lua
 {
     "neph-iap/forge.nvim",
     dependencies = {
-        "nvim-treesitter/nvim-treesitter", -- Semantic highlighter
-        "williamboman/mason.nvim", -- LSP Installer
-        "neovim/nvim-lspconfig", -- LSP Configuration
-        "williamboman/mason-lspconfig.nvim", -- LSP Configuration for Mason
-        "folke/neodev.nvim", -- Neovim development environment
-        "stevearc/conform.nvim", -- Auto formatting
-        "hrsh7th/nvim-cmp", -- Autocomplete
-        "L3MON4D3/LuaSnip", -- Snippets
-        "hrsh7th/cmp-nvim-lsp", -- LSP integration with autocomplete
-        "hrsh7th/cmp-cmdline", -- Autocomplete in command line
-        "hrsh7th/cmp-buffer", -- Autocomplete for the buffer
-        "hrsh7th/cmp-path", -- Autocomplete for file paths
-        "onsails/lspkind.nvim", -- Icons in autocomplete
+        "nvim-treesitter/nvim-treesitter",
+        "williamboman/mason.nvim",
+        "neovim/nvim-lspconfig",
+        "williamboman/mason-lspconfig.nvim",
+        "stevearc/conform.nvim",
+        "hrsh7th/nvim-cmp",
+        "hrsh7th/cmp-cmdline",
+        "hrsh7th/cmp-buffer",
+        "hrsh7th/cmp-path",
+        "hrsh7th/cmp-nvim-lsp",
+        "L3MON4D3/LuaSnip",
+        "onsails/lspkind.nvim",
+        "soulis-1256/eagle.nvim",
+        "folke/neodev.nvim",
+        "smjonas/inc-rename.nvim",
+        "stevearc/dressing.nvim",
     },
     opts = {},
 }
 ```
+</details>
 
-That's it! `Forge.nvim` will automatically handle the hassle of setting up `lspconfig`, language servers, autocomplete, autoformatting, and more. Every plugin listed as a dependency here will be set up and configured automatically.
+<details>
+<summary>Detailed Opt-in/Opt-out Setup</summary>
+
+```lua
+{
+    "neph-iap/forge.nvim",
+    dependencies = {
+        -- REQUIRED --
+        "nvim-treesitter/nvim-treesitter", -- Semantic highlighter
+        "williamboman/mason.nvim", -- LSP Installer
+        "neovim/nvim-lspconfig", -- LSP Configuration
+        "williamboman/mason-lspconfig.nvim", -- LSP Configuration for Mason
+        "stevearc/conform.nvim", -- Autoformatter
+
+        -- OPTIONAL --
+        "hrsh7th/nvim-cmp", -- Autocomplete
+        "hrsh7th/cmp-cmdline", -- Autocomplete in command line
+        "hrsh7th/cmp-buffer", -- Autocomplete buffer contents
+        "hrsh7th/cmp-path", -- Autocomplete file paths
+        "hrsh7th/cmp-nvim-lsp", -- LSP integration with autocomplete
+        "L3MON4D3/LuaSnip", -- Snippets
+        "onsails/lspkind.nvim", -- Icons in autocomplete
+        "folke/neodev.nvim", -- Lua development environment
+        "smjonas/inc-rename.nvim", -- Incremental Renaming
+        "soulis-1256/eagle.nvim", -- Mouse hovering tooltips
+        "stevearc/dressing.nvim", -- Input UI improvements
+    },
+    opts = {},
+}
+```
+</details>
+
+<details>
+	<summary>Advanced configuration (default options)</summary>
+
+```lua
+{
+    "neph-iap/forge.nvim",
+    dependencies = {
+        -- REQUIRED --
+        "nvim-treesitter/nvim-treesitter", -- Semantic highlighter
+        "williamboman/mason.nvim", -- LSP Installer
+        "neovim/nvim-lspconfig", -- LSP Configuration
+        "williamboman/mason-lspconfig.nvim", -- LSP Configuration for Mason
+        "stevearc/conform.nvim", -- Autoformatter
+
+        -- OPTIONAL --
+        "hrsh7th/nvim-cmp", -- Autocomplete
+        "hrsh7th/cmp-cmdline", -- Autocomplete in command line
+        "hrsh7th/cmp-buffer", -- Autocomplete buffer contents
+        "hrsh7th/cmp-path", -- Autocomplete file paths
+        "hrsh7th/cmp-nvim-lsp", -- LSP integration with autocomplete
+        "L3MON4D3/LuaSnip", -- Snippets
+        "onsails/lspkind.nvim", -- Icons in autocomplete
+        "folke/neodev.nvim", -- Lua development environment
+        "smjonas/inc-rename.nvim", -- Incremental Renaming
+        "soulis-1256/eagle.nvim", -- Mouse hovering tooltips
+        "stevearc/dressing.nvim", -- Input UI improvements
+    },
+    opts = {
+		developer_mode = false, -- Print debug messages
+		lockfile = vim.fn.stdpath("data") .. "/forge.lock", -- The path to the file which saves what you have installed, so that we don't need to check every time.
+		format_on_save = true, -- Autoformat buffers on save
+
+		-- UI --
+		ui = {
+			mappings = {
+				q = "close_window",
+				e = "expand",
+				j = "move_cursor_down",
+				k = "move_cursor_up",
+				gg = "set_cursor_to_top",
+				G = "set_cursor_to_bottom",
+				i = "toggle_install",
+				u = "toggle_install",
+				r = "refresh",
+				o = "open_options",
+				["<C-d>"] = "do_nothing",
+				["<CR>"] = "move_cursor_down",
+				["<Up>"] = "move_cursor_up",
+				["<Down>"] = "move_cursor_down",
+			},
+			symbols = {
+				right_arrow = "▸",
+				down_arrow = "▾",
+				progress_icons = {
+					{ "" },
+					{ "", "" },
+					{ "", "", "" },
+					{ "", "", "", "" },
+					{ "", "", "", "", "" },
+					{ "", "", "", "", "", "" },
+				},
+			},
+			colors = {
+				progress_colors = {
+					{ "#FF0000" }, -- Language has no tools available
+					{ "#FF0000", "#00FF00" }, -- Language has 1 tool available
+					{ "#FF0000", "#FFFF00", "#00FF00" }, -- Language has 2 tools available
+					{ "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" }, -- Language has 3 tools available
+					{ "#FF0000", "#FF8800", "#FFFF00", "#BBFF00", "#00FF00" }, -- Language has 5 tools available
+					{ "#FF0000", "#FF6600", "#FFAA00", "#FFFF00", "#BBFF00", "#00FF00" },
+				},
+			},
+		},
+
+		-- LSP --
+		lsp = {
+			icons = {
+				Error = " ",
+				Warn = " ",
+				Hint = " ",
+				Info = " ",
+			},
+			diagnostics = {
+				underline = true,
+				update_in_insert = false,
+				virtual_text = {
+					spacing = 4,
+					source = "if_many",
+					prefix = " ",
+				},
+				severity_sort = true,
+			},
+			inlay_hints = {
+				enabled = true,
+			},
+			capabilities = {},
+			format = {
+				formatting_options = nil,
+				timeout_ms = nil,
+			},
+
+			-- Language Servers
+			servers = {
+
+				-- Lua
+				lua_ls = {
+					settings = {
+						Lua = {
+							workspace = {
+								checkThirdParty = false,
+							},
+							completion = {
+								callSnippet = "Replace",
+							},
+						},
+					},
+				},
+
+				-- C#
+				omnisharp_mono = {
+					cmd = {
+						vim.fn.stdpath("data") .. "/mason/bin/omnisharp-mono",
+						"--assembly-loader=strict",
+					},
+					use_mono = true,
+				},
+			},
+
+			setup = {},
+		},
+
+		-- Autocomplete options
+		autocomplete = {
+			format = {
+				mode = "symbol_text",
+				symbol_map = {
+					Text = "",
+					Method = "∷",
+					Function = "λ",
+					Constructor = "",
+					Field = "",
+					Variable = "󰫧",
+					Class = "",
+					Interface = "",
+					Module = "",
+					Property = "∷",
+					Unit = "",
+					Value = "",
+					Enum = "",
+					Keyword = "",
+					Snippet = "➡️",
+					Color = "",
+					File = "",
+					Reference = "&",
+					Folder = "",
+					EnumMember = "",
+					Constant = "𝛫",
+					Struct = "",
+					Event = "",
+					Operator = "",
+					TypeParameter = "",
+				},
+			},
+		},
+
+	},
+}
+```
+
+</details>
+
+<br/>
+
+That's it! `Forge.nvim` will automatically handle the hassle of setting up `lspconfig`, language servers, autocomplete, autoformatting, and more. Every plugin listed as a dependency here will be set up and configured automatically. If you do choose, you can set up specific options as well; See the advanced configuration above.
 
 ## What is `Forge.nvim`?
 

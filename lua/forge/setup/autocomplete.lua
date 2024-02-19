@@ -9,36 +9,7 @@ function public.setup_autocomplete()
 		local formatting = nil
 		if has_lspkind then
 			formatting = {
-				format = lspkind.cmp_format({
-					mode = "symbol_text",
-					symbol_map = {
-						Text = "",
-						Method = "∷",
-						Function = "λ",
-						Constructor = "",
-						Field = "",
-						Variable = "𝝌",
-						Class = "",
-						Interface = "",
-						Module = "",
-						Property = "∷",
-						Unit = "",
-						Value = "",
-						Enum = "",
-						Keyword = "⋄",
-						Snippet = "",
-						Color = "",
-						File = "",
-						Reference = "&",
-						Folder = "",
-						EnumMember = "",
-						Constant = "𝛫",
-						Struct = "",
-						Event = "",
-						Operator = "",
-						TypeParameter = "",
-					},
-				}),
+				format = lspkind.cmp_format(config.options.autocomplete.format),
 			}
 		end
 

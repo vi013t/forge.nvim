@@ -124,29 +124,36 @@ local is_first_draw_call = true
 --
 ---@return nil
 local function write_line(option_list, is_centered)
+	-- Text
 	local text = ""
 	for _, options in ipairs(option_list) do
 		text = text .. options.text
 	end
 
+	-- Alignment
 	local shift = 0
 	if is_centered then
 		shift = math.floor(public.width / 2) - math.floor(text:len() / 2)
 		text = (" "):rep(shift) .. text
 	end
 
+	-- Line number
 	local line = vim.api.nvim_buf_line_count(public.buffer)
 	if is_first_draw_call then
 		line = 0
 	end
 
+	-- Column number
 	local start = -1
 	if is_first_draw_call then
 		start = 0
 	end
 	is_first_draw_call = false
+
+	-- Write the line
 	vim.api.nvim_buf_set_lines(public.buffer, start, -1, false, { text })
 
+	-- Highlighting (colors, italics, bold, etc.)
 	text = ""
 	for _, options in ipairs(option_list) do
 		text = text .. options.text
@@ -181,10 +188,11 @@ local function draw_tool(language, tool_name)
 
 	local snake_tool_name = tool_name
 	if tool_name == "compilers" then
-		if not language.compiler_type then
-			return
+		local compiler_type = language.compiler_type
+		if not compiler_type then
+			compiler_type = "compiler"
 		end
-		snake_tool_name = language.compiler_type .. "s"
+		snake_tool_name = compiler_type .. "s"
 	end
 
 	local proper_tool_name = util.snake_case_to_title_case(snake_tool_name)
@@ -276,7 +284,10 @@ local function draw_tool(language, tool_name)
 				write_buffer:insert({ text = "  ", foreground = "#00AAFF" })
 				write_buffer:insert({ text = tool.name, foreground = "#00AAFF" })
 				write_buffer:insert({ text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
-				write_buffer:insert({ text = "   (Installing...)", foreground = "#00AAFF" })
+				write_buffer:insert({
+					text = "   (Installing...)",
+					foreground = "#00AAFF",
+				})
 
 			-- Tool is installed already
 			elseif table.contains(language["installed_" .. tool_name], tool) then
@@ -351,6 +362,12 @@ local function draw_tool(language, tool_name)
 
 			write_buffer:insert({ text = " available for " })
 			write_buffer:insert({ text = language.name })
+			write_buffer:insert({ text = ". " })
+
+			if language[tool_name].none_available_reason then
+				write_buffer:insert({ text = language[tool_name].none_available_reason })
+			end
+
 			write_line(write_buffer)
 		end
 	end
@@ -477,8 +494,6 @@ function public.update_view()
 		{ text = " Uninstall (u) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Prefer (p) ", background = "#99FFFF", foreground = "#000000" },
-		{ text = "   " },
-		{ text = " Options (o) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Refresh (r) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },

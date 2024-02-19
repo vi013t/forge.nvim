@@ -20,7 +20,7 @@ function public.close_window()
 	vim.api.nvim_win_close(ui.window, true)
 end
 
-function public.toggle_install()
+function public.toggle_install() -- TODO: this causes the physical cursor to be misaligned with the visual cursor
 	local line = ui.lines[ui.cursor_row]
 
 	---@type language
@@ -221,6 +221,7 @@ function public.toggle_install()
 
 	-- Debugger
 	elseif line.type == "debugger_listing" then
+		-- Uninstall debugger
 		if mason_utils.package_is_installed(line.internal_name) then
 			print("Uninstalling " .. line.internal_name .. "...")
 			vim.cmd(("MasonUninstall %s"):format(line.internal_name))
@@ -263,6 +264,8 @@ function public.toggle_install()
 
 			ui.cursor_row = index
 			ui.update_view()
+
+		-- Install debugger
 		else
 			print("Installing " .. line.internal_name .. "...")
 			vim.cmd(("MasonInstall %s"):format(line.internal_name))
@@ -300,6 +303,71 @@ function public.toggle_install()
 			ui.cursor_row = index
 			ui.update_view()
 		end
+
+	-- Additional Tools
+	elseif line.type == "additional_tools_listing" then
+		print("Installing " .. line.internal_name .. "...")
+
+		local plugin_name = line.internal_name:match("([^/]+)$")
+		local local_repo_path = vim.fn.stdpath("data") .. "/lazy/" .. plugin_name
+
+		vim.fn.system(("git clone 'https://github.com/%s.git' '%s'"):format(line.internal_name, local_repo_path))
+		local branch = vim.fn.system(("git -C '%s' branch --show-current"):format(local_repo_path)):gsub("\n$", "")
+		local commit = vim.fn.system(("git -C '%s' rev-parse HEAD"):format(local_repo_path)):gsub("\n$", "")
+
+		-- TODO: allow configuring lazy lockfile, because lazy allows configuring it
+		-- ideally I would actually just like to do this through lazy, and then lazy
+		-- could handle the cloning, lockfile, etc. It also would prevent the plugin
+		-- from being marked as needing to be cleaned.
+
+		-- Write to lockfile
+		local lazy_lock = vim.fn.stdpath("config") .. "/lazy-lock.json"
+		local plugins = assert(vim.fn.json_decode(vim.fn.readfile(lazy_lock)))
+		plugins[plugin_name] = { branch = branch, commit = commit }
+		local lazy_lock_file = assert(io.open(lazy_lock, "w"))
+
+		-- Pretty print the lockfile
+		local has_plugins = false
+		local json = "{"
+		for json_plugin_name, plugin_data in pairs(plugins) do
+			has_plugins = true
+			json = json .. ('\n\t"%s": %s,'):format(json_plugin_name, vim.fn.json_encode(plugin_data))
+		end
+		if has_plugins then
+			json = json:sub(1, #json - 1)
+		end
+		json = json .. "\n}"
+		lazy_lock_file:write(json)
+		lazy_lock_file:close()
+
+		-- Add the additional tool to the list of installed additional tools
+		table.insert(language.installed_additional_tools, { name = line.name, internal_name = line.internal_name })
+		for _, language_key in ipairs(registry.language_keys) do
+			local other_language = registry.languages[language_key]
+			for _, additional_tool in ipairs(other_language.installed_additional_tools) do
+				if additional_tool.internal_name == line.internal_name then
+					table.insert(
+						other_language.installed_additional_tools,
+						{ name = line.name, internal_name = line.internal_name }
+					)
+					break
+				end
+			end
+		end
+
+		registry.after_refresh()
+
+		---@type integer
+		local index = nil
+		for line_index, ui_line in ipairs(ui.lines) do
+			if ui_line.internal_name == line.internal_name then
+				index = line_index
+				break
+			end
+		end
+
+		ui.cursor_row = index
+		ui.update_view()
 	end
 
 	lock.save()
@@ -362,6 +430,7 @@ function public.expand()
 							language = language_name,
 							name = language_tool.name,
 							internal_name = language_tool.internal_name,
+							tool = language_tool,
 						})
 					end
 					ui["expanded_" .. plural_tool]:insert(language_name)

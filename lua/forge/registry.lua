@@ -140,14 +140,27 @@ public.languages = {
 		debuggers = {
 			{ internal_name = "go-debug-adapter", name = "Go Debug Adapter" },
 		},
-		additional_tools = {},
+		additional_tools = {
+			{
+				type = "plugin",
+				internal_name = "ray-x/go.nvim",
+				description = "Everything you need to develop Go in Neovim - including preproject setup, async jobs, improved highlighting, test coverage, and more.",
+				name = "Go Tools for Neovim",
+			},
+			{
+				type = "plugin",
+				internal_name = "crusj/structure-go.nvim",
+				description = "A symbol list and outline for Go",
+				name = "Go Symbol Outline",
+			},
+		},
 		extensions = { "go" },
 	},
 	haskell = {
 		name = "Haskell",
 		compiler_type = "compiler",
 		highlighters = {
-			{ internal_name = "haskell", name = "Haskell" },
+			{ internal_name = "haskell", name = "TreeSitter" },
 		},
 		compilers = {
 			{ internal_name = "haskell", name = "Haskell" },
@@ -167,7 +180,9 @@ public.languages = {
 		highlighters = {
 			{ internal_name = "html", name = "TreeSitter" },
 		},
-		compilers = {},
+		compilers = { -- TODO: I would like to think of a clever way to cleanly wrap lines
+			none_available_reason = "HTML is a markup language, meaning it just describes the structure of a web page. As such, it doesn't have a compiler or interpreter; It's interpreted by a web browser.",
+		},
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" },
 		},
@@ -209,7 +224,18 @@ public.languages = {
 			{ internal_name = "java-debug-adapter", name = "Java Debug Adapter" },
 		},
 		additional_tools = {
-			{ internal_name = "vscode-java-decompiler", name = "Java Decompiler", type = "mason" },
+			{
+				type = "mason",
+				internal_name = "vscode-java-decompiler",
+				description = "Java Decompiler",
+				name = "Java Decompiler",
+			},
+			{
+				type = "plugin",
+				internal_name = "simaxme/java.nvim",
+				description = "Refactoring tools such as renaming symbols, renaming files, and moving files.",
+				name = "Java Refactorer",
+			},
 		},
 		extensions = { "java" },
 	},
@@ -369,7 +395,7 @@ public.languages = {
 		additional_tools = {
 			{
 				type = "plugin",
-				internal_name = "AcksID/swenv.nvim",
+				internal_name = "AckslD/swenv.nvim",
 				description = "Quickly switch Python virtual environments without restarting",
 				name = "Swenv",
 			},
@@ -500,7 +526,8 @@ public.languages = {
 		name = "TypeScript",
 		compiler_type = "transpiler",
 		highlighters = {
-			{ internal_name = "typescript", name = "TreeSitter" },
+			{ internal_name = "typescript", name = "TypeScript TreeSitter" },
+			{ internal_name = "tsx", name = "TypeScript + React TreeSitter" },
 		},
 		compilers = {
 			{ internal_name = "tsc", name = "TypeScript Transpiler" },
@@ -651,7 +678,7 @@ function public.refresh_installations()
 		if language.installed_formatters[1] then
 			actual_installed = actual_installed + 1
 		end
-		if language.installed_debuggers[1] then
+		if language.installed_additional_tools[1] then
 			actual_installed = actual_installed + 1
 		end
 
@@ -680,7 +707,7 @@ function public.refresh_installed_totals(language)
 	if language.installed_formatters[1] then
 		actual_installed = actual_installed + 1
 	end
-	if language.installed_debuggers[1] then
+	if language.installed_additional_tools[1] then
 		actual_installed = actual_installed + 1
 	end
 	language.installed_total = actual_installed
