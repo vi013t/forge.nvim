@@ -22,8 +22,8 @@ function public.load()
 	local lockfile = io.open(config.options.lockfile, "r")
 	if lockfile then
 		registry.languages = vim.fn.json_decode(lockfile:read("*a"))
-		registry.before_refresh()
-		registry.after_refresh()
+		registry.generate_language_keys()
+		registry.sort_languages()
 	else
 		registry.refresh_installations()
 		public.save()

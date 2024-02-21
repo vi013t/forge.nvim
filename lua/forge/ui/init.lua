@@ -4,7 +4,7 @@ local config = require("forge.config")
 
 -- The public exports of forge-ui
 ---@type table<any, any>
-local public = Table({})
+local public = {}
 
 ---@alias line_type "language" | "compiler"
 
@@ -118,10 +118,10 @@ end
 local is_first_draw_call = true
 
 -- Writes a line at the end of the forge buffer
---
----@param option_list { text: string, foreground?: string, background?: string, italicize?: boolean, bold?: boolean }[]
----@param is_centered? boolean
---
+---
+---@param option_list { text: string, foreground?: string, background?: string, italicize?: boolean, bold?: boolean }[] A list of text segments, which each can have their own color and styles. The foreground can be a hex color, or the name of a highlight group.
+---@param is_centered? boolean whether to center the text in the line instead of left-aligning it
+---
 ---@return nil
 local function write_line(option_list, is_centered)
 	-- Text
@@ -177,10 +177,10 @@ local function write_line(option_list, is_centered)
 	end
 end
 
--- Draws the compiler info to the screen
+-- Draws a tool onto the forge buffer.
 --
----@param language language the language to draw the compiler of
----@param tool_name "compilers" | "highlighters" | "linters" | "formatters" | "debuggers" | "additional_tools"
+---@param language Language the language to draw the tool of
+---@param tool_name "compilers" | "highlighters" | "linters" | "formatters" | "debuggers" | "additional_tools" The tool to draw
 --
 ---@return nil
 local function draw_tool(language, tool_name)
@@ -274,6 +274,8 @@ local function draw_tool(language, tool_name)
 				end
 			end
 
+			local installed_tools = language["installed_" .. tool_name] ---@type table
+
 			-- Tool is currently installing
 			if
 				public.currently_installing
@@ -289,8 +291,8 @@ local function draw_tool(language, tool_name)
 					foreground = "#00AAFF",
 				})
 
-			-- Tool is installed already
-			elseif table.contains(language["installed_" .. tool_name], tool) then
+				-- Tool is installed already
+			elseif table.contains(installed_tools, tool) then
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#00FF00" })
 				write_buffer:insert({ text = tool.name, foreground = "#00FF00" })
@@ -374,9 +376,9 @@ local function draw_tool(language, tool_name)
 end
 
 -- Draws a language name that's expanded
---
----@param language language The language name to draw
---
+---
+---@param language Language The language name to draw
+---
 ---@return nil
 local function draw_expanded_language(language)
 	if language.name == public.get_language_under_cursor() then
@@ -423,8 +425,49 @@ local function draw_languages()
 	languages_line:insert({ text = "  Languages" })
 	write_line(languages_line)
 
+	local language_index = 0
 	for _, key in ipairs(registry.language_keys) do
+		language_index = language_index + 1
 		local language = registry.languages[key]
+
+		-- Description
+
+		---@param input_string string
+		---@param split_length integer
+		local function split_string_by_length(input_string, split_length)
+			local result = {}
+
+			local buffer = ""
+			for index = 1, #input_string, split_length do
+				---@type string
+				local line = buffer .. input_string:sub(index, index + split_length - 1 - #buffer)
+				buffer = ""
+				while line:sub(-1) and line:sub(-1) ~= " " do
+					buffer = buffer .. line:sub(-1)
+					line = line:sub(1, -2)
+				end
+				table.insert(result, line)
+			end
+
+			return result
+		end
+
+		local language_under_cursor = registry.get_language_by_name(public.get_language_under_cursor())
+		if language_under_cursor then
+			if language_under_cursor.description then
+				local description_raw = language_under_cursor.description:gsub("%s*\r?\n%s*", " "):gsub("^%s+", "")
+				local description_lines = split_string_by_length(description_raw, 60)
+				public.current_description_lines = description_lines
+			else
+				public.current_description_lines = nil
+			end
+
+			if language_under_cursor.example_snippet then
+				public.current_snippet_lines = language_under_cursor.example_snippet
+			else
+				public.current_snippet_lines = nil
+			end
+		end
 
 		if public.expanded_languages:contains(language.name) then
 			draw_expanded_language(language)
@@ -436,7 +479,7 @@ local function draw_languages()
 			draw_tool(language, "additional_tools")
 		else
 			if language.name == public.get_language_under_cursor() then
-				write_line({
+				local line_after_language = {
 					{
 						text = "    "
 							.. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
@@ -457,9 +500,31 @@ local function draw_languages()
 					{ text = " to ", foreground = "Comment" },
 					{ text = "uninstall all", foreground = "#AA77AA" },
 					{ text = ")", foreground = "Comment" },
-				})
+				}
+
+				if public.current_description_lines then
+					local description_line_index = language_index - 2
+					if public.current_description_lines[description_line_index] then
+						local offset = -language.name:len() + 27
+						table.insert(
+							line_after_language,
+							{ text = (" "):rep(offset) .. public.current_description_lines[description_line_index] }
+						)
+					end
+				end
+
+				-- Example snippet
+				-- if language.example_snippet then
+				-- 	table.insert(line_after_language, { text = (" "):rep(30) })
+				-- 	for _, token in ipairs(language.example_snippet[1]) do
+				-- 		table.insert(line_after_language, token)
+				-- 	end
+				-- end
+
+				write_line(line_after_language)
 			else
-				write_line({
+				---@type { text: string, foreground?: string, background?: string, italicize?: boolean, bold?: boolean }[]
+				local post_line = {
 					{ text = "    " },
 					{
 						text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
@@ -468,7 +533,51 @@ local function draw_languages()
 					{ text = " " },
 					{ text = language.name },
 					{ text = " ▸", foreground = "Comment" },
-				})
+				}
+
+				-- Name
+				local cursor_language = public.get_language_under_cursor()
+				if cursor_language and language_index == 1 then
+					-- Spacing
+					table.insert(post_line, { text = (" "):rep(113) })
+
+					-- Icon
+					local cursor_language_object = assert(registry.get_language_by_name(cursor_language))
+					table.insert(
+						post_line,
+						{ text = cursor_language_object.icon .. " ", foreground = cursor_language_object.color }
+					)
+
+					-- Name
+					table.insert(post_line, { text = cursor_language })
+				end
+
+				-- Description
+				if public.current_description_lines then
+					local description_line_index = language_index - 2
+					if public.current_description_lines[description_line_index] then
+						local offset = -language.name:len() + 90
+						table.insert(
+							post_line,
+							{ text = (" "):rep(offset) .. public.current_description_lines[description_line_index] }
+						)
+					end
+				end
+
+				-- Example snippet
+				if public.current_snippet_lines then
+					local snippet_line_index = language_index - 10
+					local current_line = public.current_snippet_lines[snippet_line_index]
+					if current_line then
+						local offset = -language.name:len() + 90
+						table.insert(post_line, { text = (" "):rep(offset) })
+						for _, token in ipairs(current_line) do
+							table.insert(post_line, token)
+						end
+					end
+				end
+
+				write_line(post_line)
 			end
 		end
 	end
@@ -483,7 +592,7 @@ public.cursor_row = 1
 ---@return nil
 function public.update_view()
 	is_first_draw_call = true
-	vim.api.nvim_buf_set_option(public.buffer, "modifiable", true)
+	vim.api.nvim_set_option_value("modifiable", true, { buf = public.buffer })
 	write_line({ { text = " Forge ", background = "#CC99FF", foreground = "#000000" } }, true)
 	write_line({ { text = "" } })
 	write_line({
@@ -493,8 +602,14 @@ function public.update_view()
 		{ text = "   " },
 		{ text = " Uninstall (u) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
-		{ text = " Prefer (p) ", background = "#99FFFF", foreground = "#000000" },
-		{ text = "   " },
+
+		-- TODO: Add the ability to "prefer" a tool, such as a compiler, so that "install all"
+		-- will install that one instead of the default one. This should also be configurable
+		-- for "default prefers" or something.
+		--
+		-- { text = " Prefer (p) ", background = "#99FFFF", foreground = "#000000" },
+		-- { text = "   " },
+
 		{ text = " Refresh (r) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Quit (q) ", background = "#99FFFF", foreground = "#000000" },
@@ -502,14 +617,14 @@ function public.update_view()
 	draw_languages()
 	write_line({ { text = "" } })
 	vim.fn.cursor({ public.cursor_row, 0 })
-	vim.api.nvim_buf_set_option(public.buffer, "modifiable", false)
+	vim.api.nvim_set_option_value("modifiable", false, { buf = public.buffer })
 end
 
 -- Returns the langauge at the given line number, or `nil` if there is no language at the line
 --
 ---@param line_number integer The line number in the forge buffer to get the language at
 --
----@return string? language_name The name of the language found
+---@return string | nil language_name The name of the language found
 local function get_language_at_line(line_number)
 	if public.lines[line_number].type == "language" then
 		return public.lines[line_number].language
@@ -520,7 +635,7 @@ end
 
 -- Returns the language that the cursor is under, or `nil` if the cursor is not under a language
 --
----@return string? language_name The name of the language found
+---@return string | nil language_name The name of the language found
 function public.get_language_under_cursor()
 	return get_language_at_line(public.cursor_row)
 end
@@ -531,10 +646,10 @@ end
 function public.open_window()
 	reset_lines()
 	public.buffer = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_option(public.buffer, "bufhidden", "wipe")
+	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = public.buffer })
 
-	local vim_width = vim.api.nvim_get_option("columns")
-	local vim_height = vim.api.nvim_get_option("lines")
+	local vim_width = vim.api.nvim_get_option_value("columns", { scope = "global" })
+	local vim_height = vim.api.nvim_get_option_value("lines", { scope = "global" })
 
 	public.height = math.ceil(vim_height * 0.8 - 4)
 	public.width = math.ceil(vim_width * 0.8)

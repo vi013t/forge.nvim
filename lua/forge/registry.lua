@@ -2,12 +2,38 @@ local os_utils = require("forge.util.os")
 local parsers = require("nvim-treesitter.parsers")
 local mason_registry = require("mason-registry")
 
-local public = Table({})
+local public = {}
 
 ---@alias tool { name: string, internal_name: string }
----@alias language { compiler_type: string, name: string, highlighters: tool[], compilers: tool[], formatters: tool[], debuggers: tool[], linters: tool[], additional_tools: any[], extensions: string[], total?: integer, installed_highlighters?: string[], installed_debuggers?: tool[], installed_formatters?: tool[], installed_compilers?: tool[], installed_linters?: tool[], installed_additional_tools?: tool[], installed_total?: integer }
+---
+---@class Language
+---
+---@field name string
+---@field compiler_type? string
+---
+---@field highlighters tool[]
+---@field compilers tool[]
+---@field formatters tool[]
+---@field debuggers tool[]
+---@field linters tool[]
+---@field additional_tools any[]
+---@field total? integer
+---
+---@field installed_highlighters? string[]
+---@field installed_debuggers? tool[]
+---@field installed_formatters? tool[]
+---@field installed_compilers? tool[]
+---@field installed_linters? tool[]
+---@field installed_additional_tools? tool[]
+---@field installed_total? integer
+---
+---@field extensions string[]
+---@field example_snippet? { text: string, foreground: string }[][]
+---@field description? string
+---@field icon string
+---@field color string
 
----@type table<string, language>
+---@type table<string, Language>
 public.languages = {
 	bash = {
 		name = "Bash",
@@ -27,6 +53,13 @@ public.languages = {
 		},
 		additional_tools = {},
 		extensions = { "sh", "bash" },
+		icon = "󱆃",
+		color = "#89E051",
+		--[[
+			NOTE: this could be done with nvim-web-devicons. I didn't really want to add another dependency if it wasn't necessary,
+		-- especially given that I don't need all of the funcitonality to get special icons for specific file names and stuff. Regardless,
+		-- it would reduce the amount of work required to add new languages, so I think it's worth keeping in consideration.
+		--]]
 	},
 	c = {
 		name = "C",
@@ -52,6 +85,8 @@ public.languages = {
 		},
 		additional_tools = {},
 		extensions = { "c", "h" },
+		icon = "󰙱",
+		color = "#599EFF",
 	},
 	cpp = {
 		name = "C++",
@@ -78,6 +113,8 @@ public.languages = {
 		},
 		additional_tools = {},
 		extensions = { "h", "cpp", "hpp", "cxx", "cc", "c++", "hxx", "hh", "h++" },
+		icon = "󰙲",
+		color = "#F34B7D",
 	},
 	csharp = {
 		name = "C#",
@@ -89,7 +126,7 @@ public.languages = {
 			{ internal_name = "dotnet", name = ".NET SDK" },
 		},
 		linters = {
-			{ internal_name = "omnisharp", name = "Omnisharp" },
+			{ internal_name = "omnisharp-mono", name = "Omnisharp Mono" },
 		},
 		debuggers = {},
 		formatters = {
@@ -104,6 +141,8 @@ public.languages = {
 			},
 		},
 		extensions = { "cs" },
+		icon = "󰌛",
+		color = "#596706",
 	},
 	elixir = {
 		name = "Elixir",
@@ -121,6 +160,8 @@ public.languages = {
 		formatters = {},
 		additional_tools = {},
 		extensions = { "ex", "exs" },
+		icon = "",
+		color = "#A074C4",
 	},
 	go = {
 		name = "Go",
@@ -155,6 +196,8 @@ public.languages = {
 			},
 		},
 		extensions = { "go" },
+		icon = "󰟓",
+		color = "#519ABA",
 	},
 	haskell = {
 		name = "Haskell",
@@ -174,6 +217,8 @@ public.languages = {
 		formatters = {},
 		additional_tools = {},
 		extensions = { "hs" },
+		icon = "",
+		color = "#A074C4",
 	},
 	html = {
 		name = "HTML",
@@ -203,6 +248,84 @@ public.languages = {
 			},
 		},
 		extensions = { "html", "htm" },
+		example_snippet = {
+			{
+				{ text = "<", foreground = "@operator" },
+				{ text = "!DOCTYPE ", foreground = "@tag" },
+				{ text = "html", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+			{
+				{ text = "<", foreground = "@operator" },
+				{ text = "html", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+			{
+				{ text = "<", foreground = "@operator" },
+				{ text = "head", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+			{
+				{ text = "    <", foreground = "@operator" },
+				{ text = "meta ", foreground = "@tag" },
+				{ text = "charset", foreground = "@attribute" },
+				{ text = "=", foreground = "@operator" },
+				{ text = '"UTF-8"', foreground = "@string" },
+				{ text = "/>", foreground = "@operator" },
+			},
+			{
+				{ text = "    <", foreground = "@operator" },
+				{ text = "meta ", foreground = "@tag" },
+				{ text = "author", foreground = "@attribute" },
+				{ text = "=", foreground = "@operator" },
+				{ text = '"Violet Iapalucci"', foreground = "@string" },
+				{ text = "/>", foreground = "@operator" },
+			},
+			{ text = " " },
+			{
+				{ text = "    <", foreground = "@operator" },
+				{ text = "link ", foreground = "@tag" },
+				{ text = "rel", foreground = "@attribute" },
+				{ text = "=", foreground = "@operator" },
+				{ text = '"icon" ', foreground = "@string" },
+				{ text = "href", foreground = "@attribute" },
+				{ text = "=", foreground = "@operator" },
+				{ text = '"assets/images/favicon.ico"', foreground = "@string" },
+				{ text = "/>", foreground = "@operator" },
+			},
+			{ text = " " },
+			{
+				{ text = "    <", foreground = "@operator" },
+				{ text = "title", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+				{ text = "My epic webpage", foreground = "Normal" },
+				{ text = "</", foreground = "@operator" },
+				{ text = "title", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+			{
+				{ text = "</", foreground = "@operator" },
+				{ text = "head", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+			{
+				{ text = "<", foreground = "@operator" },
+				{ text = "body", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+			{
+				{ text = "</", foreground = "@operator" },
+				{ text = "body", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+			{
+				{ text = "</", foreground = "@operator" },
+				{ text = "html", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+		},
+		icon = "",
+		color = "#E44D26",
 	},
 	java = {
 		name = "Java",
@@ -238,6 +361,8 @@ public.languages = {
 			},
 		},
 		extensions = { "java" },
+		icon = "",
+		color = "#CC3E44",
 	},
 	javascript = {
 		name = "JavaScript",
@@ -260,6 +385,13 @@ public.languages = {
 		},
 		additional_tools = {},
 		extensions = { "js", "jsx" },
+		description = [[
+			JavaScript is a programming language designed for creating interactive websites and web applications. It's a
+			high-level language that is often used in conjunction with HTML and CSS to create dynamic websites. JavaScript
+			started as a website-only language, but today is used for backend development, mobile apps, desktop apps, and more.
+		]],
+		icon = "",
+		color = "#F1F134",
 	},
 	json = {
 		name = "JSON",
@@ -276,6 +408,14 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "json" },
+		description = [[
+			JSON, which stands for "JavaScript Object Notation", is a data serialization format. It is not a "programming language"
+			in the sense that it does not execute instructions or code, but rather it simply stores structured data. JSON is often
+			used to transfer data between a server and a client, and is commonly used in web development, due to its ease of use
+			with JavaScript.
+		]],
+		icon = "",
+		color = "#CBCB41",
 	},
 	julia = {
 		name = "Julia",
@@ -293,6 +433,8 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "jl" },
+		icon = "",
+		color = "#A270BA",
 	},
 	kotlin = {
 		name = "Kotlin",
@@ -314,6 +456,8 @@ public.languages = {
 		},
 		additional_tools = {},
 		extensions = { "kt" },
+		icon = "",
+		color = "#7F52FF",
 	},
 	lua = {
 		name = "Lua",
@@ -341,6 +485,8 @@ public.languages = {
 			},
 		},
 		extensions = { "lua" },
+		icon = "",
+		color = "#51A0CF",
 	},
 	markdown = {
 		name = "Markdown",
@@ -354,6 +500,9 @@ public.languages = {
 		formatters = {},
 		debuggers = {},
 		additional_tools = {},
+		icon = "󰍔",
+		color = "#FFFFFF",
+		extensions = { "md" },
 	},
 	ocaml = {
 		name = "OCaml",
@@ -373,6 +522,8 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "ml", "mli" },
+		icon = "",
+		color = "#E37933",
 	},
 	python = {
 		name = "Python",
@@ -401,6 +552,8 @@ public.languages = {
 			},
 		},
 		extensions = { "py" },
+		icon = "",
+		color = "#FFBC03",
 	},
 	r = {
 		name = "R",
@@ -419,6 +572,8 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "r" },
+		icon = "󰟔",
+		color = "#2266BA",
 	},
 	ruby = {
 		name = "Ruby",
@@ -438,9 +593,16 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "rb" },
+		icon = "",
+		color = "#701516",
 	},
 	rust = {
 		name = "Rust",
+		description = [[
+			Rust is a memory safe, performant, and secure systems language designed to create fast, secure applications. Rust is known
+			for it's memory safety, compile-time checking, advanced type system, and zero-cost abstractions. Released (stable) in 2015,
+			Rust today is used for systems programming, TUI applications, GUI applications, websites, and more.
+		]],
 		compiler_type = "compiler",
 		highlighters = {
 			{ internal_name = "rust", name = "TreeSitter" },
@@ -470,7 +632,41 @@ public.languages = {
 				name = "Rust Vim Support",
 			},
 		},
+		example_snippet = {
+			{
+				{ text = "fn ", foreground = "@keyword.function" },
+				{ text = "main", foreground = "@function" },
+				{ text = "() -> ", foreground = "@punctuation" },
+				{ text = "Box", foreground = "@type" },
+				{ text = "<", foreground = "@punctuation" },
+				{ text = "dyn ", foreground = "@keyword" },
+				{ text = "Error", foreground = "@type" },
+				{ text = "> {", foreground = "@punctuation" },
+			},
+			{
+				{ text = "    let ", foreground = "@keyword" }, -- TODO: allow configurable tab sizing
+				{ text = "mut ", foreground = "@keyword" },
+				{ text = "x", foreground = "@variable" },
+				{ text = " = ", foreground = "@punctuation" },
+				{ text = "5", foreground = "@number" },
+				{ text = ";", foreground = "@punctuation" },
+			},
+			{
+				{ text = "    let ", foreground = "@keyword" },
+				{ text = "mut ", foreground = "@keyword" },
+				{ text = "y", foreground = "@variable" },
+				{ text = " = &", foreground = "@punctuation" },
+				{ text = "mut ", foreground = "@keyword" },
+				{ text = "x", foreground = "@variable" },
+				{ text = ";", foreground = "@punctuation" },
+			},
+			{
+				{ text = "}", foreground = "@punctuation" },
+			},
+		},
 		extensions = { "rs" },
+		icon = "",
+		color = "#DEA584",
 	},
 	svelte = {
 		name = "Svelte",
@@ -489,6 +685,8 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "svelte" },
+		icon = "",
+		color = "#FF3E00",
 	},
 	swift = {
 		name = "Swift",
@@ -504,6 +702,8 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "swift" },
+		icon = "",
+		color = "#E37933",
 	},
 	teal = {
 		name = "Teal",
@@ -521,6 +721,23 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "tl" },
+		icon = "⚆",
+		color = "#007171",
+	},
+	toml = {
+		name = "TOML",
+		compilers = {},
+		highlighters = {
+			{ internal_name = "toml", name = "TreeSitter" },
+		},
+		linters = {},
+		formatters = {},
+		debuggers = {},
+		additional_tools = {},
+		extenstions = { "toml" },
+		icon = "",
+		color = "#FFFFFF",
+		extensions = { "toml" },
 	},
 	typescript = {
 		name = "TypeScript",
@@ -540,8 +757,17 @@ public.languages = {
 			{ internal_name = "prettier", name = "Prettier" },
 		},
 		debuggers = {},
-		additional_tools = {},
+		additional_tools = {
+			{
+				type = "plugin",
+				internal_name = "marilari88/twoslash-queries.nvim",
+				name = "Two Slash Queries",
+				description = "Show TypeScript types as virtual text with `// ^?` comments",
+			},
+		},
 		extensions = { "ts", "tsx" },
+		icon = "󰛦",
+		color = "#519ABA",
 	},
 	v = {
 		name = "V",
@@ -559,6 +785,39 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extensions = { "v" },
+		icon = "󱂌",
+		color = "#519ABA",
+	},
+	yaml = {
+		name = "YAML",
+		highlighters = {
+			{ internal_name = "yaml", name = "TreeSitter" },
+		},
+		compilers = {},
+		linters = {
+			{ internal_name = "yaml-language-server", name = "YAML Language Server" },
+		},
+		formatters = {
+			{ internal_name = "yamlfmt", name = "YAML Formatter" },
+		},
+		debuggers = {},
+		extensions = { "yaml", "yml" },
+		additional_tools = {
+			{
+				type = "plugin",
+				internal_name = "someone-stole-my-name/yaml-companion.nvim",
+				description = "Get, set and autodetect YAML schemas in your buffers.",
+				name = "YAML Companion",
+			},
+			{
+				type = "plugin",
+				internal_name = "cuducos/yaml.nvim",
+				name = "YAML Path Tools",
+				description = "Show, yank, search, and generate YAML paths.",
+			},
+		},
+		icon = "",
+		color = "#6D8086",
 	},
 	zig = {
 		name = "Zig",
@@ -567,7 +826,10 @@ public.languages = {
 			{ internal_name = "zig", name = "TreeSitter" },
 		},
 		compilers = {
-			{ internal_name = "zig", name = "Zig Compiler" },
+			{
+				internal_name = "zig",
+				name = "Zig Compiler",
+			},
 		},
 		formatters = {},
 		linters = {
@@ -578,11 +840,13 @@ public.languages = {
 			{ internal_name = "NTBBloodbath/zig-tools.nvim", name = "Zig Tools for Neovim" },
 		},
 		extensions = { "zig" },
+		icon = "",
+		color = "#F69A1B",
 	},
 }
 
 function public.refresh_installations()
-	public.before_refresh()
+	public.generate_language_keys()
 
 	for _, language_name in ipairs(public.language_keys) do
 		local language = public.languages[language_name]
@@ -685,12 +949,12 @@ function public.refresh_installations()
 		language.installed_total = actual_installed
 	end
 
-	public.after_refresh()
+	public.sort_languages()
 end
 
 -- Refreshes the `installed_total` field of a language to accurately reflect the number of tool types installed for it.
 --
----@param language language
+---@param language Language
 --
 ---@return nil
 function public.refresh_installed_totals(language)
@@ -713,14 +977,14 @@ function public.refresh_installed_totals(language)
 	language.installed_total = actual_installed
 end
 
-function public.before_refresh()
+function public.generate_language_keys()
 	public.language_keys = Table({})
 	for key, _ in pairs(public.languages) do
 		public.language_keys:insert(key)
 	end
 end
 
-function public.after_refresh()
+function public.sort_languages()
 	public.language_keys:sort(function(first, second)
 		local first_percent =
 			math.floor(100 * ((public.languages[first].installed_total - 1) / (public.languages[first].total - 1)))
@@ -735,6 +999,34 @@ function public.after_refresh()
 			return public.languages[first].name:lower() < public.languages[second].name:lower()
 		end
 	end)
+end
+
+function public.get_language_by_name(name)
+	if not name then
+		return nil
+	end
+	for _, language in pairs(public.languages) do
+		if language.name:lower() == name:lower() then
+			return language
+		end
+	end
+	return nil
+end
+
+function public.get_language_icon(language_name)
+	local has_devicons, devicons = pcall(require, "nvim-web-devicons")
+	if has_devicons then
+		local language = public.get_language_by_name(language_name)
+		if not language then
+			return nil
+		end
+		return devicons.get_icon(
+			"example." .. language.extensions[1],
+			language.extensions[1],
+			{ default = true, strict = true }
+		)
+	end
+	return nil
 end
 
 return public

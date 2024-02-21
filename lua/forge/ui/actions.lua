@@ -3,6 +3,7 @@ local registry = require("forge.registry")
 local treesitter_parsers = require("nvim-treesitter.parsers")
 local lock = require("forge.lock")
 local mason_utils = require("forge.util.mason_utils")
+local os_utils = require("forge.util.os")
 
 local public = Table({})
 
@@ -23,7 +24,7 @@ end
 function public.toggle_install() -- TODO: this causes the physical cursor to be misaligned with the visual cursor
 	local line = ui.lines[ui.cursor_row]
 
-	---@type language
+	---@type Language
 	local language = nil
 	for _, registered_language in pairs(registry.languages) do
 		if registered_language.name == line.language then
@@ -32,8 +33,21 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 		end
 	end
 
+	-- Compiler
+	if line.type == "compiler_listing" then
+		-- Uninstall compiler
+		if os_utils.command_exists(line.internal_name) then
+
+		-- Install compiler
+		else
+			os_utils.install_package(line.name, line.internal_name)
+			table.insert(language.installed_compilers, { name = line.name, internal_name = line.internal_name })
+			registry.refresh_installed_totals(language)
+			registry.sort_languages()
+		end
+
 	-- Highlighter
-	if line.type == "highlighter_listing" then
+	elseif line.type == "highlighter_listing" then -- TODO: refactor this mess
 		if treesitter_parsers.has_parser(line.internal_name) then
 			vim.cmd(("TSUninstall %s"):format(line.internal_name))
 
@@ -47,13 +61,13 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 
 			table.remove(language.installed_highlighters, index)
 			registry.refresh_installed_totals(language)
-			registry.after_refresh()
+			registry.sort_languages()
 			ui.update_view()
 		else
 			vim.cmd(("TSInstall %s"):format(line.internal_name))
 			table.insert(language.installed_highlighters, { name = line.name, internal_name = line.internal_name })
 			registry.refresh_installed_totals(language)
-			registry.after_refresh()
+			registry.sort_languages()
 			ui.update_view()
 		end
 
@@ -87,7 +101,7 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.after_refresh()
+			registry.sort_languages()
 
 			---@type integer
 			index = nil
@@ -122,7 +136,7 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.after_refresh()
+			registry.sort_languages()
 
 			---@type integer
 			local index = nil
@@ -168,7 +182,7 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.after_refresh()
+			registry.sort_languages()
 
 			---@type integer
 			index = nil
@@ -204,7 +218,7 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.after_refresh()
+			registry.sort_languages()
 
 			---@type integer
 			local index = nil
@@ -251,7 +265,7 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.after_refresh()
+			registry.sort_languages()
 
 			---@type integer
 			index = nil
@@ -289,7 +303,7 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.after_refresh()
+			registry.sort_languages()
 
 			---@type integer
 			local index = nil
@@ -355,7 +369,7 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 		end
 
-		registry.after_refresh()
+		registry.sort_languages()
 
 		---@type integer
 		local index = nil
@@ -409,7 +423,7 @@ function public.expand()
 				local index_of_tool = ui.cursor_row
 				local language_name = ui.lines[ui.cursor_row].language
 
-				---@type language
+				---@type Language
 				local language = nil
 				for _, registry_language in pairs(registry.languages) do
 					if registry_language.name == language_name then
@@ -441,6 +455,8 @@ function public.expand()
 
 	ui.update_view()
 end
+
+-- PERF: these move cursor functions lag a lot when holding the button down
 
 -- Moves the cursor down one row in the buffer.
 --

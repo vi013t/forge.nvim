@@ -26,18 +26,19 @@ function public.setup_lsps()
 	end
 
 	-- Inlay Hints
-	local inlay_hint = vim.lsp.buf.inlay_hint or vim.lsp.inlay_hint
-	if config.options.lsp.inlay_hints.enabled and inlay_hint then
-		vim.api.nvim_create_autocmd("LspAttach", {
-			callback = function(args)
-				local buffer = args.buf ---@type number
-				local client = vim.lsp.get_client_by_id(args.data.client_id)
-				if client.supports_method("textDocument/inlayHint") then
-					inlay_hint(buffer, true)
-				end
-			end,
-		})
-	end
+	-- local inlay_hint = vim.lsp.buf.inlay_hint or vim.lsp.inlay_hint
+	-- if config.options.lsp.inlay_hints.enabled and inlay_hint then
+	-- 	vim.api.nvim_create_autocmd("LspAttach", {
+	-- 		callback = function(args)
+	-- 			local client = vim.lsp.get_client_by_id(args.data.client_id)
+	-- 			if client and client.supports_method("textDocument/inlayHint") then
+	-- 				if inlay_hint then
+	-- 					pcall(inlay_hint.enable) -- TODO: This is erroring on nightly atm, though seemed to work fine on stable 0.9. Needs investigating.
+	-- 				end
+	-- 			end
+	-- 		end,
+	-- 	})
+	-- end
 
 	-- Prefix virtual text with icons
 	if
@@ -101,6 +102,12 @@ function public.setup_lsps()
 	local has_eagle, eagle = pcall(require, "eagle")
 	if has_eagle then
 		eagle.setup({})
+	end
+
+	-- lsp_signature.nvim
+	local has_signature, signature = pcall(require, "lsp_signature")
+	if has_signature then
+		signature.setup({})
 	end
 end
 
