@@ -33,6 +33,9 @@ local public = {}
 ---@field icon string
 ---@field color string
 
+-- NOTE: when making dev changes to the registry, you'll need to delete your lockfile to see the changes.
+-- This is located at vim.fn.stdpath("data") .. "/forge.lock", which in most cases for linux is ~/.local/share/nvim/forge.lock
+
 ---@type table<string, Language>
 public.languages = {
 	bash = {
@@ -52,6 +55,11 @@ public.languages = {
 			{ internal_name = "bash-debug-adapter", name = "Bash Debug Adapter" },
 		},
 		additional_tools = {},
+		description = [[
+			Bash, also known as the Bourne Again SHell, is a Unix shell and command language. It was the default shell on most
+			Unix systems, though now many use zsh by default, such as MacOS and Kali Linux. It's a relatively primitive
+			scripting language that mainly just serves to act as the primary shell for the system.
+		]],
 		extensions = { "sh", "bash" },
 		icon = "󱆃",
 		color = "#89E051",
@@ -84,6 +92,12 @@ public.languages = {
 			{ internal_name = "cpptools", name = "C++ Tools" },
 		},
 		additional_tools = {},
+		description = [[
+			C is a statically typed, procedural systems language made in 1972 as an iteration of the B language.
+			It has stood the test of time as a popular language for systems programming, and is used in massive
+			projects like the Linux kernel, the Python interpreter, and the SQLite database engine. C sacrifices
+			safety to give the developer full control and performance.
+		]],
 		extensions = { "c", "h" },
 		icon = "󰙱",
 		color = "#599EFF",
@@ -113,6 +127,12 @@ public.languages = {
 		},
 		additional_tools = {},
 		extensions = { "h", "cpp", "hpp", "cxx", "cc", "c++", "hxx", "hh", "h++" },
+		description = [[
+			C++ is a statically typed object-oriented systems language created in 1983 as an extension of the C language.
+			It was originally made to be C with classes, but now has many more features, such as templates, exceptions, and
+			operator overloading. C++ is used in many large projects, such as game engines, web browsers, and embedded systems, 
+			though it's often criticized for its complexity.
+		]],
 		icon = "󰙲",
 		color = "#F34B7D",
 	},
@@ -140,6 +160,11 @@ public.languages = {
 				name = "C# Tools for Neovim",
 			},
 		},
+		description = [[
+			C# is a statically typed, object-oriented programming language created by Microsoft in 2000
+			along with the .NET framework. It is used for creating Windows applications, web applications,
+			and games using the Unity game engine. C# is a popular language for enterprise development.
+		]],
 		extensions = { "cs" },
 		icon = "󰌛",
 		color = "#596706",
@@ -314,6 +339,15 @@ public.languages = {
 				{ text = ">", foreground = "@operator" },
 			},
 			{
+				{ text = "    <", foreground = "@operator" },
+				{ text = "h1", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+				{ text = "Hello, world!", foreground = "Normal" },
+				{ text = "</", foreground = "@operator" },
+				{ text = "h1", foreground = "@tag" },
+				{ text = ">", foreground = "@operator" },
+			},
+			{
 				{ text = "</", foreground = "@operator" },
 				{ text = "body", foreground = "@tag" },
 				{ text = ">", foreground = "@operator" },
@@ -324,6 +358,11 @@ public.languages = {
 				{ text = ">", foreground = "@operator" },
 			},
 		},
+		description = [[
+			HTML (HyperText Markup Language) is the standard markup language for documents designed to be displayed in a web browser.
+			It is often used in conjunction with CSS and JavaScript to create web pages and web applications. HTML is not a programming
+			language in the traditional sense, but rather a markup language that defines the structure of some content.
+		]],
 		icon = "",
 		color = "#E44D26",
 	},
@@ -360,6 +399,12 @@ public.languages = {
 				name = "Java Refactorer",
 			},
 		},
+		description = [[
+			Java is a statically typed object-oriented programming language that compiles to bytecode which runs on the 
+			Java Virtual Machine (JVM). Java was created to be a write once, run anywhere language, and has been used in
+			games, web applications, and enterprise applications. Java is one of the most popular programming languages
+			in the industry today.
+		]],
 		extensions = { "java" },
 		icon = "",
 		color = "#CC3E44",
@@ -411,8 +456,7 @@ public.languages = {
 		description = [[
 			JSON, which stands for "JavaScript Object Notation", is a data serialization format. It is not a "programming language"
 			in the sense that it does not execute instructions or code, but rather it simply stores structured data. JSON is often
-			used to transfer data between a server and a client, and is commonly used in web development, due to its ease of use
-			with JavaScript.
+			used to transfer data and is commonly used in web development, due to its ease of use with JavaScript.
 		]],
 		icon = "",
 		color = "#CBCB41",
@@ -485,6 +529,12 @@ public.languages = {
 			},
 		},
 		extensions = { "lua" },
+		description = [[
+			Lua is a dynamically typed and highly embeddable scripting language created in 1993. It gained
+			popularity in the game development space, being used in games such as World of Warcraft and 
+			Roblox. Today, Lua is a popular configuration language for applications like Neovim, Wezterm,
+			and AwesomeWM, while still being widely used for game development.
+		]],
 		icon = "",
 		color = "#51A0CF",
 	},
@@ -502,6 +552,12 @@ public.languages = {
 		additional_tools = {},
 		icon = "󰍔",
 		color = "#FFFFFF",
+		description = [[
+			Markdown is a simple syntax for creating documents with basic formatting, like bold text, italics, and
+			bulleted lists. It's often used for documentation, README files, and note taking. Markdown is generally
+			not interpreted or compiled into another form, but rather is read and rendered by a program that understands
+			the syntax, like a web browser or a markdown viewer.
+		]],
 		extensions = { "md" },
 	},
 	ocaml = {
@@ -552,6 +608,12 @@ public.languages = {
 			},
 		},
 		extensions = { "py" },
+		description = [[
+			Python is a high-level, general purpose programming language created in 1991. It is known for
+			being a very easy language to learn and use, while also having an extremely powerful ecosystem
+			of libraries and tools. Python is used for web development, data analysis, machine learning, and
+			more, and is one of the most sought-after languages.
+		]],
 		icon = "",
 		color = "#FFBC03",
 	},
@@ -684,6 +746,11 @@ public.languages = {
 		},
 		debuggers = {},
 		additional_tools = {},
+		description = [[
+			Svelte is a component-based front-end web framework. Unlike most other web frameworks, Svelte compiles
+			to native JavaScript at build time, rather than interpreting the code at runtime. This results in smaller
+			bundle sizes and faster load times. Furthermore, Svelte is extremely simple to use and fast to iterate with.
+		]],
 		extensions = { "svelte" },
 		icon = "",
 		color = "#FF3E00",
@@ -720,6 +787,11 @@ public.languages = {
 		formatters = {},
 		debuggers = {},
 		additional_tools = {},
+		description = [[
+			Teal is a typed dialect of Lua that compiles to Lua. It is designed to build off of Lua's strengths
+			of simplicity and readability, while also making the language more safe and easier to debug at compile-time.
+			There are similar projects like TS2Lua, which compiles TypeScript to Lua, but Teal is the closest to Lua.
+		]],
 		extensions = { "tl" },
 		icon = "⚆",
 		color = "#007171",
@@ -735,6 +807,11 @@ public.languages = {
 		debuggers = {},
 		additional_tools = {},
 		extenstions = { "toml" },
+		description = [[
+			TOML, which stands for "Tom's Obvious, Minimal Language", is a simple configuration file format that is
+			designed to be easy to read and write. It is less verbose than JSON, and is often used for configuration,
+			such as in the Cargo.toml file for Rust projects, or for Python projects.
+		]],
 		icon = "",
 		color = "#FFFFFF",
 		extensions = { "toml" },
@@ -765,6 +842,11 @@ public.languages = {
 				description = "Show TypeScript types as virtual text with `// ^?` comments",
 			},
 		},
+		description = [[
+			TypeScript is a statically typed version of JavaScript, designed to make web development
+			easier and more maintainable with static types, allowing more mistakes to be caught at 
+			compile-time.
+		]],
 		extensions = { "ts", "tsx" },
 		icon = "󰛦",
 		color = "#519ABA",
@@ -839,6 +921,12 @@ public.languages = {
 		additional_tools = {
 			{ internal_name = "NTBBloodbath/zig-tools.nvim", name = "Zig Tools for Neovim" },
 		},
+		description = [[
+			Zig is a statically typed compiled systems language designed for creating extremely performant applications.
+			One of Zig's core design goals is to never allocate on the heap unless explicitly asked to, and utilizes
+			custom allocators to handle memory management. Zig is designed to be simple, fast, and safe, and is quickly
+			gaining traction.
+		]],
 		extensions = { "zig" },
 		icon = "",
 		color = "#F69A1B",

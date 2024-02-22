@@ -440,7 +440,7 @@ local function draw_languages()
 			local buffer = ""
 			for index = 1, #input_string, split_length do
 				---@type string
-				local line = buffer .. input_string:sub(index, index + split_length - 1 - #buffer)
+				local line = buffer:reverse() .. input_string:sub(index, index + split_length - 1 - #buffer) -- TODO: this is cutting some characters off
 				buffer = ""
 				while line:sub(-1) and line:sub(-1) ~= " " do
 					buffer = buffer .. line:sub(-1)
@@ -539,17 +539,26 @@ local function draw_languages()
 				local cursor_language = public.get_language_under_cursor()
 				if cursor_language and language_index == 1 then
 					-- Spacing
-					table.insert(post_line, { text = (" "):rep(113) })
+					table.insert(post_line, { text = (" "):rep(88) })
+					table.insert(
+						post_line,
+						{ text = (" "):rep(29 - (#cursor_language + #cursor_language % 2) / 2), background = "#333355" }
+					)
 
 					-- Icon
 					local cursor_language_object = assert(registry.get_language_by_name(cursor_language))
-					table.insert(
-						post_line,
-						{ text = cursor_language_object.icon .. " ", foreground = cursor_language_object.color }
-					)
+					table.insert(post_line, {
+						text = cursor_language_object.icon .. " ",
+						foreground = cursor_language_object.color,
+						background = "#333355", -- TODO: think of a bettery way to get this that's theme-independent
+					})
 
 					-- Name
-					table.insert(post_line, { text = cursor_language })
+					table.insert(post_line, { text = cursor_language, background = "#333355" })
+					table.insert(
+						post_line,
+						{ text = (" "):rep(29 - (#cursor_language + #cursor_language % 2) / 2), background = "#333355" }
+					)
 				end
 
 				-- Description
@@ -565,8 +574,15 @@ local function draw_languages()
 				end
 
 				-- Example snippet
+				if language_index == 13 then
+					table.insert(post_line, { text = (" "):rep(88) })
+					table.insert(post_line, { text = (" "):rep(26), background = "#222244" })
+					table.insert(post_line, { text = "Example", background = "#222244" })
+					table.insert(post_line, { text = (" "):rep(26), background = "#222244" })
+				end
+
 				if public.current_snippet_lines then
-					local snippet_line_index = language_index - 10
+					local snippet_line_index = language_index - 14
 					local current_line = public.current_snippet_lines[snippet_line_index]
 					if current_line then
 						local offset = -language.name:len() + 90
