@@ -2,9 +2,9 @@ local public = Table({})
 
 --- The default configuration options
 public.default_config = {
-	developer_mode = false, -- Print debug messages
+	developer_mode = false,                          -- Print debug messages
 	lockfile = vim.fn.stdpath("data") .. "/forge.lock", -- The path to the file which saves what you have installed, so that we don't need to check every time.
-	format_on_save = true, -- Autoformat buffers on save
+	format_on_save = true,                           -- Autoformat buffers on save
 
 	-- UI --
 	ui = {
@@ -38,9 +38,9 @@ public.default_config = {
 		},
 		colors = {
 			progress_colors = {
-				{ "#FF0000" }, -- Language has no tools available
-				{ "#FF0000", "#00FF00" }, -- Language has 1 tool available
-				{ "#FF0000", "#FFFF00", "#00FF00" }, -- Language has 2 tools available
+				{ "#FF0000" },                                 -- Language has no tools available
+				{ "#FF0000", "#00FF00" },                      -- Language has 1 tool available
+				{ "#FF0000", "#FFFF00", "#00FF00" },           -- Language has 2 tools available
 				{ "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" }, -- Language has 3 tools available
 				{ "#FF0000", "#FF8800", "#FFFF00", "#BBFF00", "#00FF00" }, -- Language has 5 tools available
 				{ "#FF0000", "#FF6600", "#FFAA00", "#FFFF00", "#BBFF00", "#00FF00" },
@@ -62,7 +62,6 @@ public.default_config = {
 			virtual_text = {
 				spacing = 4,
 				source = "if_many",
-				prefix = " ",
 			},
 			severity_sort = true,
 		},

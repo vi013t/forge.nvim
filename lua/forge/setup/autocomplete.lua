@@ -7,6 +7,7 @@ function public.setup_autocomplete()
 	if has_cmp then
 		local has_lspkind, lspkind = pcall(require, "lspkind")
 		local formatting = nil
+
 		if has_lspkind then
 			formatting = {
 				format = lspkind.cmp_format(config.options.autocomplete.format),
@@ -19,10 +20,14 @@ function public.setup_autocomplete()
 					require("luasnip").lsp_expand(args.body)
 				end,
 			},
-			-- window = {
-			-- 	completion = cmp.config.window.bordered(),
-			-- 	documentation = cmp.config.window.bordered(),
-			-- },
+			window = {
+				completion = cmp.config.window.bordered({
+					winhighlight = "Normal:Normal,FloatBorder:BorderBG,CursorLine:PmenuSel,Search:None",
+				}),
+				documentation = cmp.config.window.bordered({
+					winhighlight = "Normal:Normal,FloatBorder:BorderBG,CursorLine:PmenuSel,Search:None",
+				}),
+			},
 			mapping = cmp.mapping.preset.insert({
 				["<C-b>"] = cmp.mapping.scroll_docs(-4),
 				["<C-f>"] = cmp.mapping.scroll_docs(4),

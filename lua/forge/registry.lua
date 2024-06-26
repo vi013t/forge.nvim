@@ -63,11 +63,6 @@ public.languages = {
 		extensions = { "sh", "bash" },
 		icon = "󱆃",
 		color = "#89E051",
-		--[[
-			NOTE: this could be done with nvim-web-devicons. I didn't really want to add another dependency if it wasn't necessary,
-		-- especially given that I don't need all of the funcitonality to get special icons for specific file names and stuff. Regardless,
-		-- it would reduce the amount of work required to add new languages, so I think it's worth keeping in consideration.
-		--]]
 	},
 	c = {
 		name = "C",
@@ -76,11 +71,11 @@ public.languages = {
 			{ internal_name = "c", name = "TreeSitter" },
 		},
 		compilers = {
-			{ internal_name = "cc", name = "Custom C Compiler" },
-			{ internal_name = "gcc", name = "GNU C Compiler" },
-			{ internal_name = "tcc", name = "Tiny C Compiler" },
-			{ internal_name = "zig", name = "Zig C Compiler" },
+			{ internal_name = "cc",    name = "Custom C Compiler" },
 			{ internal_name = "clang", name = "Clang Compiler" },
+			{ internal_name = "gcc",   name = "GNU C Compiler" },
+			{ internal_name = "tcc",   name = "Tiny C Compiler" },
+			{ internal_name = "zig",   name = "Zig C Compiler" },
 		},
 		formatters = {
 			{ internal_name = "clang-format", name = "Clang Format" },
@@ -109,17 +104,17 @@ public.languages = {
 			{ internal_name = "cpp", name = "TreeSitter" },
 		},
 		compilers = {
-			{ internal_name = "cc", name = "Custom C Compiler" },
-			{ internal_name = "gcc", name = "GNU C Compiler" },
-			{ internal_name = "tcc", name = "Tiny C Compiler" },
-			{ internal_name = "zig", name = "Zig C Compiler" },
+			{ internal_name = "cc",    name = "Custom C Compiler" },
+			{ internal_name = "gcc",   name = "GNU C Compiler" },
+			{ internal_name = "tcc",   name = "Tiny C Compiler" },
+			{ internal_name = "zig",   name = "Zig C Compiler" },
 			{ internal_name = "clang", name = "Clang Compiler" },
 		},
 		formatters = {
 			{ internal_name = "clang-format", name = "Clang Format" },
 		},
 		linters = {
-			{ internal_name = "clangd", name = "Clang Daemon" },
+			{ internal_name = "clangd",  name = "Clang Daemon" },
 			{ internal_name = "cpplint", name = "C++ Linter" },
 		},
 		debuggers = {
@@ -130,7 +125,7 @@ public.languages = {
 		description = [[
 			C++ is a statically typed object-oriented systems language created in 1983 as an extension of the C language.
 			It was originally made to be C with classes, but now has many more features, such as templates, exceptions, and
-			operator overloading. C++ is used in many large projects, such as game engines, web browsers, and embedded systems, 
+			operator overloading. C++ is used in many large projects, such as game engines, web browsers, and embedded systems,
 			though it's often criticized for its complexity.
 		]],
 		icon = "󰙲",
@@ -210,7 +205,8 @@ public.languages = {
 			{
 				type = "plugin",
 				internal_name = "ray-x/go.nvim",
-				description = "Everything you need to develop Go in Neovim - including preproject setup, async jobs, improved highlighting, test coverage, and more.",
+				description =
+				"Everything you need to develop Go in Neovim - including preproject setup, async jobs, improved highlighting, test coverage, and more.",
 				name = "Go Tools for Neovim",
 			},
 			{
@@ -251,17 +247,18 @@ public.languages = {
 			{ internal_name = "html", name = "TreeSitter" },
 		},
 		compilers = { -- TODO: I would like to think of a clever way to cleanly wrap lines
-			none_available_reason = "HTML is a markup language, meaning it just describes the structure of a web page. As such, it doesn't have a compiler or interpreter; It's interpreted by a web browser.",
+			none_available_reason =
+			"HTML is a markup language, meaning it just describes the structure of a web page. As such, it doesn't have a compiler or interpreter; It's interpreted by a web browser.",
 		},
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" },
 		},
 		linters = {
-			{ internal_name = "html-lsp", name = "HTML Language Server" },
-			{ internal_name = "emmet-language-server", name = "Emmet Language Server" },
-			{ internal_name = "emmet-ls", name = "Emmet Language Server" },
+			{ internal_name = "html-lsp",                    name = "HTML Language Server" },
+			{ internal_name = "emmet-language-server",       name = "Emmet Language Server" },
+			{ internal_name = "emmet-ls",                    name = "Emmet Language Server" },
 			{ internal_name = "tailwindcss-language-server", name = "Tailwind CSS Language Server" },
-			{ internal_name = "rustywind", name = "Rusty Wind" },
+			{ internal_name = "rustywind",                   name = "Rusty Wind" },
 		},
 		debuggers = {},
 		additional_tools = {
@@ -275,87 +272,87 @@ public.languages = {
 		extensions = { "html", "htm" },
 		example_snippet = {
 			{
-				{ text = "<", foreground = "@operator" },
+				{ text = "<",         foreground = "@operator" },
 				{ text = "!DOCTYPE ", foreground = "@tag" },
-				{ text = "html", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = "html",      foreground = "@tag" },
+				{ text = ">",         foreground = "@operator" },
 			},
 			{
-				{ text = "<", foreground = "@operator" },
+				{ text = "<",    foreground = "@operator" },
 				{ text = "html", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = ">",    foreground = "@operator" },
 			},
 			{
-				{ text = "<", foreground = "@operator" },
+				{ text = "<",    foreground = "@operator" },
 				{ text = "head", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = ">",    foreground = "@operator" },
 			},
 			{
-				{ text = "    <", foreground = "@operator" },
-				{ text = "meta ", foreground = "@tag" },
+				{ text = "    <",   foreground = "@operator" },
+				{ text = "meta ",   foreground = "@tag" },
 				{ text = "charset", foreground = "@attribute" },
-				{ text = "=", foreground = "@operator" },
+				{ text = "=",       foreground = "@operator" },
 				{ text = '"UTF-8"', foreground = "@string" },
-				{ text = "/>", foreground = "@operator" },
+				{ text = "/>",      foreground = "@operator" },
 			},
 			{
-				{ text = "    <", foreground = "@operator" },
-				{ text = "meta ", foreground = "@tag" },
-				{ text = "author", foreground = "@attribute" },
-				{ text = "=", foreground = "@operator" },
+				{ text = "    <",              foreground = "@operator" },
+				{ text = "meta ",              foreground = "@tag" },
+				{ text = "author",             foreground = "@attribute" },
+				{ text = "=",                  foreground = "@operator" },
 				{ text = '"Violet Iapalucci"', foreground = "@string" },
-				{ text = "/>", foreground = "@operator" },
+				{ text = "/>",                 foreground = "@operator" },
 			},
 			{ text = " " },
 			{
-				{ text = "    <", foreground = "@operator" },
-				{ text = "link ", foreground = "@tag" },
-				{ text = "rel", foreground = "@attribute" },
-				{ text = "=", foreground = "@operator" },
-				{ text = '"icon" ', foreground = "@string" },
-				{ text = "href", foreground = "@attribute" },
-				{ text = "=", foreground = "@operator" },
+				{ text = "    <",                       foreground = "@operator" },
+				{ text = "link ",                       foreground = "@tag" },
+				{ text = "rel",                         foreground = "@attribute" },
+				{ text = "=",                           foreground = "@operator" },
+				{ text = '"icon" ',                     foreground = "@string" },
+				{ text = "href",                        foreground = "@attribute" },
+				{ text = "=",                           foreground = "@operator" },
 				{ text = '"assets/images/favicon.ico"', foreground = "@string" },
-				{ text = "/>", foreground = "@operator" },
+				{ text = "/>",                          foreground = "@operator" },
 			},
 			{ text = " " },
 			{
-				{ text = "    <", foreground = "@operator" },
-				{ text = "title", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = "    <",           foreground = "@operator" },
+				{ text = "title",           foreground = "@tag" },
+				{ text = ">",               foreground = "@operator" },
 				{ text = "My epic webpage", foreground = "Normal" },
-				{ text = "</", foreground = "@operator" },
-				{ text = "title", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = "</",              foreground = "@operator" },
+				{ text = "title",           foreground = "@tag" },
+				{ text = ">",               foreground = "@operator" },
 			},
 			{
-				{ text = "</", foreground = "@operator" },
+				{ text = "</",   foreground = "@operator" },
 				{ text = "head", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = ">",    foreground = "@operator" },
 			},
 			{
-				{ text = "<", foreground = "@operator" },
+				{ text = "<",    foreground = "@operator" },
 				{ text = "body", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = ">",    foreground = "@operator" },
 			},
 			{
-				{ text = "    <", foreground = "@operator" },
-				{ text = "h1", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = "    <",         foreground = "@operator" },
+				{ text = "h1",            foreground = "@tag" },
+				{ text = ">",             foreground = "@operator" },
 				{ text = "Hello, world!", foreground = "Normal" },
-				{ text = "</", foreground = "@operator" },
-				{ text = "h1", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = "</",            foreground = "@operator" },
+				{ text = "h1",            foreground = "@tag" },
+				{ text = ">",             foreground = "@operator" },
 			},
 			{
-				{ text = "</", foreground = "@operator" },
+				{ text = "</",   foreground = "@operator" },
 				{ text = "body", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = ">",    foreground = "@operator" },
 			},
 			{
-				{ text = "</", foreground = "@operator" },
+				{ text = "</",   foreground = "@operator" },
 				{ text = "html", foreground = "@tag" },
-				{ text = ">", foreground = "@operator" },
+				{ text = ">",    foreground = "@operator" },
 			},
 		},
 		description = [[
@@ -379,7 +376,7 @@ public.languages = {
 			{ internal_name = "google-java-format", name = "Google Java Formatter" },
 		},
 		linters = {
-			{ internal_name = "java-language-server", name = "Java Language Server" },
+			{ internal_name = "java-language-server",   name = "Java Language Server" },
 			{ internal_name = "gradle-language-server", name = "Gradle Language Server" },
 		},
 		debuggers = {
@@ -400,7 +397,7 @@ public.languages = {
 			},
 		},
 		description = [[
-			Java is a statically typed object-oriented programming language that compiles to bytecode which runs on the 
+			Java is a statically typed object-oriented programming language that compiles to bytecode which runs on the
 			Java Virtual Machine (JVM). Java was created to be a write once, run anywhere language, and has been used in
 			games, web applications, and enterprise applications. Java is one of the most popular programming languages
 			in the industry today.
@@ -425,7 +422,7 @@ public.languages = {
 			{ internal_name = "prettier", name = "Prettier" },
 		},
 		debuggers = {
-			{ internal_name = "js-debug-adapter", name = "JavaScript Debug Adapter" },
+			{ internal_name = "js-debug-adapter",     name = "JavaScript Debug Adapter" },
 			{ internal_name = "chrome-debug-adapter", name = "Chrome Debug Adapter" },
 		},
 		additional_tools = {},
@@ -510,7 +507,7 @@ public.languages = {
 			{ internal_name = "lua", name = "TreeSitter" },
 		},
 		compilers = {
-			{ internal_name = "lua", name = "Lua Compiler" },
+			{ internal_name = "lua",    name = "Lua Compiler" },
 			{ internal_name = "luajit", name = "Lua Just-in-Time Compiler" },
 		},
 		linters = {
@@ -531,7 +528,7 @@ public.languages = {
 		extensions = { "lua" },
 		description = [[
 			Lua is a dynamically typed and highly embeddable scripting language created in 1993. It gained
-			popularity in the game development space, being used in games such as World of Warcraft and 
+			popularity in the game development space, being used in games such as World of Warcraft and
 			Roblox. Today, Lua is a popular configuration language for applications like Neovim, Wezterm,
 			and AwesomeWM, while still being widely used for game development.
 		]],
@@ -621,7 +618,7 @@ public.languages = {
 		name = "R",
 		compiler_type = "interpreter",
 		compilers = {
-			{ internal_name = "R", name = "R Interpreter" },
+			{ internal_name = "R",       name = "R Interpreter" },
 			{ internal_name = "Rscript", name = "R-Script" },
 		},
 		highlighters = {
@@ -690,37 +687,38 @@ public.languages = {
 			{
 				type = "plugin",
 				internal_name = "rust-lang/rust.vim",
-				description = "Up-to-date support for Rust tooling in Neovim, including integration with Syntastic, Tagbar, Playpen, and more, and enables auto-formatting with rustfmt on save without an external formatter.",
+				description =
+				"Up-to-date support for Rust tooling in Neovim, including integration with Syntastic, Tagbar, Playpen, and more, and enables auto-formatting with rustfmt on save without an external formatter.",
 				name = "Rust Vim Support",
 			},
 		},
 		example_snippet = {
 			{
-				{ text = "fn ", foreground = "@keyword.function" },
-				{ text = "main", foreground = "@function" },
+				{ text = "fn ",    foreground = "@keyword.function" },
+				{ text = "main",   foreground = "@function" },
 				{ text = "() -> ", foreground = "@punctuation" },
-				{ text = "Box", foreground = "@type" },
-				{ text = "<", foreground = "@punctuation" },
-				{ text = "dyn ", foreground = "@keyword" },
-				{ text = "Error", foreground = "@type" },
-				{ text = "> {", foreground = "@punctuation" },
+				{ text = "Box",    foreground = "@type" },
+				{ text = "<",      foreground = "@punctuation" },
+				{ text = "dyn ",   foreground = "@keyword" },
+				{ text = "Error",  foreground = "@type" },
+				{ text = "> {",    foreground = "@punctuation" },
 			},
 			{
 				{ text = "    let ", foreground = "@keyword" }, -- TODO: allow configurable tab sizing
-				{ text = "mut ", foreground = "@keyword" },
-				{ text = "x", foreground = "@variable" },
-				{ text = " = ", foreground = "@punctuation" },
-				{ text = "5", foreground = "@number" },
-				{ text = ";", foreground = "@punctuation" },
+				{ text = "mut ",     foreground = "@keyword" },
+				{ text = "x",        foreground = "@variable" },
+				{ text = " = ",      foreground = "@punctuation" },
+				{ text = "5",        foreground = "@number" },
+				{ text = ";",        foreground = "@punctuation" },
 			},
 			{
 				{ text = "    let ", foreground = "@keyword" },
-				{ text = "mut ", foreground = "@keyword" },
-				{ text = "y", foreground = "@variable" },
-				{ text = " = &", foreground = "@punctuation" },
-				{ text = "mut ", foreground = "@keyword" },
-				{ text = "x", foreground = "@variable" },
-				{ text = ";", foreground = "@punctuation" },
+				{ text = "mut ",     foreground = "@keyword" },
+				{ text = "y",        foreground = "@variable" },
+				{ text = " = &",     foreground = "@punctuation" },
+				{ text = "mut ",     foreground = "@keyword" },
+				{ text = "x",        foreground = "@variable" },
+				{ text = ";",        foreground = "@punctuation" },
 			},
 			{
 				{ text = "}", foreground = "@punctuation" },
@@ -821,14 +819,14 @@ public.languages = {
 		compiler_type = "transpiler",
 		highlighters = {
 			{ internal_name = "typescript", name = "TypeScript TreeSitter" },
-			{ internal_name = "tsx", name = "TypeScript + React TreeSitter" },
+			{ internal_name = "tsx",        name = "TypeScript + React TreeSitter" },
 		},
 		compilers = {
 			{ internal_name = "tsc", name = "TypeScript Transpiler" },
 		},
 		linters = {
 			{ internal_name = "typescript-language-server", name = "TypeScript Language Server" },
-			{ internal_name = "angular-language-server", name = "Angular Language Server" },
+			{ internal_name = "angular-language-server",    name = "Angular Language Server" },
 		},
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" },
@@ -844,7 +842,7 @@ public.languages = {
 		},
 		description = [[
 			TypeScript is a statically typed version of JavaScript, designed to make web development
-			easier and more maintainable with static types, allowing more mistakes to be caught at 
+			easier and more maintainable with static types, allowing more mistakes to be caught at
 			compile-time.
 		]],
 		extensions = { "ts", "tsx" },

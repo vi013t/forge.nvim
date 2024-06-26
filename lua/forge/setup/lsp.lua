@@ -26,28 +26,25 @@ function public.setup_lsps()
 	end
 
 	-- Inlay Hints
-	-- local inlay_hint = vim.lsp.buf.inlay_hint or vim.lsp.inlay_hint
-	-- if config.options.lsp.inlay_hints.enabled and inlay_hint then
-	-- 	vim.api.nvim_create_autocmd("LspAttach", {
-	-- 		callback = function(args)
-	-- 			local client = vim.lsp.get_client_by_id(args.data.client_id)
-	-- 			if client and client.supports_method("textDocument/inlayHint") then
-	-- 				if inlay_hint then
-	-- 					pcall(inlay_hint.enable) -- TODO: This is erroring on nightly atm, though seemed to work fine on stable 0.9. Needs investigating.
-	-- 				end
-	-- 			end
-	-- 		end,
-	-- 	})
-	-- end
+	local inlay_hint = vim.lsp.buf.inlay_hint or vim.lsp.inlay_hint
+	if config.options.lsp.inlay_hints.enabled and inlay_hint then
+		vim.api.nvim_create_autocmd("LspAttach", {
+			callback = function(args)
+				local client = vim.lsp.get_client_by_id(args.data.client_id)
+				if client and client.supports_method("textDocument/inlayHint") then
+					if inlay_hint then
+						pcall(inlay_hint.enable) -- TODO: This is erroring on nightly atm, though seemed to work fine on stable 0.9. Needs investigating.
+					end
+				end
+			end,
+		})
+	end
 
 	-- Prefix virtual text with icons
-	if
-		type(config.options.lsp.diagnostics.virtual_text) == "table"
-		and config.options.lsp.diagnostics.virtual_text.prefix == "icons"
-	then
+	if type(config.options.lsp.diagnostics.virtual_text) == "table" then
 		config.options.lsp.diagnostics.virtual_text.prefix = function(diagnostic)
-			for d, icon in pairs(config.options.lsp.icons) do
-				if diagnostic.severity == vim.diagnostic.severity[d:upper()] then
+			for severity, icon in pairs(config.options.lsp.icons) do
+				if diagnostic.severity == vim.diagnostic.severity[severity:upper()] then
 					return icon
 				end
 			end

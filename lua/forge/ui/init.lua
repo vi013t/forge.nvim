@@ -311,7 +311,7 @@ local function draw_tool(language, tool_name)
 					write_buffer:insert({ text = ")", foreground = "Comment" })
 				end
 
-			-- Tool is not installed
+				-- Tool is not installed
 			else
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#FF0000" })
@@ -387,7 +387,7 @@ local function draw_expanded_language(language)
 				text = "    " .. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
 				foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
 			},
-			{ text = " " .. language.name },
+			{ text = "  " .. language.name },
 			{ text = " ▾", foreground = "Comment" },
 			{ text = "   (Press ", foreground = "Comment" },
 			{ text = "e", foreground = "#AAAA77" },
@@ -410,7 +410,7 @@ local function draw_expanded_language(language)
 				text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
 				foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
 			},
-			{ text = " " },
+			{ text = "  " },
 			{ text = language.name },
 			{ text = " ▾", foreground = "Comment" },
 		})
@@ -430,45 +430,6 @@ local function draw_languages()
 		language_index = language_index + 1
 		local language = registry.languages[key]
 
-		-- Description
-
-		---@param input_string string
-		---@param split_length integer
-		local function split_string_by_length(input_string, split_length)
-			local result = {}
-
-			local buffer = ""
-			for index = 1, #input_string, split_length do
-				---@type string
-				local line = buffer:reverse() .. input_string:sub(index, index + split_length - 1 - #buffer) -- TODO: this is cutting some characters off
-				buffer = ""
-				while line:sub(-1) and line:sub(-1) ~= " " do
-					buffer = buffer .. line:sub(-1)
-					line = line:sub(1, -2)
-				end
-				table.insert(result, line)
-			end
-
-			return result
-		end
-
-		local language_under_cursor = registry.get_language_by_name(public.get_language_under_cursor())
-		if language_under_cursor then
-			if language_under_cursor.description then
-				local description_raw = language_under_cursor.description:gsub("%s*\r?\n%s*", " "):gsub("^%s+", "")
-				local description_lines = split_string_by_length(description_raw, 60)
-				public.current_description_lines = description_lines
-			else
-				public.current_description_lines = nil
-			end
-
-			if language_under_cursor.example_snippet then
-				public.current_snippet_lines = language_under_cursor.example_snippet
-			else
-				public.current_snippet_lines = nil
-			end
-		end
-
 		if public.expanded_languages:contains(language.name) then
 			draw_expanded_language(language)
 			draw_tool(language, "compilers")
@@ -485,7 +446,7 @@ local function draw_languages()
 							.. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
 						foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
 					},
-					{ text = " " .. language.name },
+					{ text = "  " .. language.name },
 					{ text = " ▸", foreground = "Comment" },
 					{ text = "   (Press ", foreground = "Comment" },
 					{ text = "e", foreground = "#AAAA77" },
@@ -513,14 +474,6 @@ local function draw_languages()
 					end
 				end
 
-				-- Example snippet
-				-- if language.example_snippet then
-				-- 	table.insert(line_after_language, { text = (" "):rep(30) })
-				-- 	for _, token in ipairs(language.example_snippet[1]) do
-				-- 		table.insert(line_after_language, token)
-				-- 	end
-				-- end
-
 				write_line(line_after_language)
 			else
 				---@type { text: string, foreground?: string, background?: string, italicize?: boolean, bold?: boolean }[]
@@ -530,68 +483,10 @@ local function draw_languages()
 						text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
 						foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
 					},
-					{ text = " " },
+					{ text = "  " },
 					{ text = language.name },
 					{ text = " ▸", foreground = "Comment" },
 				}
-
-				-- Name
-				local cursor_language = public.get_language_under_cursor()
-				if cursor_language and language_index == 1 then
-					-- Spacing
-					table.insert(post_line, { text = (" "):rep(88) })
-					table.insert(
-						post_line,
-						{ text = (" "):rep(29 - (#cursor_language + #cursor_language % 2) / 2), background = "#333355" }
-					)
-
-					-- Icon
-					local cursor_language_object = assert(registry.get_language_by_name(cursor_language))
-					table.insert(post_line, {
-						text = cursor_language_object.icon .. " ",
-						foreground = cursor_language_object.color,
-						background = "#333355", -- TODO: think of a bettery way to get this that's theme-independent
-					})
-
-					-- Name
-					table.insert(post_line, { text = cursor_language, background = "#333355" })
-					table.insert(
-						post_line,
-						{ text = (" "):rep(29 - (#cursor_language + #cursor_language % 2) / 2), background = "#333355" }
-					)
-				end
-
-				-- Description
-				if public.current_description_lines then
-					local description_line_index = language_index - 2
-					if public.current_description_lines[description_line_index] then
-						local offset = -language.name:len() + 90
-						table.insert(
-							post_line,
-							{ text = (" "):rep(offset) .. public.current_description_lines[description_line_index] }
-						)
-					end
-				end
-
-				-- Example snippet
-				if language_index == 13 then
-					table.insert(post_line, { text = (" "):rep(88) })
-					table.insert(post_line, { text = (" "):rep(26), background = "#222244" })
-					table.insert(post_line, { text = "Example", background = "#222244" })
-					table.insert(post_line, { text = (" "):rep(26), background = "#222244" })
-				end
-
-				if public.current_snippet_lines then
-					local snippet_line_index = language_index - 14
-					local current_line = public.current_snippet_lines[snippet_line_index]
-					if current_line then
-						local offset = -language.name:len() + 90
-						table.insert(post_line, { text = (" "):rep(offset) })
-						for _, token in ipairs(current_line) do
-							table.insert(post_line, token)
-						end
-					end
-				end
 
 				write_line(post_line)
 			end
@@ -612,9 +507,9 @@ function public.update_view()
 	write_line({ { text = " Forge ", background = "#CC99FF", foreground = "#000000" } }, true)
 	write_line({ { text = "" } })
 	write_line({
-		{ text = " Expand (e) ", background = "#99FFFF", foreground = "#000000" },
+		{ text = " Expand (e) ",    background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
-		{ text = " Install (i) ", background = "#99FFFF", foreground = "#000000" },
+		{ text = " Install (i) ",   background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Uninstall (u) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
@@ -626,9 +521,9 @@ function public.update_view()
 		-- { text = " Prefer (p) ", background = "#99FFFF", foreground = "#000000" },
 		-- { text = "   " },
 
-		{ text = " Refresh (r) ", background = "#99FFFF", foreground = "#000000" },
+		{ text = " Refresh (r) ",   background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
-		{ text = " Quit (q) ", background = "#99FFFF", foreground = "#000000" },
+		{ text = " Quit (q) ",      background = "#99FFFF", foreground = "#000000" },
 	}, true)
 	draw_languages()
 	write_line({ { text = "" } })
