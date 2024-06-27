@@ -4,9 +4,22 @@ local public = {}
 
 function public.setup_lsps()
 	-- Neodev (must be set up before lspconfig)
-	local has_neodev, neodev = pcall(require, "neodev")
-	if has_neodev then
-		neodev.setup({})
+	local has_lazydev, lazydev = pcall(require, "lazydev")
+	if has_lazydev then
+		lazydev.setup({})
+	end
+
+	-- Fidget
+	local has_fidget, fidget = pcall(require, "fidget")
+	if has_fidget then
+		fidget.setup({})
+	end
+
+	-- Eagle
+	local has_eagle, eagle = pcall(require, "eagle")
+	if has_eagle then
+		vim.o.mousemoveevent = true
+		eagle.setup({})
 	end
 
 	-- Mason
@@ -33,7 +46,7 @@ function public.setup_lsps()
 				local client = vim.lsp.get_client_by_id(args.data.client_id)
 				if client and client.supports_method("textDocument/inlayHint") then
 					if inlay_hint then
-						pcall(inlay_hint.enable) -- TODO: This is erroring on nightly atm, though seemed to work fine on stable 0.9. Needs investigating.
+						inlay_hint.enable()
 					end
 				end
 			end,
