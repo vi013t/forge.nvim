@@ -2,7 +2,7 @@
 
 <center>
 
-`Forge.nvim` provides a GUI organizing and collecting several essential plugins including `mason.nvim`, `nvim-treesitter`, and many more, as well as managing compiler and interpreter installations. `forge.nvim` also automatically sets up language servers, autocomplete, and autoformatters with no configuration necessary.
+`Forge.nvim` provides a GUI organizing and collecting several essential plugins including `mason.nvim`, `nvim-treesitter`, and many more, as well as managing compiler and interpreter installations. `forge.nvim` also automatically sets up language servers, autocomplete, and autoformatters with no configuration necessary. The goal of Forge.nvim is to remove the hassle of setting up LSPs in Neovim.
 
 </center>
 
@@ -10,7 +10,7 @@
 
 ![demo](./docs/demo.png)
 
-<span style="color: red">**Warning: Forge.nvim is still in a pre-alpha state and does not have all of the listed functionality.**</span>
+Forge.nvim provides this window in which you can install language servers, formatters, highlighters, and more with a single button press. Forge will automatically set up your LSP and related tools. The only reason you'd have to write any LSP configuration at all would be if you wanted to customize the appearance, such as changing borders or colors or icons. Otherwise, you don't have to write a single line of LSP setup.
 
 # Example Installation & Configuration
 

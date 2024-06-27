@@ -108,12 +108,6 @@ function public.setup_lsps()
 	end
 	mlsp.setup({ ensure_installed = ensure_installed, handlers = { setup_server } })
 
-	-- Eagle.nvim
-	local has_eagle, eagle = pcall(require, "eagle")
-	if has_eagle then
-		eagle.setup({})
-	end
-
 	-- lsp_signature.nvim
 	local has_signature, signature = pcall(require, "lsp_signature")
 	if has_signature then
