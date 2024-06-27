@@ -507,9 +507,9 @@ function public.update_view()
 	write_line({ { text = " Forge ", background = "#CC99FF", foreground = "#000000" } }, true)
 	write_line({ { text = "" } })
 	write_line({
-		{ text = " Expand (e) ",    background = "#99FFFF", foreground = "#000000" },
+		{ text = " Expand (e) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
-		{ text = " Install (i) ",   background = "#99FFFF", foreground = "#000000" },
+		{ text = " Install (i) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Uninstall (u) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
@@ -521,9 +521,9 @@ function public.update_view()
 		-- { text = " Prefer (p) ", background = "#99FFFF", foreground = "#000000" },
 		-- { text = "   " },
 
-		{ text = " Refresh (r) ",   background = "#99FFFF", foreground = "#000000" },
+		{ text = " Refresh (r) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
-		{ text = " Quit (q) ",      background = "#99FFFF", foreground = "#000000" },
+		{ text = " Quit (q) ", background = "#99FFFF", foreground = "#000000" },
 	}, true)
 	draw_languages()
 	write_line({ { text = "" } })
