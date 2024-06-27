@@ -12,33 +12,32 @@
 
 <span style="color: red">**Warning: Forge.nvim is still in a pre-alpha state and does not have all of the listed functionality.**</span>
 
-# Example Installations & Configuration
+# Example Installation & Configuration
 
-Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future.
+Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future. Below, you can choose from a few different installation options, such as "give me everything" and "let me choose what I need".
 
 <details>
 <summary>Full-feature no-hassle setup</summary>
 
 ```lua
 {
-    "neph-iap/forge.nvim",
+    dir = "vi013t/forge.nvim",
     dependencies = {
-        "nvim-treesitter/nvim-treesitter",
-        "williamboman/mason.nvim",
-        "neovim/nvim-lspconfig",
-        "williamboman/mason-lspconfig.nvim",
-        "stevearc/conform.nvim",
-        "hrsh7th/nvim-cmp",
-        "hrsh7th/cmp-cmdline",
-        "hrsh7th/cmp-buffer",
-        "hrsh7th/cmp-path",
-        "hrsh7th/cmp-nvim-lsp",
-        "L3MON4D3/LuaSnip",
-        "onsails/lspkind.nvim",
-        "soulis-1256/eagle.nvim",
-        "folke/neodev.nvim",
-        "smjonas/inc-rename.nvim",
-        "stevearc/dressing.nvim",
+        "nvim-treesitter/nvim-treesitter", 
+        "williamboman/mason.nvim", 
+        "neovim/nvim-lspconfig", 
+        "williamboman/mason-lspconfig.nvim", 
+        "hrsh7th/nvim-cmp",      
+        "hrsh7th/cmp-nvim-lsp",  
+        "hrsh7th/cmp-cmdline",   
+        "hrsh7th/cmp-buffer",    
+        "hrsh7th/cmp-path",      
+        "onsails/lspkind.nvim",  
+        "stevearc/conform.nvim", 
+        "L3MON4D3/LuaSnip",      
+        "j-hui/fidget.nvim",     
+        "folke/lazydev.nvim",    
+        "soulis-1256/eagle.nvim" 
     },
     opts = {},
 }
@@ -50,27 +49,27 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
 
 ```lua
 {
-    "neph-iap/forge.nvim",
+    dir = "vi013t/forge.nvim",
     dependencies = {
-        -- REQUIRED --
+
+        -- REQUIRED
         "nvim-treesitter/nvim-treesitter", -- Semantic highlighter
         "williamboman/mason.nvim", -- LSP Installer
         "neovim/nvim-lspconfig", -- LSP Configuration
         "williamboman/mason-lspconfig.nvim", -- LSP Configuration for Mason
         "stevearc/conform.nvim", -- Autoformatter
 
-        -- OPTIONAL --
-        "hrsh7th/nvim-cmp", -- Autocomplete
-        "hrsh7th/cmp-cmdline", -- Autocomplete in command line
-        "hrsh7th/cmp-buffer", -- Autocomplete buffer contents
-        "hrsh7th/cmp-path", -- Autocomplete file paths
-        "hrsh7th/cmp-nvim-lsp", -- LSP integration with autocomplete
-        "L3MON4D3/LuaSnip", -- Snippets
-        "onsails/lspkind.nvim", -- Icons in autocomplete
-        "folke/neodev.nvim", -- Lua development environment
-        "smjonas/inc-rename.nvim", -- Incremental Renaming
-        "soulis-1256/eagle.nvim", -- Mouse hovering tooltips
-        "stevearc/dressing.nvim", -- Input UI improvements
+        -- OPTIONAL
+        "hrsh7th/nvim-cmp",      -- Autocomplete
+        "hrsh7th/cmp-nvim-lsp",  -- LSP integration with autocomplete
+        "hrsh7th/cmp-cmdline",   -- Autocomplete in command line
+        "hrsh7th/cmp-buffer",    -- Autocomplete for the buffer
+        "hrsh7th/cmp-path",      -- Autocomplete for file paths
+        "onsails/lspkind.nvim",  -- Icons in autocomplete
+        "L3MON4D3/LuaSnip",      -- Snippets
+        "j-hui/fidget.nvim",     -- LSP progress updates
+        "folke/lazydev.nvim",    -- Lua development tools
+        "soulis-1256/eagle.nvim" -- LSP popups on mouse hovering
     },
     opts = {},
 }
@@ -84,25 +83,25 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
 {
     "neph-iap/forge.nvim",
     dependencies = {
-        -- REQUIRED --
+
+        -- REQUIRED
         "nvim-treesitter/nvim-treesitter", -- Semantic highlighter
         "williamboman/mason.nvim", -- LSP Installer
         "neovim/nvim-lspconfig", -- LSP Configuration
         "williamboman/mason-lspconfig.nvim", -- LSP Configuration for Mason
         "stevearc/conform.nvim", -- Autoformatter
 
-        -- OPTIONAL --
-        "hrsh7th/nvim-cmp", -- Autocomplete
-        "hrsh7th/cmp-cmdline", -- Autocomplete in command line
-        "hrsh7th/cmp-buffer", -- Autocomplete buffer contents
-        "hrsh7th/cmp-path", -- Autocomplete file paths
-        "hrsh7th/cmp-nvim-lsp", -- LSP integration with autocomplete
-        "L3MON4D3/LuaSnip", -- Snippets
-        "onsails/lspkind.nvim", -- Icons in autocomplete
-        "folke/neodev.nvim", -- Lua development environment
-        "smjonas/inc-rename.nvim", -- Incremental Renaming
-        "soulis-1256/eagle.nvim", -- Mouse hovering tooltips
-        "stevearc/dressing.nvim", -- Input UI improvements
+        -- OPTIONAL
+        "hrsh7th/nvim-cmp",      -- Autocomplete
+        "hrsh7th/cmp-nvim-lsp",  -- LSP integration with autocomplete
+        "hrsh7th/cmp-cmdline",   -- Autocomplete in command line
+        "hrsh7th/cmp-buffer",    -- Autocomplete for the buffer
+        "hrsh7th/cmp-path",      -- Autocomplete for file paths
+        "onsails/lspkind.nvim",  -- Icons in autocomplete
+        "L3MON4D3/LuaSnip",      -- Snippets
+        "j-hui/fidget.nvim",     -- LSP progress updates
+        "folke/lazydev.nvim",    -- Lua development tools
+        "soulis-1256/eagle.nvim" -- LSP popups on mouse hovering
     },
     opts = {
 		developer_mode = false, -- Print debug messages
@@ -165,7 +164,6 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
 				virtual_text = {
 					spacing = 4,
 					source = "if_many",
-					prefix = " ",
 				},
 				severity_sort = true,
 			},
