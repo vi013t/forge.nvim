@@ -21,7 +21,7 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
 
 ```lua
 {
-    dir = "vi013t/forge.nvim",
+    "vi013t/forge.nvim",
     dependencies = {
         "nvim-treesitter/nvim-treesitter", 
         "williamboman/mason.nvim", 
@@ -49,7 +49,7 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
 
 ```lua
 {
-    dir = "vi013t/forge.nvim",
+    "vi013t/forge.nvim",
     dependencies = {
 
         -- REQUIRED
@@ -81,7 +81,7 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
 
 ```lua
 {
-    "neph-iap/forge.nvim",
+    "vi013t/forge.nvim",
     dependencies = {
 
         -- REQUIRED
