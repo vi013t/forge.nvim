@@ -563,7 +563,8 @@ function public.open_window()
 	local vim_height = vim.api.nvim_get_option_value("lines", { scope = "global" })
 
 	public.height = math.ceil(vim_height * 0.8 - 4)
-	public.width = math.ceil(vim_width * 0.8)
+	-- public.width = math.ceil(vim_width * 0.8)
+	public.width = 130
 
 	local window_options = {
 		style = "minimal",

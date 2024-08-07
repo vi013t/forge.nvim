@@ -20,10 +20,14 @@ end
 ---@return nil
 function public.load()
 	local lockfile = io.open(config.options.lockfile, "r")
+
+	-- Lockfile exists! Load the cache
 	if lockfile then
 		registry.languages = vim.fn.json_decode(lockfile:read("*a"))
 		registry.generate_language_keys()
 		registry.sort_languages()
+
+	-- No lockfile - Either first load or it was deleted. Locate installations and save to a new lockfile.
 	else
 		registry.refresh_installations()
 		public.save()

@@ -334,7 +334,7 @@ public.languages = {
 			{ internal_name = "lua", name = "TreeSitter" },
 		},
 		compilers = {
-			{ internal_name = "lua", name = "Lua Compiler" },
+			{ internal_name = "lua", name = "Lua Interpreter" },
 			{ internal_name = "luajit", name = "Lua Just-in-Time Compiler" },
 		},
 		linters = {
