@@ -39,10 +39,12 @@ function public.reset_lines()
 		public.lines:insert({ language = language_name, type = "language" })
 
 		-- Expanded languages & tools
-		for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
-			if public.expanded_languages:contains(language_name) then
+		if public.expanded_languages:contains(language_name) then
+			for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
+				-- Main tool line (unexpanded)
 				public.lines:insert(#public.lines + 1, { type = tool, language = language_name })
 
+				-- Get the name of the "plural" tool
 				local plural_tool = tool .. "s"
 				if tool == "additional_tools" then
 					plural_tool = tool
@@ -57,6 +59,7 @@ function public.reset_lines()
 					end
 				end
 
+				-- Expanded tool
 				if public["expanded_" .. plural_tool]:contains(language_name) then
 					for _, language_tool in ipairs(language[plural_tool]) do
 						public.lines:insert(#public.lines + 1, {
@@ -72,7 +75,6 @@ function public.reset_lines()
 					if #language[plural_tool] == 0 then
 						public.lines:insert(#public.lines + 1, {})
 					end
-					public["expanded_" .. plural_tool]:insert(language_name)
 				end
 			end
 		end
@@ -308,7 +310,11 @@ local function draw_tool(language, tool_name)
 		write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
 		write_buffer:insert({ text = "e", foreground = "#AAAA77" })
 		write_buffer:insert({ text = " to ", foreground = "Comment" })
-		write_buffer:insert({ text = "expand", foreground = "#AAAA77" })
+		if public["expanded_" .. tool_name]:contains(language.name) then
+			write_buffer:insert({ text = "collapse", foreground = "#AAAA77" })
+		else
+			write_buffer:insert({ text = "expand", foreground = "#AAAA77" })
+		end
 		write_buffer:insert({ text = ", ", foreground = "Comment" })
 		write_buffer:insert({ text = "i", foreground = "#77AAAA" })
 		write_buffer:insert({ text = " to ", foreground = "Comment" })
