@@ -197,9 +197,7 @@ public.languages = {
 		highlighters = {
 			{ internal_name = "html", name = "TreeSitter" },
 		},
-		compilers = { -- TODO: I would like to think of a clever way to cleanly wrap lines
-			none_available_reason = "HTML is a markup language, meaning it just describes the structure of a web page. As such, it doesn't have a compiler or interpreter; It's interpreted by a web browser.",
-		},
+		compilers = {},
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" },
 		},

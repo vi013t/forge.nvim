@@ -295,8 +295,10 @@ local function draw_tool(language, tool_name)
 		write_buffer:insert({ text = "None Available", foreground = colors().none_available })
 	end
 
+	local is_expanded = public["expanded_" .. tool_name]:contains(language.name)
+
 	-- Arrow
-	if public["expanded_" .. tool_name]:contains(language.name) then
+	if is_expanded then
 		write_buffer:insert({ text = " " .. icons().down_arrow })
 	else
 		write_buffer:insert({ text = " " .. icons().right_arrow })
@@ -310,7 +312,7 @@ local function draw_tool(language, tool_name)
 		write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
 		write_buffer:insert({ text = "e", foreground = "#AAAA77" })
 		write_buffer:insert({ text = " to ", foreground = "Comment" })
-		if public["expanded_" .. tool_name]:contains(language.name) then
+		if is_expanded then
 			write_buffer:insert({ text = "collapse", foreground = "#AAAA77" })
 		else
 			write_buffer:insert({ text = "expand", foreground = "#AAAA77" })
