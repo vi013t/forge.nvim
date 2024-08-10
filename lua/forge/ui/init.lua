@@ -12,12 +12,16 @@ local public = {}
 --- preset will be used. If not, the output of running the vim command "colorscheme" is used as the preset name,
 --- if a preset exists with that name. If not, the "default" preset is used.
 ---
----@return unknown[]
-local function progress_colors()
+---@return { progress: table, installed: string, not_installed: string, none_available: string }
+local function colors()
 	return config.options.ui.colors.presets[config.options.ui.colors.preset or vim.api.nvim_exec2(
 		"colorscheme",
 		{ output = true }
 	).output or "default"]
+end
+
+local function icons()
+	return config.options.ui.symbols.presets[config.options.ui.symbols.preset or "default"]
 end
 
 ---@alias line_type "language" | "compiler"
@@ -271,29 +275,29 @@ local function draw_tool(language, tool_name)
 
 	-- Icon, compiler name, compiler command
 	if language["installed_" .. tool_name][1] then
-		write_buffer:insert({ text = "", foreground = "#00FF00" })
+		write_buffer:insert({ text = icons().installed, foreground = colors().installed })
 		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
-		write_buffer:insert({ text = language["installed_" .. tool_name][1].name, foreground = "#00FF00" })
+		write_buffer:insert({ text = language["installed_" .. tool_name][1].name, foreground = colors().installed })
 		write_buffer:insert({
 			text = " (" .. language["installed_" .. tool_name][1].internal_name .. ")",
 			foreground = "Comment",
 		})
 	elseif #language[tool_name] > 0 then
-		write_buffer:insert({ text = "", foreground = "#FF0000" })
+		write_buffer:insert({ text = icons().not_installed, foreground = colors().not_installed })
 		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
-		write_buffer:insert({ text = "None Installed", foreground = "#FF0000" })
+		write_buffer:insert({ text = "None Installed", foreground = colors().not_installed })
 		write_buffer:insert({ text = " (" .. #language[tool_name] .. " available)", foreground = "Comment" })
 	else
-		write_buffer:insert({ text = "", foreground = "#FFFF00" })
+		write_buffer:insert({ text = icons().none_available, foreground = colors().none_available })
 		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
-		write_buffer:insert({ text = "None Available", foreground = "#FFFF00" })
+		write_buffer:insert({ text = "None Available", foreground = colors().none_available })
 	end
 
 	-- Arrow
 	if public["expanded_" .. tool_name]:contains(language.name) then
-		write_buffer:insert({ text = " ▾" })
+		write_buffer:insert({ text = " " .. icons().down_arrow })
 	else
-		write_buffer:insert({ text = " ▸" })
+		write_buffer:insert({ text = " " .. icons().right_arrow })
 	end
 
 	-- Prompt
@@ -366,8 +370,8 @@ local function draw_tool(language, tool_name)
 				-- Tool is installed already
 			elseif table.contains(installed_tools, tool) then
 				write_buffer:insert({ text = bars, foreground = "Comment" })
-				write_buffer:insert({ text = "  ", foreground = "#00FF00" })
-				write_buffer:insert({ text = tool.name, foreground = "#00FF00" })
+				write_buffer:insert({ text = " " .. icons().installed .. " ", foreground = colors().installed })
+				write_buffer:insert({ text = tool.name, foreground = colors().installed })
 				write_buffer:insert({ text = " (" .. internal_name .. ") ", foreground = "Comment" })
 
 				-- Prompt
@@ -386,8 +390,8 @@ local function draw_tool(language, tool_name)
 				-- Tool is not installed
 			else
 				write_buffer:insert({ text = bars, foreground = "Comment" })
-				write_buffer:insert({ text = "  ", foreground = "#FF0000" })
-				write_buffer:insert({ text = tool.name, foreground = "#FF0000" })
+				write_buffer:insert({ text = " " .. icons().not_installed .. " ", foreground = colors().not_installed })
+				write_buffer:insert({ text = tool.name, foreground = colors().not_installed })
 				write_buffer:insert({ text = " (" .. internal_name .. ") ", foreground = "Comment" })
 
 				-- Prompt
@@ -417,7 +421,7 @@ local function draw_tool(language, tool_name)
 				write_buffer:insert({ text = "    │ └ ", foreground = "Comment" })
 			end
 
-			write_buffer:insert({ text = " ", foreground = "#FFFF00" })
+			write_buffer:insert({ text = icons().none_available .. " ", foreground = colors().none_available })
 			write_buffer:insert({ text = "Currently, there " })
 
 			if tool_name == "additional_tools" then
@@ -456,11 +460,11 @@ local function draw_expanded_language(language)
 	if language.name == public.get_language_under_cursor() then
 		write_line({
 			{
-				text = "    " .. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
-				foreground = progress_colors()[language.total][language.installed_total],
+				text = "    " .. icons().progress[language.total][language.installed_total],
+				foreground = colors().progress[language.total][language.installed_total],
 			},
 			{ text = "  " .. language.name },
-			{ text = " ▾", foreground = "Comment" },
+			{ text = " " .. icons().down_arrow, foreground = "Comment" },
 			{ text = "   (Press ", foreground = "Comment" },
 			{ text = "e", foreground = "#AAAA77" },
 			{ text = " to ", foreground = "Comment" },
@@ -479,12 +483,12 @@ local function draw_expanded_language(language)
 		write_line({
 			{ text = "    " },
 			{
-				text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
-				foreground = progress_colors()[language.total][language.installed_total],
+				text = icons().progress[language.total][language.installed_total],
+				foreground = colors().progress[language.total][language.installed_total],
 			},
 			{ text = "  " },
 			{ text = language.name },
-			{ text = " ▾", foreground = "Comment" },
+			{ text = " " .. icons().down_arrow, foreground = "Comment" },
 		})
 	end
 end
@@ -521,12 +525,11 @@ local function draw_languages()
 			if language.name == public.get_language_under_cursor() then
 				local line_after_language = {
 					{
-						text = "    "
-							.. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
-						foreground = progress_colors()[language.total][language.installed_total],
+						text = "    " .. icons().progress[language.total][language.installed_total],
+						foreground = colors().progress[language.total][language.installed_total],
 					},
 					{ text = "  " .. language.name },
-					{ text = " ▸", foreground = "Comment" },
+					{ text = " " .. icons().right_arrow, foreground = "Comment" },
 					{ text = "   (Press ", foreground = "Comment" },
 					{ text = "e", foreground = "#AAAA77" },
 					{ text = " to ", foreground = "Comment" },
@@ -559,12 +562,12 @@ local function draw_languages()
 				local post_line = {
 					{ text = "    " },
 					{
-						text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
-						foreground = progress_colors()[language.total][language.installed_total],
+						text = icons().progress[language.total][language.installed_total],
+						foreground = colors().progress[language.total][language.installed_total],
 					},
 					{ text = "  " },
 					{ text = language.name },
-					{ text = " ▸", foreground = "Comment" },
+					{ text = " " .. icons().right_arrow, foreground = "Comment" },
 				}
 
 				write_line(post_line)
@@ -632,6 +635,27 @@ function public.open_window()
 	-- Create the forge buffer
 	public.buffer = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = public.buffer })
+
+	-- Hide the cursor in the buffer
+	if
+		config.options.ui.hide_cursor
+		or (config.options.ui.hide_cursor == nil and config.options.ui.window_options.cursorline)
+	then
+		vim.api.nvim_create_autocmd("BufEnter", {
+			buffer = public.buffer,
+			callback = function()
+				vim.cmd("hi Cursor blend=100")
+				vim.cmd("set guicursor+=a:Cursor/lCursor")
+			end,
+		})
+		vim.api.nvim_create_autocmd("BufLeave", {
+			buffer = public.buffer,
+			callback = function()
+				vim.cmd("hi Cursor blend=0")
+				vim.cmd("set guicursor-=a:Cursor/lCursor")
+			end,
+		})
+	end
 
 	-- Calculate forge window dimensions
 	local vim_width = vim.api.nvim_get_option_value("columns", { scope = "global" })
