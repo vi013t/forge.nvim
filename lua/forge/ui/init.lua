@@ -61,6 +61,10 @@ function public.reset_lines()
 							tool = language_tool,
 						})
 					end
+
+					if #language[plural_tool] == 0 then
+						public.lines:insert(#public.lines + 1, {})
+					end
 					public["expanded_" .. plural_tool]:insert(language_name)
 				end
 			end
@@ -69,6 +73,10 @@ function public.reset_lines()
 	public.lines:insert({})
 end
 
+--- The list of languages that are currently "expanded" meaning their tools are visible.
+--- This is a list of the languages "proper names", i.e., the name youd get from something
+--- like "registry.languages.c.name".
+---
 ---@type string[]
 public.expanded_languages = Table({})
 

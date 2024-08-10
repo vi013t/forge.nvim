@@ -383,22 +383,8 @@ function public.expand()
 		-- Collapse language
 		if ui.expanded_languages:contains(language_name) then
 			ui.expanded_languages:remove_value(language_name)
-			ui.lines:remove(index_of_language + 1)
-			ui.lines:remove(index_of_language + 1)
-			ui.lines:remove(index_of_language + 1)
-			ui.lines:remove(index_of_language + 1)
-			ui.lines:remove(index_of_language + 1)
-			ui.lines:remove(index_of_language + 1)
-
-		-- Expand language
 		else
 			ui.expanded_languages:insert(language_name)
-			ui.lines:insert(index_of_language + 1, { type = "compiler", language = language_name })
-			ui.lines:insert(index_of_language + 2, { type = "highlighter", language = language_name })
-			ui.lines:insert(index_of_language + 3, { type = "linter", language = language_name })
-			ui.lines:insert(index_of_language + 4, { type = "formatter", language = language_name })
-			ui.lines:insert(index_of_language + 5, { type = "debugger", language = language_name })
-			ui.lines:insert(index_of_language + 6, { type = "additional_tools", language = language_name })
 		end
 
 	-- Expanding a tool
@@ -410,39 +396,18 @@ function public.expand()
 					plural_tool = tool
 				end
 
-				local index_of_tool = ui.cursor_row
 				local language_name = ui.lines[ui.cursor_row].language
 
-				---@type Language
-				local language = nil
-				for _, registry_language in pairs(registry.languages) do
-					if registry_language.name == language_name then
-						language = registry_language
-						break
-					end
-				end
-
 				if ui["expanded_" .. plural_tool]:contains(language_name) then
-					for _, _ in ipairs(language[plural_tool]) do
-						ui.lines:remove(index_of_tool + 1)
-					end
 					ui["expanded_" .. plural_tool]:remove_value(language_name)
 				else
-					for index, language_tool in ipairs(language[plural_tool]) do
-						ui.lines:insert(index_of_tool + index, {
-							type = tool .. "_listing",
-							language = language_name,
-							name = language_tool.name,
-							internal_name = language_tool.internal_name,
-							tool = language_tool,
-						})
-					end
 					ui["expanded_" .. plural_tool]:insert(language_name)
 				end
 			end
 		end
 	end
 
+	ui.reset_lines()
 	ui.update_view()
 end
 
