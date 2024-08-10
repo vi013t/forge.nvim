@@ -655,14 +655,16 @@ function public.open_window()
 	end
 
 	-- Create the Forge window
-	public.window = vim.api.nvim_open_win(public.buffer, true, {
-		style = "minimal",
-		relative = "editor",
-		width = public.width,
-		height = public.height,
-		row = math.ceil((vim_height - public.height) / 2 - 1),
-		col = math.ceil((vim_width - public.width) / 2),
-	})
+	public.window = vim.api.nvim_open_win(
+		public.buffer,
+		true,
+		vim.tbl_deep_extend("force", {
+			row = math.ceil((vim_height - public.height) / 2 - 1),
+			col = math.ceil((vim_width - public.width) / 2),
+			width = public.width,
+			height = public.height,
+		}, config.options.ui.window_config)
+	)
 
 	-- Window options
 	for option_name, option_value in pairs(config.options.ui.window_options) do

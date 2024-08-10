@@ -59,10 +59,17 @@ public.default_config = {
 			preset = nil,
 		},
 
-		-- Options passed to the Forge window. These can be any options from vim.opt that are window-specific,
-		-- as opposed to buffer-specific options.
+		--- Options passed to the Forge window. These can be any options from vim.opt that are window-specific,
+		--- as opposed to buffer-specific options.
 		window_options = {
 			cursorline = true,
+		},
+
+		--- Options passed to the Forge window upon creation. For a full list of available keys and values, see
+		--- the last parameter of `:h nvim_open_win`.
+		window_config = {
+			style = "minimal",
+			relative = "editor",
 		},
 	},
 
@@ -166,7 +173,7 @@ public.options = public.default_config
 --
 ---@param config table The configuration to set
 function public.set_config(config)
-	public.config = vim.tbl_deep_extend("force", vim.deepcopy(public.options), config)
+	public.options = vim.tbl_deep_extend("force", vim.deepcopy(public.options), config)
 end
 
 return public

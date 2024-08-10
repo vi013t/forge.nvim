@@ -16,6 +16,7 @@ Forge.nvim provides this window in which you can install language servers, forma
 
 Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future. Below, you can choose from a few different installation options, such as "give me everything" and "let me choose what I need".
 
+
 <details>
 <summary>Full-feature no-hassle setup</summary>
 
@@ -81,9 +82,8 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
 
 ```lua
 {
-    "neph-iap/forge.nvim",
+    "vi013t/forge.nvim",
     dependencies = {
-
         -- REQUIRED
         "nvim-treesitter/nvim-treesitter", -- Semantic highlighter
         "williamboman/mason.nvim", -- LSP Installer
@@ -104,143 +104,167 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
         "soulis-1256/eagle.nvim" -- LSP popups on mouse hovering
     },
     opts = {
-		developer_mode = false, -- Print debug messages
-		lockfile = vim.fn.stdpath("data") .. "/forge.lock", -- The path to the file which saves what you have installed, so that we don't need to check every time.
-		format_on_save = true, -- Autoformat buffers on save
+        developer_mode = false, -- Print debug messages
+        lockfile = vim.fn.stdpath("data") .. "/forge.lock", -- The path to the file which saves what you have installed, so that we don't need to check every time.
+        plugin_directory = "plugins", -- The name of the plugin directory, relative to ~/.config/nvim/lua.
+        format_on_save = true, -- Whether to autoformat buffers on save.
 
-		-- UI --
-		ui = {
-			mappings = {
-				q = "close_window",
-				e = "expand",
-				j = "move_cursor_down",
-				k = "move_cursor_up",
-				gg = "set_cursor_to_top",
-				G = "set_cursor_to_bottom",
-				i = "toggle_install",
-				u = "toggle_install",
-				r = "refresh",
-				o = "open_options",
-				["<C-d>"] = "do_nothing",
-				["<CR>"] = "move_cursor_down",
-				["<Up>"] = "move_cursor_up",
-				["<Down>"] = "move_cursor_down",
-			},
-			symbols = {
-				right_arrow = "▸",
-				down_arrow = "▾",
-				progress_icons = {
-					{ "" },
-					{ "", "" },
-					{ "", "", "" },
-					{ "", "", "", "" },
-					{ "", "", "", "", "" },
-					{ "", "", "", "", "", "" },
-				},
-			},
-			colors = {
-				progress_colors = {
-					{ "#FF0000" }, -- Language has no tools available
-					{ "#FF0000", "#00FF00" }, -- Language has 1 tool available
-					{ "#FF0000", "#FFFF00", "#00FF00" }, -- Language has 2 tools available
-					{ "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" }, -- Language has 3 tools available
-					{ "#FF0000", "#FF8800", "#FFFF00", "#BBFF00", "#00FF00" }, -- Language has 5 tools available
-					{ "#FF0000", "#FF6600", "#FFAA00", "#FFFF00", "#BBFF00", "#00FF00" },
-				},
-			},
-		},
+        -- UI --
+        ui = {
+            mappings = {
+                q = "close_window",
+                e = "expand",
+                j = "move_cursor_down",
+                k = "move_cursor_up", -- 		 which will also allow support for more motions
+                gg = "set_cursor_to_top",
+                G = "set_cursor_to_bottom",
+                i = "toggle_install",
+                u = "toggle_install",
+                r = "refresh",
+                o = "open_options",
+                ["<C-d>"] = "do_nothing",
+                ["<CR>"] = "move_cursor_down",
+                ["<Up>"] = "move_cursor_up",
+                ["<Down>"] = "move_cursor_down",
+            },
+            symbols = {
+                right_arrow = "▸",
+                down_arrow = "▾",
+                progress_icons = {
+                    { "" },
+                    { "", "" },
+                    { "", "", "" },
+                    { "", "", "", "" },
+                    { "", "", "", "", "" },
+                    { "", "", "", "", "", "" },
+                },
+            },
+            colors = {
+                presets = {
+                    default = {
+                        { "#FF0000" }, -- Language has no tools available
+                        { "#FF0000", "#00FF00" }, -- Language has 1 tool available
+                        { "#FF0000", "#FFFF00", "#00FF00" }, -- Language has 2 tools available
+                        { "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" }, -- Language has 3 tools available
+                        { "#FF0000", "#FF8800", "#FFFF00", "#BBFF00", "#00FF00" }, -- Language has 5 tools available
+                        { "#FF0000", "#FF6600", "#FFAA00", "#FFFF00", "#BBFF00", "#00FF00" },
+                    },
+                    ["catppuccin-mocha"] = {
+                        { "#F38BA8" }, -- Language has no tools available
+                        { "#F38BA8", "#A6E3A1" }, -- Language has 1 tool available
+                        { "#F38BA8", "#F9E2AF", "#A6E3A1" }, -- Language has 2 tools available
+                        { "#F38BA8", "#FAB387", "#DDF7A1", "#A6E3A1" }, -- Language has 3 tools available
+                        { "#F38BA8", "#FA9D87", "#F9E2AF", "#DDF7A1", "#A6E3A1" }, -- Language has 5 tools available
+                        { "#F38BA8", "#FA8387", "#FAB387", "#F9E2AF", "#DDF7A1", "#A6E3A1" },
+                    },
+                },
+                preset = nil,
+            },
 
-		-- LSP --
-		lsp = {
-			icons = {
-				Error = " ",
-				Warn = " ",
-				Hint = " ",
-				Info = " ",
-			},
-			diagnostics = {
-				underline = true,
-				update_in_insert = false,
-				virtual_text = {
-					spacing = 4,
-					source = "if_many",
-				},
-				severity_sort = true,
-			},
-			inlay_hints = {
-				enabled = true,
-			},
-			capabilities = {},
-			format = {
-				formatting_options = nil,
-				timeout_ms = nil,
-			},
+            --- Options passed to the Forge window. These can be any options from vim.opt that are window-specific,
+            --- as opposed to buffer-specific options.
+            window_options = {
+                cursorline = true,
+            },
 
-			-- Language Servers
-			servers = {
+            --- Options passed to the Forge window upon creation. For a full list of available keys and values, see
+            --- the last parameter of `:h nvim_open_win`.
+            window_config = {
+                style = "minimal",
+                relative = "editor",
+            },
+        },
 
-				-- Lua
-				lua_ls = {
-					settings = {
-						Lua = {
-							workspace = {
-								checkThirdParty = false,
-							},
-							completion = {
-								callSnippet = "Replace",
-							},
-						},
-					},
-				},
+        -- LSP --
+        lsp = {
+            icons = {
+                Error = " ",
+                Warn = " ",
+                Hint = " ",
+                Info = " ",
+            },
+            diagnostics = {
+                underline = true,
+                update_in_insert = false,
+                virtual_text = {
+                    spacing = 4,
+                    source = "if_many",
+                },
+                severity_sort = true,
+            },
+            inlay_hints = {
+                enabled = true,
+            },
+            capabilities = {},
+            format = {
+                formatting_options = nil,
+                timeout_ms = nil,
+            },
 
-				-- C#
-				omnisharp_mono = {
-					cmd = {
-						vim.fn.stdpath("data") .. "/mason/bin/omnisharp-mono",
-						"--assembly-loader=strict",
-					},
-					use_mono = true,
-				},
-			},
+            -- Language Servers
+            servers = {
+                -- Lua
+                lua_ls = {
+                    settings = {
+                        Lua = {
+                            workspace = {
+                                checkThirdParty = false,
+                            },
+                            completion = {
+                                callSnippet = "Replace",
+                            },
+                        },
+                    },
+                },
 
-			setup = {},
-		},
+                -- C#
+                omnisharp_mono = {
+                    cmd = {
+                        vim.fn.stdpath("data") .. "/mason/bin/omnisharp-mono",
+                        "--assembly-loader=strict",
+                    },
+                    use_mono = true,
+                },
+            },
+            setup = {},
+        },
 
-		-- Autocomplete options
-		autocomplete = {
-			format = {
-				mode = "symbol_text",
-				symbol_map = {
-					Text = "",
-					Method = "∷",
-					Function = "λ",
-					Constructor = "",
-					Field = "",
-					Variable = "󰫧",
-					Class = "",
-					Interface = "",
-					Module = "",
-					Property = "∷",
-					Unit = "",
-					Value = "",
-					Enum = "",
-					Keyword = "",
-					Snippet = "➡️",
-					Color = "",
-					File = "",
-					Reference = "&",
-					Folder = "",
-					EnumMember = "",
-					Constant = "𝛫",
-					Struct = "",
-					Event = "",
-					Operator = "",
-					TypeParameter = "",
-				},
-			},
-		},
+        -- Autocomplete options
+        autocomplete = {
+            format = {
+                mode = "symbol_text",
 
-	},
+                -- Autocomplete symbols
+                symbol_map = {
+                    Text = "",
+                    Method = "∷",
+                    Function = "λ",
+                    Constructor = "",
+                    Field = "",
+                    Variable = "󰫧",
+                    Class = "",
+                    Interface = "",
+                    Module = "",
+                    Property = "∷",
+                    Unit = "",
+                    Value = "",
+                    Enum = "",
+                    Keyword = "",
+                    Snippet = "➡️",
+                    Color = "",
+                    File = "",
+                    Reference = "&",
+                    Folder = "",
+                    EnumMember = "",
+                    Constant = "𝛫",
+                    Struct = "",
+                    Event = "",
+                    Operator = "",
+                    TypeParameter = "",
+                },
+            },
+        },
+    }
 }
 ```
 
