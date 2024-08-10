@@ -37,14 +37,25 @@ public.default_config = {
 			},
 		},
 		colors = {
-			progress_colors = {
-				{ "#FF0000" }, -- Language has no tools available
-				{ "#FF0000", "#00FF00" }, -- Language has 1 tool available
-				{ "#FF0000", "#FFFF00", "#00FF00" }, -- Language has 2 tools available
-				{ "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" }, -- Language has 3 tools available
-				{ "#FF0000", "#FF8800", "#FFFF00", "#BBFF00", "#00FF00" }, -- Language has 5 tools available
-				{ "#FF0000", "#FF6600", "#FFAA00", "#FFFF00", "#BBFF00", "#00FF00" },
+			presets = {
+				default = {
+					{ "#FF0000" }, -- Language has no tools available
+					{ "#FF0000", "#00FF00" }, -- Language has 1 tool available
+					{ "#FF0000", "#FFFF00", "#00FF00" }, -- Language has 2 tools available
+					{ "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" }, -- Language has 3 tools available
+					{ "#FF0000", "#FF8800", "#FFFF00", "#BBFF00", "#00FF00" }, -- Language has 5 tools available
+					{ "#FF0000", "#FF6600", "#FFAA00", "#FFFF00", "#BBFF00", "#00FF00" },
+				},
+				["catppuccin-mocha"] = {
+					{ "#F38BA8" }, -- Language has no tools available
+					{ "#F38BA8", "#A6E3A1" }, -- Language has 1 tool available
+					{ "#F38BA8", "#F9E2AF", "#A6E3A1" }, -- Language has 2 tools available
+					{ "#F38BA8", "#FAB387", "#DDF7A1", "#A6E3A1" }, -- Language has 3 tools available
+					{ "#F38BA8", "#FA9D87", "#F9E2AF", "#DDF7A1", "#A6E3A1" }, -- Language has 5 tools available
+					{ "#F38BA8", "#FA8387", "#FAB387", "#F9E2AF", "#DDF7A1", "#A6E3A1" },
+				},
 			},
+			preset = nil,
 		},
 	},
 

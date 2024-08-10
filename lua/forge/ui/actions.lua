@@ -43,7 +43,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			os_utils.install_package(line.name, line.internal_name)
 			table.insert(language.installed_compilers, { name = line.name, internal_name = line.internal_name })
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
 		end
 
 	-- Highlighter
@@ -61,14 +60,10 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 
 			table.remove(language.installed_highlighters, index)
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
-			ui.update_view()
 		else
 			vim.cmd(("TSInstall %s"):format(line.internal_name))
 			table.insert(language.installed_highlighters, { name = line.name, internal_name = line.internal_name })
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
-			ui.update_view()
 		end
 
 	-- Linter
@@ -101,7 +96,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
 
 			---@type integer
 			index = nil
@@ -113,7 +107,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			ui.cursor_row = index
-			ui.update_view()
 		else
 			print("Installing " .. line.internal_name .. "...")
 			vim.cmd(("MasonInstall %s"):format(line.internal_name))
@@ -136,7 +129,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
 
 			---@type integer
 			local index = nil
@@ -148,7 +140,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			ui.cursor_row = index
-			ui.update_view()
 		end
 
 	-- Formatter
@@ -182,7 +173,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
 
 			---@type integer
 			index = nil
@@ -194,7 +184,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			ui.cursor_row = index
-			ui.update_view()
 		else
 			print("Installing " .. line.internal_name .. "...")
 			vim.cmd(("MasonInstall %s"):format(line.internal_name))
@@ -218,7 +207,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
 
 			---@type integer
 			local index = nil
@@ -230,7 +218,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			ui.cursor_row = index
-			ui.update_view()
 		end
 
 	-- Debugger
@@ -265,7 +252,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
 
 			---@type integer
 			index = nil
@@ -277,7 +263,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			ui.cursor_row = index
-			ui.update_view()
 
 		-- Install debugger
 		else
@@ -303,7 +288,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			registry.refresh_installed_totals(language)
-			registry.sort_languages()
 
 			---@type integer
 			local index = nil
@@ -315,7 +299,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 
 			ui.cursor_row = index
-			ui.update_view()
 		end
 
 	-- Additional Tools
@@ -369,8 +352,6 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			end
 		end
 
-		registry.sort_languages()
-
 		---@type integer
 		local index = nil
 		for line_index, ui_line in ipairs(ui.lines) do
@@ -381,8 +362,11 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 		end
 
 		ui.cursor_row = index
-		ui.update_view()
 	end
+
+	registry.sort_languages()
+	ui.reset_lines()
+	ui.update_view()
 
 	lock.save()
 end
@@ -391,10 +375,12 @@ end
 --
 ---@return nil
 function public.expand()
+	-- Expanding a language
 	if ui.lines[ui.cursor_row].type == "language" then
 		local index_of_language = ui.cursor_row
 		local language_name = ui.lines[ui.cursor_row].language
 
+		-- Collapse language
 		if ui.expanded_languages:contains(language_name) then
 			ui.expanded_languages:remove_value(language_name)
 			ui.lines:remove(index_of_language + 1)
@@ -403,6 +389,8 @@ function public.expand()
 			ui.lines:remove(index_of_language + 1)
 			ui.lines:remove(index_of_language + 1)
 			ui.lines:remove(index_of_language + 1)
+
+		-- Expand language
 		else
 			ui.expanded_languages:insert(language_name)
 			ui.lines:insert(index_of_language + 1, { type = "compiler", language = language_name })
@@ -412,6 +400,8 @@ function public.expand()
 			ui.lines:insert(index_of_language + 5, { type = "debugger", language = language_name })
 			ui.lines:insert(index_of_language + 6, { type = "additional_tools", language = language_name })
 		end
+
+	-- Expanding a tool
 	else
 		for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
 			if ui.lines[ui.cursor_row].type == tool then

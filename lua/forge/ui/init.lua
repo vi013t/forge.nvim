@@ -2,20 +2,69 @@ local util = require("forge.util")
 local registry = require("forge.registry")
 local config = require("forge.config")
 
--- The public exports of forge-ui
+-- The public exports of forge.ui
 ---@type table<any, any>
 local public = {}
+
+--- Returns a table of colors to be used for displaying the "installation completeness" icons next to the languages.
+--- The spec of this table is shown in the config- one example is options.ui.colors.presets.default. This function
+--- will first check if the user has explicitly passed a preset name to options.ui.colors.preset, and if so, that
+--- preset will be used. If not, the output of running the vim command "colorscheme" is used as the preset name,
+--- if a preset exists with that name. If not, the "default" preset is used.
+---
+---@return unknown[]
+local function progress_colors()
+	return config.options.ui.colors.presets[config.options.ui.colors.preset or vim.api.nvim_exec2(
+		"colorscheme",
+		{ output = true }
+	).output or "default"]
+end
 
 ---@alias line_type "language" | "compiler"
 
 ---@type { type: line_type, language: string, name?: string, internal_name?: string }[]
-public.lines = Table({ {}, {}, {}, {} }) -- 4 lines before the first language
+public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
 
 -- Resets the lines list
-local function reset_lines()
-	public.lines = Table({ {}, {}, {}, {} }) -- 4 lines before the first language
+function public.reset_lines()
+	public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
 	for _, language_key in ipairs(registry.language_keys) do
-		public.lines:insert({ language = registry.languages[language_key].name, type = "language" })
+		local language_name = registry.languages[language_key].name
+		public.lines:insert({ language = language_name, type = "language" })
+
+		-- Expanded languages & tools
+		for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
+			if public.expanded_languages:contains(language_name) then
+				public.lines:insert(#public.lines + 1, { type = tool, language = language_name })
+
+				local plural_tool = tool .. "s"
+				if tool == "additional_tools" then
+					plural_tool = tool
+				end
+
+				---@type Language
+				local language = nil
+				for _, registry_language in pairs(registry.languages) do
+					if registry_language.name == language_name then
+						language = registry_language
+						break
+					end
+				end
+
+				if public["expanded_" .. plural_tool]:contains(language_name) then
+					for _, language_tool in ipairs(language[plural_tool]) do
+						public.lines:insert(#public.lines + 1, {
+							type = tool .. "_listing",
+							language = language_name,
+							name = language_tool.name,
+							internal_name = language_tool.internal_name,
+							tool = language_tool,
+						})
+					end
+					public["expanded_" .. plural_tool]:insert(language_name)
+				end
+			end
+		end
 	end
 	public.lines:insert({})
 end
@@ -27,6 +76,7 @@ public.expanded_languages = Table({})
 public.expanded_compilers = Table({})
 
 ---@type string[]
+
 public.expanded_linters = Table({})
 
 ---@type string[]
@@ -164,14 +214,17 @@ local function write_line(option_list, is_centered)
 			else
 				highlight_group = options.foreground or options.background
 			end
+
 			---@cast highlight_group string
+
+			-- Add the highlight
 			vim.api.nvim_buf_add_highlight(
-				public.buffer,
-				-1,
-				highlight_group,
-				line,
-				#text - #options.text + shift,
-				#text + shift
+				public.buffer, -- Buffer
+				-1, -- Namespace ID
+				highlight_group, -- Highlight group
+				line, -- Line
+				#text - #options.text + shift, -- Start column
+				#text + shift -- End column
 			)
 		end
 	end
@@ -385,7 +438,7 @@ local function draw_expanded_language(language)
 		write_line({
 			{
 				text = "    " .. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
-				foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
+				foreground = progress_colors()[language.total][language.installed_total],
 			},
 			{ text = "  " .. language.name },
 			{ text = " ▾", foreground = "Comment" },
@@ -408,7 +461,7 @@ local function draw_expanded_language(language)
 			{ text = "    " },
 			{
 				text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
-				foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
+				foreground = progress_colors()[language.total][language.installed_total],
 			},
 			{ text = "  " },
 			{ text = language.name },
@@ -417,12 +470,13 @@ local function draw_expanded_language(language)
 	end
 end
 
--- Draws the languages onto the forge buffer.
+-- Draws the language list onto the forge buffer.
 --
 ---@return nil
 local function draw_languages()
 	local languages_line = Table({})
-	languages_line:insert({ text = "  Languages" })
+	languages_line:insert({ text = "  Languages ", bold = true })
+	languages_line:insert({ text = ("(%s supported)"):format(#registry.language_keys), foreground = "Comment" })
 	write_line(languages_line)
 
 	local language_index = 0
@@ -444,7 +498,7 @@ local function draw_languages()
 					{
 						text = "    "
 							.. config.options.ui.symbols.progress_icons[language.total][language.installed_total],
-						foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
+						foreground = progress_colors()[language.total][language.installed_total],
 					},
 					{ text = "  " .. language.name },
 					{ text = " ▸", foreground = "Comment" },
@@ -481,7 +535,7 @@ local function draw_languages()
 					{ text = "    " },
 					{
 						text = config.options.ui.symbols.progress_icons[language.total][language.installed_total],
-						foreground = config.options.ui.colors.progress_colors[language.total][language.installed_total],
+						foreground = progress_colors()[language.total][language.installed_total],
 					},
 					{ text = "  " },
 					{ text = language.name },
@@ -498,9 +552,9 @@ end
 ---@type integer
 public.cursor_row = 1
 
--- Updates the forge buffer.
---
----@return nil
+--- Updates the forge buffer.
+---
+--- @return nil
 function public.update_view()
 	is_first_draw_call = true
 	vim.api.nvim_set_option_value("modifiable", true, { buf = public.buffer })
@@ -513,18 +567,11 @@ function public.update_view()
 		{ text = "   " },
 		{ text = " Uninstall (u) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
-
-		-- TODO: Add the ability to "prefer" a tool, such as a compiler, so that "install all"
-		-- will install that one instead of the default one. This should also be configurable
-		-- for "default prefers" or something.
-		--
-		-- { text = " Prefer (p) ", background = "#99FFFF", foreground = "#000000" },
-		-- { text = "   " },
-
 		{ text = " Refresh (r) ", background = "#99FFFF", foreground = "#000000" },
 		{ text = "   " },
 		{ text = " Quit (q) ", background = "#99FFFF", foreground = "#000000" },
 	}, true)
+	write_line({ { text = "" } })
 	draw_languages()
 	write_line({ { text = "" } })
 	vim.fn.cursor({ public.cursor_row, 0 })
@@ -551,30 +598,23 @@ function public.get_language_under_cursor()
 	return get_language_at_line(public.cursor_row)
 end
 
--- Opens the forge buffer.
---
----@return nil
+--- Opens the forge window. This is what happens when the ":Forge" command is executed.
+---
+--- @return nil
 function public.open_window()
-	reset_lines()
+	public.reset_lines()
+
+	-- Create the forge buffer
 	public.buffer = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = public.buffer })
 
+	-- Calculate forge window dimensions
 	local vim_width = vim.api.nvim_get_option_value("columns", { scope = "global" })
 	local vim_height = vim.api.nvim_get_option_value("lines", { scope = "global" })
-
 	public.height = math.ceil(vim_height * 0.8 - 4)
-	-- public.width = math.ceil(vim_width * 0.8)
 	public.width = 130
 
-	local window_options = {
-		style = "minimal",
-		relative = "editor",
-		width = public.width,
-		height = public.height,
-		row = math.ceil((vim_height - public.height) / 2 - 1),
-		col = math.ceil((vim_width - public.width) / 2),
-	}
-
+	-- Set mappings
 	for key, action in pairs(config.options.ui.mappings) do
 		vim.api.nvim_buf_set_keymap(
 			public.buffer,
@@ -588,7 +628,17 @@ function public.open_window()
 			}
 		)
 	end
-	public.window = vim.api.nvim_open_win(public.buffer, true, window_options)
+
+	-- Create the Forge window
+	public.window = vim.api.nvim_open_win(public.buffer, true, {
+		style = "minimal",
+		relative = "editor",
+		width = public.width,
+		height = public.height,
+		row = math.ceil((vim_height - public.height) / 2 - 1),
+		col = math.ceil((vim_width - public.width) / 2),
+	})
+	vim.api.nvim_set_option_value("cursorline", true, { win = public.window })
 end
 
 return public

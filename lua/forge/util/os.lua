@@ -24,8 +24,6 @@ function public.command_exists(command_name)
 		return exit_code == 0
 	end
 
-	-- local exit_code = os.execute(("command -v %s"):format(command_name))
-	-- return exit_code == 0
 	return io.popen(("command -v %s"):format(command_name)):read("*a") ~= ""
 end
 
@@ -46,6 +44,11 @@ end
 
 ---@type table<string, PackageManager>
 public.package_managers = {
+	choco = {
+		install = function(package)
+			return ("choco install %s"):format(package)
+		end,
+	},
 	pacman = {
 		install = function(package)
 			-- --noconfirm: do not ask for confirmation
@@ -60,29 +63,19 @@ public.package_managers = {
 			return ("pacman --noconfirm -q -R %s"):format(package)
 		end,
 	},
-
-	-- NOTE: I would love some testing on pretty much all of these that aren't pacman, since my
-	-- only devices are Arch and Windows, particularly homebrew, because I could try the linux ones
-	-- in WSL, but I don't have a mac.
-
-	Apt = {
+	apt = {
 		install = function(package)
 			return ("apt install %s"):format(package)
 		end,
 	},
-	DNF = {
+	dnf = {
 		install = function(package)
 			return ("dnf install %s"):format(package)
 		end,
 	},
-	Homebrew = {
+	brew = {
 		install = function(package)
 			return ("brew install %s"):format(package)
-		end,
-	},
-	Chocolately = {
-		install = function(package)
-			return ("choco install %s"):format(package)
 		end,
 	},
 }
