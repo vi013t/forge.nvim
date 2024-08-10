@@ -57,6 +57,12 @@ public.default_config = {
 			},
 			preset = nil,
 		},
+
+		-- Options passed to the Forge window. These can be any options from vim.opt that are window-specific,
+		-- as opposed to buffer-specific options.
+		window_options = {
+			cursorline = true,
+		},
 	},
 
 	-- LSP --
@@ -87,7 +93,6 @@ public.default_config = {
 
 		-- Language Servers
 		servers = {
-
 			-- Lua
 			lua_ls = {
 				settings = {
@@ -111,7 +116,6 @@ public.default_config = {
 				use_mono = true,
 			},
 		},
-
 		setup = {},
 	},
 
@@ -119,6 +123,8 @@ public.default_config = {
 	autocomplete = {
 		format = {
 			mode = "symbol_text",
+
+			-- Autocomplete symbols
 			symbol_map = {
 				Text = "",
 				Method = "∷",
@@ -150,9 +156,12 @@ public.default_config = {
 	},
 }
 
+-- Set the initial config to the default
 public.options = public.default_config
 
 --- Sets the config options to to the given table, or use the default for options which aren't given.
+--- In other words, the passed config table will be merged into the default config, overridding any
+--- options at any nesting level.
 --
 ---@param config table The configuration to set
 function public.set_config(config)

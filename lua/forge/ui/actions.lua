@@ -377,12 +377,13 @@ end
 function public.expand()
 	-- Expanding a language
 	if ui.lines[ui.cursor_row].type == "language" then
-		local index_of_language = ui.cursor_row
 		local language_name = ui.lines[ui.cursor_row].language
 
 		-- Collapse language
 		if ui.expanded_languages:contains(language_name) then
 			ui.expanded_languages:remove_value(language_name)
+
+		-- Expand language
 		else
 			ui.expanded_languages:insert(language_name)
 		end
@@ -410,8 +411,6 @@ function public.expand()
 	ui.reset_lines()
 	ui.update_view()
 end
-
--- PERF: these move cursor functions lag a lot when holding the button down
 
 -- Moves the cursor down one row in the buffer.
 --
@@ -449,15 +448,12 @@ end
 --
 ---@return nil
 function public.refresh()
-	ui.is_refreshing = true -- TODO: this doesn't show
+	ui.refresh_percentage = 0
 	ui.update_view()
-	vim.schedule(function()
-		registry.refresh_installations()
-		lock.save()
-		ui.is_refreshing = false
-		ui.update_view()
-		print("[forge.nvim] Refresh complete")
-	end)
+	registry.refresh_installations()
+	ui.refresh_percentage = nil
+	ui.update_view()
+	print("[forge.nvim] Refresh complete")
 end
 
 return public

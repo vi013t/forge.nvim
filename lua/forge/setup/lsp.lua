@@ -58,7 +58,7 @@ function public.setup_lsps()
 		config.options.lsp.diagnostics.virtual_text.prefix = function(diagnostic)
 			for severity, icon in pairs(config.options.lsp.icons) do
 				if diagnostic.severity == vim.diagnostic.severity[severity:upper()] then
-					return icon
+					return " " .. icon
 				end
 			end
 		end

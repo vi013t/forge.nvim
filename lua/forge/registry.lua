@@ -364,7 +364,20 @@ public.languages = {
 		},
 		formatters = {},
 		debuggers = {},
-		additional_tools = {},
+		additional_tools = {
+			{
+				type = "plugin",
+				internal_name = "OXY2DEV/markview.nvim",
+				description = "In-editor markdown previewer",
+				name = "Markview",
+			},
+			{
+				type = "plugin",
+				internal_name = "iamcco/markdown-preview.nvim",
+				description = "Browser markdown previewer",
+				name = "Markdown Preview",
+			},
+		},
 	},
 	ocaml = {
 		name = "OCaml",
@@ -634,67 +647,70 @@ public.languages = {
 	},
 }
 
+function public.refresh_installation(language)
+	-- Compiler
+	local installed_compilers = Table({})
+	for _, compiler in ipairs(language.compilers) do
+		if os_utils.command_exists(compiler.internal_name) then
+			installed_compilers:insert(compiler)
+		end
+	end
+	language.installed_compilers = installed_compilers
+
+	-- Highlighter
+	local installed_highlighters = Table({})
+	for _, highlighter in ipairs(language.highlighters) do
+		if parsers.has_parser(highlighter.internal_name) then
+			installed_highlighters:insert(highlighter)
+		end
+	end
+	language.installed_highlighters = installed_highlighters
+
+	-- Linter
+	local installed_linters = Table({})
+	for _, linter in ipairs(language.linters) do
+		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
+			if internal_name == linter.internal_name then
+				installed_linters:insert(linter)
+				break
+			end
+		end
+	end
+	language.installed_linters = installed_linters
+
+	-- Formatter
+	local installed_formatters = Table({})
+	for _, formatter in ipairs(language.formatters) do
+		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
+			if internal_name == formatter.internal_name then
+				installed_formatters:insert(formatter)
+				break
+			end
+		end
+	end
+	language.installed_formatters = installed_formatters
+
+	-- Debugger
+	local installed_debuggers = Table({})
+	for _, debugger in ipairs(language.debuggers) do
+		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
+			if internal_name == debugger.internal_name then
+				installed_debuggers:insert(debugger)
+				break
+			end
+		end
+	end
+	language.installed_debuggers = installed_debuggers
+
+	language.installed_additional_tools = Table({})
+end
+
 function public.refresh_installations()
 	public.generate_language_keys()
 
 	for _, language_name in ipairs(public.language_keys) do
 		local language = public.languages[language_name]
-
-		-- Compiler
-		local installed_compilers = Table({})
-		for _, compiler in ipairs(language.compilers) do
-			if os_utils.command_exists(compiler.internal_name) then
-				installed_compilers:insert(compiler)
-			end
-		end
-		language.installed_compilers = installed_compilers
-
-		-- Highlighter
-		local installed_highlighters = Table({})
-		for _, highlighter in ipairs(language.highlighters) do
-			if parsers.has_parser(highlighter.internal_name) then
-				installed_highlighters:insert(highlighter)
-			end
-		end
-		language.installed_highlighters = installed_highlighters
-
-		-- Linter
-		local installed_linters = Table({})
-		for _, linter in ipairs(language.linters) do
-			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
-				if internal_name == linter.internal_name then
-					installed_linters:insert(linter)
-					break
-				end
-			end
-		end
-		language.installed_linters = installed_linters
-
-		-- Formatter
-		local installed_formatters = Table({})
-		for _, formatter in ipairs(language.formatters) do
-			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
-				if internal_name == formatter.internal_name then
-					installed_formatters:insert(formatter)
-					break
-				end
-			end
-		end
-		language.installed_formatters = installed_formatters
-
-		-- Debugger
-		local installed_debuggers = Table({})
-		for _, debugger in ipairs(language.debuggers) do
-			for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
-				if internal_name == debugger.internal_name then
-					installed_debuggers:insert(debugger)
-					break
-				end
-			end
-		end
-		language.installed_debuggers = installed_debuggers
-
-		language.installed_additional_tools = Table({})
+		public.refresh_installation(language)
 	end
 
 	-- Get the actual number of installatinons

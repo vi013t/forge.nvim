@@ -25,6 +25,8 @@ end
 ---@type { type: line_type, language: string, name?: string, internal_name?: string }[]
 public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
 
+public.refresh_percentage = nil
+
 -- Resets the lines list
 function public.reset_lines()
 	public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
@@ -62,6 +64,7 @@ function public.reset_lines()
 						})
 					end
 
+					-- "None supported" additional line
 					if #language[plural_tool] == 0 then
 						public.lines:insert(#public.lines + 1, {})
 					end
@@ -337,6 +340,14 @@ local function draw_tool(language, tool_name)
 
 			local installed_tools = language["installed_" .. tool_name] ---@type table
 
+			local internal_name = tool.internal_name
+			if tool_name == "additional_tools" then
+				internal_name = ({
+					plugin = "",
+					mason = "",
+				})[tool.type] .. " " .. internal_name
+			end
+
 			-- Tool is currently installing
 			if
 				public.currently_installing
@@ -346,7 +357,7 @@ local function draw_tool(language, tool_name)
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#00AAFF" })
 				write_buffer:insert({ text = tool.name, foreground = "#00AAFF" })
-				write_buffer:insert({ text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
+				write_buffer:insert({ text = " (" .. internal_name .. ") ", foreground = "Comment" })
 				write_buffer:insert({
 					text = "   (Installing...)",
 					foreground = "#00AAFF",
@@ -357,7 +368,7 @@ local function draw_tool(language, tool_name)
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#00FF00" })
 				write_buffer:insert({ text = tool.name, foreground = "#00FF00" })
-				write_buffer:insert({ text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
+				write_buffer:insert({ text = " (" .. internal_name .. ") ", foreground = "Comment" })
 
 				-- Prompt
 				if
@@ -377,7 +388,7 @@ local function draw_tool(language, tool_name)
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#FF0000" })
 				write_buffer:insert({ text = tool.name, foreground = "#FF0000" })
-				write_buffer:insert({ text = " (" .. tool.internal_name .. ") ", foreground = "Comment" })
+				write_buffer:insert({ text = " (" .. internal_name .. ") ", foreground = "Comment" })
 
 				-- Prompt
 				if
@@ -485,6 +496,12 @@ local function draw_languages()
 	local languages_line = Table({})
 	languages_line:insert({ text = "  Languages ", bold = true })
 	languages_line:insert({ text = ("(%s supported)"):format(#registry.language_keys), foreground = "Comment" })
+	if public.refresh_percentage ~= nil then
+		languages_line:insert({
+			text = ("    Refreshing... (%s%%)"):format(public.refresh_percentage),
+			foreground = "Comment",
+		})
+	end
 	write_line(languages_line)
 
 	local language_index = 0
@@ -646,7 +663,11 @@ function public.open_window()
 		row = math.ceil((vim_height - public.height) / 2 - 1),
 		col = math.ceil((vim_width - public.width) / 2),
 	})
-	vim.api.nvim_set_option_value("cursorline", true, { win = public.window })
+
+	-- Window options
+	for option_name, option_value in pairs(config.options.ui.window_options) do
+		vim.api.nvim_set_option_value(option_name, option_value, { win = public.window })
+	end
 end
 
 return public
