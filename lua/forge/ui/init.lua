@@ -87,7 +87,6 @@ public.expanded_languages = Table({})
 public.expanded_compilers = Table({})
 
 ---@type string[]
-
 public.expanded_linters = Table({})
 
 ---@type string[]
@@ -340,6 +339,7 @@ local function draw_tool(language, tool_name)
 
 			local installed_tools = language["installed_" .. tool_name] ---@type table
 
+			-- Add symbols to additional tools' internal names
 			local internal_name = tool.internal_name
 			if tool_name == "additional_tools" then
 				internal_name = ({

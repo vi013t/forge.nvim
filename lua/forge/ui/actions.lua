@@ -305,44 +305,14 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 	elseif line.type == "additional_tools_listing" then
 		print("Installing " .. line.internal_name .. "...")
 
-		local plugin_name = line.internal_name:match("([^/]+)$")
-		local local_repo_path = vim.fn.stdpath("data") .. "/lazy/" .. plugin_name
-
-		vim.fn.system(("git clone 'https://github.com/%s.git' '%s'"):format(line.internal_name, local_repo_path))
-		local branch = vim.fn.system(("git -C '%s' branch --show-current"):format(local_repo_path)):gsub("\n$", "")
-		local commit = vim.fn.system(("git -C '%s' rev-parse HEAD"):format(local_repo_path)):gsub("\n$", "")
-
-		-- TODO: allow configuring lazy lockfile, because lazy allows configuring it
-		-- ideally I would actually just like to do this through lazy, and then lazy
-		-- could handle the cloning, lockfile, etc. It also would prevent the plugin
-		-- from being marked as needing to be cleaned.
-
-		-- Write to lockfile
-		local lazy_lock = vim.fn.stdpath("config") .. "/lazy-lock.json"
-		local plugins = assert(vim.fn.json_decode(vim.fn.readfile(lazy_lock)))
-		plugins[plugin_name] = { branch = branch, commit = commit }
-		local lazy_lock_file = assert(io.open(lazy_lock, "w"))
-
-		-- Pretty print the lockfile
-		local has_plugins = false
-		local json = "{"
-		for json_plugin_name, plugin_data in pairs(plugins) do
-			has_plugins = true
-			json = json .. ('\n\t"%s": %s,'):format(json_plugin_name, vim.fn.json_encode(plugin_data))
-		end
-		if has_plugins then
-			json = json:sub(1, #json - 1)
-		end
-		json = json .. "\n}"
-		lazy_lock_file:write(json)
-		lazy_lock_file:close()
-
 		-- Add the additional tool to the list of installed additional tools
 		table.insert(language.installed_additional_tools, { name = line.name, internal_name = line.internal_name })
+		local tool
 		for _, language_key in ipairs(registry.language_keys) do
 			local other_language = registry.languages[language_key]
 			for _, additional_tool in ipairs(other_language.installed_additional_tools) do
 				if additional_tool.internal_name == line.internal_name then
+					tool = additional_tool
 					table.insert(
 						other_language.installed_additional_tools,
 						{ name = line.name, internal_name = line.internal_name }
@@ -351,6 +321,18 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 				end
 			end
 		end
+
+		if not tool then
+			error("Error locating tool: " .. line.internal_name)
+		end
+
+		-- TODO: non plugins
+
+		-- Make the plugin file
+		vim.fn.mkdir(vim.fn.stdpath("config") .. "/lua/plugins", ":p:h")
+		local plugin_name = tool.internal_name:match("([^/]+)$")
+		local plugin_file = assert(io.open(vim.fn.stdpath("config") .. "/lua/plugins/" .. plugin_name .. ".lua", "w"))
+		plugin_file:write(('return {\n\t"%s",%s\n}'):format(tool.internal_name, tool.default_config or "")) -- TODO: give all plugins default config and remove the default ""
 
 		---@type integer
 		local index = nil

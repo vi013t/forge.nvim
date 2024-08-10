@@ -4,7 +4,8 @@ local public = Table({})
 public.default_config = {
 	developer_mode = false, -- Print debug messages
 	lockfile = vim.fn.stdpath("data") .. "/forge.lock", -- The path to the file which saves what you have installed, so that we don't need to check every time.
-	format_on_save = true, -- Autoformat buffers on save
+	plugin_directory = "plugins", -- The name of the plugin directory, relative to ~/.config/nvim/lua.
+	format_on_save = true, -- Whether to autoformat buffers on save.
 
 	-- UI --
 	ui = {

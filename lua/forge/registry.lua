@@ -344,14 +344,7 @@ public.languages = {
 			{ internal_name = "stylua", name = "Stylua" },
 		},
 		debuggers = {},
-		additional_tools = {
-			{
-				type = "plugin",
-				internal_name = "folke/neodev.nvim",
-				description = "Support for Neovim development in Lua",
-				name = "Neodev",
-			},
-		},
+		additional_tools = {},
 	},
 	markdown = {
 		name = "Markdown",
@@ -370,12 +363,33 @@ public.languages = {
 				internal_name = "OXY2DEV/markview.nvim",
 				description = "In-editor markdown previewer",
 				name = "Markview",
+				default_config = [[
+					dependencies = {
+						"nvim-treesitter/nvim-treesitter",
+						"nvim-tree/nvim-web-devicons",
+					},
+					opts = {
+						modes = { "n", "no", "c" },
+						hybrid_modes = { "n" },
+						callbacks = {
+							on_enable = function(_, win)
+								vim.wo[win].conceallevel = 2
+								vim.wo[win].conecalcursor = "c"
+							end,
+						},
+					},
+				]],
 			},
 			{
 				type = "plugin",
 				internal_name = "iamcco/markdown-preview.nvim",
 				description = "Browser markdown previewer",
 				name = "Markdown Preview",
+				default_config = [[
+					cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+					ft = { "markdown" },
+					build = function() vim.fn["mkdp#util#install"]() end
+				]],
 			},
 		},
 	},
@@ -421,6 +435,7 @@ public.languages = {
 				internal_name = "AckslD/swenv.nvim",
 				description = "Quickly switch Python virtual environments without restarting",
 				name = "Swenv",
+				default_config = "",
 			},
 		},
 	},
