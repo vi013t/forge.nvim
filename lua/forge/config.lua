@@ -119,6 +119,10 @@ public.default_config = {
 					installed = "",
 					not_installed = "",
 					none_available = "󰽤",
+					plugin = "",
+					mason = "",
+					instruction_left = "",
+					instruction_right = "",
 				},
 
 				--- An ASCII-only preset. Use this preset (with `preset = "ascii"`) if you don't want to use a nerd font or a terminal
@@ -137,6 +141,10 @@ public.default_config = {
 					installed = "*",
 					not_installed = "X",
 					none_available = "O",
+					plugin = "P",
+					mason = ">_",
+					instruction_left = "",
+					instruction_right = "",
 				},
 			},
 
@@ -144,6 +152,10 @@ public.default_config = {
 			--- custom preset, create one in the `presets` table, and use the name of it here.
 			preset = nil,
 		},
+
+		--- Color configuration. This configures what colors are shown by the Forge buffer. The colors use the same preset
+		--- system as icons; See the documentation for `options.ui.symbols.presets` for more information. Each color can
+		--- be specified as a hex color, or the name of an *existing* highlight group.
 		colors = {
 			presets = {
 
@@ -161,6 +173,8 @@ public.default_config = {
 					installed = "#00FF00",
 					not_installed = "#FF0000",
 					none_available = "#FFFF00",
+					window_title = "#CC99FF",
+					instructions = "#00FFFF",
 				},
 				["catppuccin-mocha"] = {
 					progress = {
@@ -173,7 +187,15 @@ public.default_config = {
 					},
 					installed = "#A6E3A1",
 					not_installed = "#F38BA8",
+
+					--- The color of the icon shown when no tool is available for installation.
 					none_available = "#F9E2AF",
+
+					--- The background color of the title at the top of the window that says "Forge".
+					window_title = "#B4BEFE",
+
+					--- The background of the instructions at the top of the window that say "Expand", "Install", etc.
+					instructions = "#89DCEB",
 				},
 			},
 

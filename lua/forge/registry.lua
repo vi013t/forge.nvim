@@ -342,7 +342,18 @@ public.languages = {
 			{ internal_name = "stylua", name = "Stylua" },
 		},
 		debuggers = {},
-		additional_tools = {},
+		additional_tools = {
+			{
+				type = "plugin",
+				internal_name = "folke/lazydev.nvim",
+				description = "Lua & Neovim development tools",
+				name = "Lazydev",
+				default_config = [[
+					opts = {},
+					ft = "lua"
+				]],
+			},
+		},
 	},
 	markdown = {
 		name = "Markdown",

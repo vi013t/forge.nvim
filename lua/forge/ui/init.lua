@@ -199,7 +199,7 @@ local function write_line(option_list, is_centered)
 	-- Alignment
 	local shift = 0
 	if is_centered then
-		shift = math.floor(public.width / 2) - math.floor(text:len() / 2)
+		shift = math.floor(public.width / 2) - math.floor(vim.fn.strdisplaywidth(text) / 2)
 		text = (" "):rep(shift) .. text
 	end
 
@@ -354,10 +354,7 @@ local function draw_tool(language, tool_name)
 			-- Add symbols to additional tools' internal names
 			local internal_name = tool.internal_name
 			if tool_name == "additional_tools" then
-				internal_name = ({
-					plugin = "",
-					mason = "",
-				})[tool.type] .. " " .. internal_name
+				internal_name = icons()[tool.type] .. " " .. internal_name
 			end
 
 			-- Tool is currently installing
@@ -459,12 +456,13 @@ local function draw_tool(language, tool_name)
 	end
 end
 
--- Draws a language name that's expanded
+-- Draws a language name that's expanded.
 ---
 ---@param language Language The language name to draw
 ---
 ---@return nil
 local function draw_expanded_language(language)
+	-- Cursor is on this language - add prompt
 	if language.name == public.get_language_under_cursor() then
 		write_line({
 			{
@@ -487,6 +485,8 @@ local function draw_expanded_language(language)
 			{ text = "uninstall all", foreground = "#AA77AA" },
 			{ text = ")", foreground = "Comment" },
 		})
+
+	-- Cursor is not on this language - no prompt
 	else
 		write_line({
 			{ text = "    " },
@@ -588,24 +588,53 @@ end
 ---@type integer
 public.cursor_row = 1
 
---- Updates the forge buffer.
+--- Updates the forge buffer. This should be called whenever state changes to the UI are made.
+--- This will clear the entire buffer and redraw it using the current state of the UI.
 ---
 --- @return nil
 function public.update_view()
 	is_first_draw_call = true
 	vim.api.nvim_set_option_value("modifiable", true, { buf = public.buffer })
-	write_line({ { text = " Forge ", background = "#CC99FF", foreground = "#000000" } }, true)
+	write_line({
+		{ text = icons().instruction_left, foreground = colors().window_title },
+		{ text = " Forge ", background = colors().window_title, foreground = "#000000" },
+		{ text = icons().instruction_right, foreground = colors().window_title },
+	}, true)
 	write_line({ { text = "" } })
 	write_line({
-		{ text = " Expand (e) ", background = "#99FFFF", foreground = "#000000" },
+
+		-- Expand
+		{ text = icons().instruction_left, foreground = colors().instructions },
+		{ text = " Expand (e) ", background = colors().instructions, foreground = "#000000" },
+		{ text = icons().instruction_right, foreground = colors().instructions },
+
 		{ text = "   " },
-		{ text = " Install (i) ", background = "#99FFFF", foreground = "#000000" },
+
+		-- Install
+		{ text = icons().instruction_left, foreground = colors().instructions },
+		{ text = " Install (i) ", background = colors().instructions, foreground = "#000000" },
+		{ text = icons().instruction_right, foreground = colors().instructions },
+
 		{ text = "   " },
-		{ text = " Uninstall (u) ", background = "#99FFFF", foreground = "#000000" },
+
+		-- Uninstall
+		{ text = icons().instruction_left, foreground = colors().instructions },
+		{ text = " Uninstall (u) ", background = colors().instructions, foreground = "#000000" },
+		{ text = icons().instruction_right, foreground = colors().instructions },
+
 		{ text = "   " },
-		{ text = " Refresh (r) ", background = "#99FFFF", foreground = "#000000" },
+
+		-- Refresh
+		{ text = icons().instruction_left, foreground = colors().instructions },
+		{ text = " Refresh (r) ", background = colors().instructions, foreground = "#000000" },
+		{ text = icons().instruction_right, foreground = colors().instructions },
+
 		{ text = "   " },
-		{ text = " Quit (q) ", background = "#99FFFF", foreground = "#000000" },
+
+		-- Quit
+		{ text = icons().instruction_left, foreground = colors().instructions },
+		{ text = " Quit (q) ", background = colors().instructions, foreground = "#000000" },
+		{ text = icons().instruction_right, foreground = colors().instructions },
 	}, true)
 	write_line({ { text = "" } })
 	draw_languages()
