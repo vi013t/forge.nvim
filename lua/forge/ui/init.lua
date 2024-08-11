@@ -12,7 +12,7 @@ local public = {}
 --- preset will be used. If not, the output of running the vim command "colorscheme" is used as the preset name,
 --- if a preset exists with that name. If not, the "default" preset is used.
 ---
----@return { progress: table, installed: string, not_installed: string, none_available: string }
+---@return { progress: table, installed: string, not_installed: string, none_available: string, instructions: string, window_title: string }
 local function colors()
 	return config.options.ui.colors.presets[config.options.ui.colors.preset or vim.api.nvim_exec2(
 		"colorscheme",
@@ -29,6 +29,7 @@ end
 ---@type { type: line_type, language: string, name?: string, internal_name?: string }[]
 public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
 
+---@type number | nil
 public.refresh_percentage = nil
 
 -- Resets the lines list
@@ -42,7 +43,7 @@ function public.reset_lines()
 		if public.expanded_languages:contains(language_name) then
 			for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
 				-- Main tool line (unexpanded)
-				public.lines:insert(#public.lines + 1, { type = tool, language = language_name })
+				public.lines:insert({ type = tool, language = language_name })
 
 				-- Get the name of the "plural" tool
 				local plural_tool = tool .. "s"
@@ -62,7 +63,7 @@ function public.reset_lines()
 				-- Expanded tool
 				if public["expanded_" .. plural_tool]:contains(language_name) then
 					for _, language_tool in ipairs(language[plural_tool]) do
-						public.lines:insert(#public.lines + 1, {
+						public.lines:insert({
 							type = tool .. "_listing",
 							language = language_name,
 							name = language_tool.name,
@@ -73,7 +74,7 @@ function public.reset_lines()
 
 					-- "None supported" additional line
 					if #language[plural_tool] == 0 then
-						public.lines:insert(#public.lines + 1, {})
+						public.lines:insert({})
 					end
 				end
 			end
@@ -276,7 +277,7 @@ local function draw_tool(language, tool_name)
 	end
 
 	-- Icon, compiler name, compiler command
-	if language["installed_" .. tool_name][1] then
+	if tool_name ~= "additional_tools" and language["installed_" .. tool_name][1] then
 		write_buffer:insert({ text = icons().installed, foreground = colors().installed })
 		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
 		write_buffer:insert({ text = language["installed_" .. tool_name][1].name, foreground = colors().installed })
@@ -284,11 +285,38 @@ local function draw_tool(language, tool_name)
 			text = " (" .. language["installed_" .. tool_name][1].internal_name .. ")",
 			foreground = "Comment",
 		})
+
+	-- Additional Tools
+	elseif tool_name == "additional_tools" and #language[tool_name] > 0 then
+		local color = colors().progress[#language.additional_tools + 1][#language.installed_additional_tools + 1]
+		local icon = icons().progress[#language.additional_tools + 1][#language.installed_additional_tools + 1]
+			or "󰽢"
+		write_buffer:insert({ text = icon, foreground = color })
+		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
+		write_buffer:insert({
+			text = ("%d"):format(#language.installed_additional_tools) .. " installed",
+			foreground = color,
+		})
+		local more_text = ""
+		if #language.installed_additional_tools > 0 then
+			more_text = " more"
+		end
+		write_buffer:insert({
+			text = " ("
+				.. (#language.additional_tools - #language.installed_additional_tools)
+				.. more_text
+				.. " available)",
+			foreground = "Comment",
+		})
+
+	-- Not additional tools, but availble installations
 	elseif #language[tool_name] > 0 then
 		write_buffer:insert({ text = icons().not_installed, foreground = colors().not_installed })
 		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
 		write_buffer:insert({ text = "None Installed", foreground = colors().not_installed })
 		write_buffer:insert({ text = " (" .. #language[tool_name] .. " available)", foreground = "Comment" })
+
+	-- None available
 	else
 		write_buffer:insert({ text = icons().none_available, foreground = colors().none_available })
 		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
@@ -304,9 +332,14 @@ local function draw_tool(language, tool_name)
 		write_buffer:insert({ text = " " .. icons().right_arrow })
 	end
 
+	local stubbed_name = tool_name:sub(1, -2)
+	if tool_name == "additional_tools" then
+		stubbed_name = tool_name:sub(1, -1)
+	end
+
 	-- Prompt
 	if
-		public.lines[public.cursor_row].type == tool_name:sub(1, -2)
+		public.lines[public.cursor_row].type == stubbed_name
 		and public.lines[public.cursor_row].language == language.name
 	then
 		write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
@@ -357,6 +390,15 @@ local function draw_tool(language, tool_name)
 				internal_name = icons()[tool.type] .. " " .. internal_name
 			end
 
+			local tool_is_installed = false
+			do
+				for _, language_tool in ipairs(language["installed_" .. tool_name]) do
+					if language_tool.internal_name == tool.internal_name then
+						tool_is_installed = true
+					end
+				end
+			end
+
 			-- Tool is currently installing
 			if
 				public.currently_installing
@@ -372,8 +414,8 @@ local function draw_tool(language, tool_name)
 					foreground = "#00AAFF",
 				})
 
-				-- Tool is installed already
-			elseif table.contains(installed_tools, tool) then
+			-- Tool is installed already
+			elseif tool_is_installed then
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = " " .. icons().installed .. " ", foreground = colors().installed })
 				write_buffer:insert({ text = tool.name, foreground = colors().installed })
@@ -381,7 +423,7 @@ local function draw_tool(language, tool_name)
 
 				-- Prompt
 				if
-					line.type == tool_name:sub(1, -2) .. "_listing"
+					line.type == stubbed_name .. "_listing"
 					and line.language == language.name
 					and line.name == tool.name
 				then
@@ -389,10 +431,16 @@ local function draw_tool(language, tool_name)
 					write_buffer:insert({ text = "u", foreground = "#AA77AA" })
 					write_buffer:insert({ text = " to ", foreground = "Comment" })
 					write_buffer:insert({ text = "uninstall", foreground = "#AA77AA" })
+					if tool_name == "additional_tools" then
+						write_buffer:insert({ text = " or ", foreground = "Comment" })
+						write_buffer:insert({ text = "c", foreground = "#AA7777" })
+						write_buffer:insert({ text = " to ", foreground = "Comment" })
+						write_buffer:insert({ text = "configure", foreground = "#AA7777" })
+					end
 					write_buffer:insert({ text = ")", foreground = "Comment" })
 				end
 
-				-- Tool is not installed
+			-- Tool is not installed
 			else
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = " " .. icons().not_installed .. " ", foreground = colors().not_installed })
@@ -401,7 +449,7 @@ local function draw_tool(language, tool_name)
 
 				-- Prompt
 				if
-					line.type == tool_name:sub(1, -2) .. "_listing"
+					line.type == stubbed_name .. "_listing"
 					and line.language == language.name
 					and line.name == tool.name
 				then
@@ -620,6 +668,13 @@ function public.update_view()
 		-- Uninstall
 		{ text = icons().instruction_left, foreground = colors().instructions },
 		{ text = " Uninstall (u) ", background = colors().instructions, foreground = "#000000" },
+		{ text = icons().instruction_right, foreground = colors().instructions },
+
+		{ text = "   " },
+
+		-- Configure
+		{ text = icons().instruction_left, foreground = colors().instructions },
+		{ text = " Configure (c) ", background = colors().instructions, foreground = "#000000" },
 		{ text = icons().instruction_right, foreground = colors().instructions },
 
 		{ text = "   " },

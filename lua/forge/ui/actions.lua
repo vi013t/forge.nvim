@@ -4,6 +4,7 @@ local treesitter_parsers = require("nvim-treesitter.parsers")
 local lock = require("forge.lock")
 local mason_utils = require("forge.util.mason_utils")
 local os_utils = require("forge.util.os")
+local config = require("forge.config")
 
 local public = Table({})
 
@@ -21,7 +22,7 @@ function public.close_window()
 	vim.api.nvim_win_close(ui.window, true)
 end
 
-function public.toggle_install() -- TODO: this causes the physical cursor to be misaligned with the visual cursor
+function public.toggle_install()
 	local line = ui.lines[ui.cursor_row]
 
 	---@type Language
@@ -310,7 +311,7 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 		local tool
 		for _, language_key in ipairs(registry.language_keys) do
 			local other_language = registry.languages[language_key]
-			for _, additional_tool in ipairs(other_language.installed_additional_tools) do
+			for _, additional_tool in ipairs(other_language.additional_tools) do
 				if additional_tool.internal_name == line.internal_name then
 					tool = additional_tool
 					table.insert(
@@ -326,24 +327,54 @@ function public.toggle_install() -- TODO: this causes the physical cursor to be 
 			error("Error locating tool: " .. line.internal_name)
 		end
 
+		local function unindent(text)
+			-- Split the text into lines
+			local lines = {}
+			for text_line in text:gmatch("[^\r\n]+") do
+				table.insert(lines, text_line)
+			end
+
+			-- Find the minimum leading whitespace
+			local min_indent = math.huge
+			for _, text_line in ipairs(lines) do
+				local indent = text_line:match("^(%s*)")
+				if indent and #indent < min_indent then
+					min_indent = #indent
+				end
+			end
+
+			-- Remove the minimum leading whitespace from each line
+			local result = {}
+			for _, text_line in ipairs(lines) do
+				local trimmed_line = text_line:sub(min_indent + 1)
+				table.insert(result, trimmed_line)
+			end
+
+			-- Join the result into a single string
+			return table.concat(result, "\n")
+		end
+
 		-- TODO: non plugins
 
 		-- Make the plugin file
 		vim.fn.mkdir(vim.fn.stdpath("config") .. "/lua/plugins", ":p:h")
-		local plugin_name = tool.internal_name:match("([^/]+)$")
-		local plugin_file = assert(io.open(vim.fn.stdpath("config") .. "/lua/plugins/" .. plugin_name .. ".lua", "w"))
-		plugin_file:write(('return {\n\t"%s",%s\n}'):format(tool.internal_name, tool.default_config or "")) -- TODO: give all plugins default config and remove the default ""
+		local plugin_file = assert(io.open(vim.fn.stdpath("config") .. "/lua/plugins/" .. tool.module .. ".lua", "w"))
+		plugin_file:write(('return {\n\t"%s",\n%s\n}'):format(tool.internal_name, unindent(tool.default_config) or "")) -- TODO: give all plugins default config and remove the default ""
 
 		---@type integer
 		local index = nil
-		for line_index, ui_line in ipairs(ui.lines) do
-			if ui_line.internal_name == line.internal_name then
-				index = line_index
-				break
+		do
+			for line_index, ui_line in ipairs(ui.lines) do
+				if ui_line.internal_name == line.internal_name then
+					index = line_index
+					break
+				end
 			end
 		end
 
 		ui.cursor_row = index
+
+		print("[Forge] Plugin installed. Reload Neovim to use it.")
 	end
 
 	registry.sort_languages()
@@ -432,10 +463,42 @@ end
 function public.refresh()
 	ui.refresh_percentage = 0
 	ui.update_view()
-	registry.refresh_installations()
+	vim.defer_fn(function()
+		registry.refresh_installations()
+	end, 0)
 	ui.refresh_percentage = nil
 	ui.update_view()
-	print("[forge.nvim] Refresh complete")
+	print("[Forge] Refresh complete.")
+end
+
+function public.configure()
+	local language_name = ui.lines[ui.cursor_row].language
+
+	local language = registry.get_language_by_name(language_name)
+
+	---@cast language Language
+
+	local plugin
+	for _, additional_tool in ipairs(language.additional_tools) do
+		if additional_tool.internal_name == ui.lines[ui.cursor_row].internal_name then
+			plugin = additional_tool
+		end
+	end
+
+	if not plugin then
+		return
+	end
+
+	if ui.lines[ui.cursor_row].type == "additional_tools_listing" then
+		local plugin_file_path = vim.fn.stdpath("config")
+			.. "/lua/"
+			.. config.options.plugin_directory
+			.. "/"
+			.. plugin.module
+			.. ".lua"
+		public.close_window()
+		vim.cmd("ex " .. plugin_file_path)
+	end
 end
 
 return public

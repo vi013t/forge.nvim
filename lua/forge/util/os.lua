@@ -44,11 +44,6 @@ end
 
 ---@type table<string, PackageManager>
 public.package_managers = {
-	choco = {
-		install = function(package)
-			return ("choco install %s"):format(package)
-		end,
-	},
 	pacman = {
 		install = function(package)
 			-- --noconfirm: do not ask for confirmation
@@ -76,6 +71,11 @@ public.package_managers = {
 	brew = {
 		install = function(package)
 			return ("brew install %s"):format(package)
+		end,
+	},
+	choco = {
+		install = function(package)
+			return ("choco install %s"):format(package)
 		end,
 	},
 }

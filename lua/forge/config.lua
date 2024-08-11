@@ -24,6 +24,7 @@ public.default_config = {
 		mappings = {
 			q = "close_window",
 			e = "expand",
+			c = "configure",
 			j = "move_cursor_down", -- TODO: Use CursorMove events so that these don't have to be done manually
 			k = "move_cursor_up", -- 		 which will also allow support for more motions
 			gg = "set_cursor_to_top",
@@ -105,9 +106,21 @@ public.default_config = {
 			--- }
 			--- ```
 			presets = {
+
+				--- The default preset. This preset uses the default icons for Forge.nvim, and requires a nerd font or a glyph-rendering
+				--- terminal (like Kitty) to render correctly. If you don't want to use a nerd font, consider using `preset = "ascii"`
+				--- or making your own preset.
 				default = {
+					--- The default right arrow icon to display when languages or tools are not expanded.
 					right_arrow = "▸",
+
+					--- The default down arrow icon to display when languages or tools are expanded.
 					down_arrow = "▾",
+
+					--- The default icons that appear next to languages showing how many tools have been installed relative to the number
+					--- of available tools. This is an array of 6 elements, each listing the icons that should appear for languages that have
+					--- 0, 1, 2, 3, 4, and 5 available tools. Each sub-array contains the icon present when you've installed 1 tool, 2 tools,
+					--- etc.
 					progress = {
 						{ "" },
 						{ "", "" },
@@ -116,12 +129,20 @@ public.default_config = {
 						{ "", "", "", "", "" },
 						{ "", "", "", "", "", "" },
 					},
+
+					--- The default icon for when a tool is already installed, a checkmark.
 					installed = "",
+					--- The default icon for when a tool is not installed, an "X".
 					not_installed = "",
+					--- The default icon for when there is no tool available, an empty circle.
 					none_available = "󰽤",
+					--- The default icon for an "additional tool" thats a Neovim plugin.
 					plugin = "",
+					--- The default icon for an "additional tool" thats a `mason.nvim` installation.
 					mason = "",
+					--- The default icon to display on the left side of "instruction" (the keybind visuals at the top of the window)
 					instruction_left = "",
+					--- The default icon to display on the right side of "instruction" (the keybind visuals at the top of the window)
 					instruction_right = "",
 				},
 
@@ -155,7 +176,7 @@ public.default_config = {
 
 		--- Color configuration. This configures what colors are shown by the Forge buffer. The colors use the same preset
 		--- system as icons; See the documentation for `options.ui.symbols.presets` for more information. Each color can
-		--- be specified as a hex color, or the name of an *existing* highlight group.
+		--- be specified as a hex color, or the name of an *existing* highlight group, such as "Comment".
 		colors = {
 			presets = {
 
@@ -185,7 +206,11 @@ public.default_config = {
 						{ "#F38BA8", "#FA9D87", "#F9E2AF", "#DDF7A1", "#A6E3A1" }, -- Language has 4 tools available
 						{ "#F38BA8", "#FA8387", "#FAB387", "#F9E2AF", "#DDF7A1", "#A6E3A1" }, -- Language has 5 tools available
 					},
+
+					--- The color of the icon shown when a tool is installed.
 					installed = "#A6E3A1",
+
+					--- The color of the icon shown when a tool is available for installation, but none is installed.
 					not_installed = "#F38BA8",
 
 					--- The color of the icon shown when no tool is available for installation.

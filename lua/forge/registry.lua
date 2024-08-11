@@ -348,6 +348,7 @@ public.languages = {
 				internal_name = "folke/lazydev.nvim",
 				description = "Lua & Neovim development tools",
 				name = "Lazydev",
+				module = "lazydev",
 				default_config = [[
 					opts = {},
 					ft = "lua"
@@ -364,7 +365,9 @@ public.languages = {
 		linters = {
 			{ internal_name = "markdownlint", name = "Markdown Linter" },
 		},
-		formatters = {},
+		formatters = {
+			{ internal_name = "mdformat", name = "Markdown Formatter" },
+		},
 		debuggers = {},
 		additional_tools = {
 			{
@@ -372,6 +375,7 @@ public.languages = {
 				internal_name = "OXY2DEV/markview.nvim",
 				description = "In-editor markdown previewer",
 				name = "Markview",
+				module = "markview",
 				default_config = [[
 					dependencies = {
 						"nvim-treesitter/nvim-treesitter",
@@ -394,6 +398,7 @@ public.languages = {
 				internal_name = "iamcco/markdown-preview.nvim",
 				description = "Browser markdown previewer",
 				name = "Markdown Preview",
+				module = "markdown-preview",
 				default_config = [[
 					cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
 					ft = { "markdown" },
@@ -434,6 +439,7 @@ public.languages = {
 		},
 		formatters = {
 			{ internal_name = "black", name = "Black PEP8 Formatter" },
+			{ internal_name = "autoflake", name = "Autoflake" },
 		},
 		debuggers = {
 			{ internal_name = "debugpy", name = "DebugPY" },
@@ -442,6 +448,7 @@ public.languages = {
 			{
 				type = "plugin",
 				internal_name = "AckslD/swenv.nvim",
+				module = "swenv",
 				description = "Quickly switch Python virtual environments without restarting",
 				name = "Swenv",
 				default_config = "",
@@ -598,6 +605,7 @@ public.languages = {
 				internal_name = "marilari88/twoslash-queries.nvim",
 				name = "Two Slash Queries",
 				description = "Show TypeScript types as virtual text with `// ^?` comments",
+				module = "twoslash-queries",
 			},
 		},
 	},
@@ -639,12 +647,14 @@ public.languages = {
 				internal_name = "someone-stole-my-name/yaml-companion.nvim",
 				description = "Get, set and autodetect YAML schemas in your buffers.",
 				name = "YAML Companion",
+				module = "yaml-companion",
 			},
 			{
 				type = "plugin",
 				internal_name = "cuducos/yaml.nvim",
 				name = "YAML Path Tools",
 				description = "Show, yank, search, and generate YAML paths.",
+				module = "yaml",
 			},
 		},
 	},
@@ -726,7 +736,16 @@ function public.refresh_installation(language)
 	end
 	language.installed_debuggers = installed_debuggers
 
-	language.installed_additional_tools = Table({})
+	local installed_additional_tools = Table({})
+	for _, additional_tool in ipairs(language.additional_tools) do
+		if additional_tool.type == "plugin" then
+			local has_plugin = pcall(require, additional_tool.module)
+			if has_plugin then
+				installed_additional_tools:insert(additional_tool)
+			end
+		end
+	end
+	language.installed_additional_tools = installed_additional_tools
 end
 
 function public.refresh_installations()
