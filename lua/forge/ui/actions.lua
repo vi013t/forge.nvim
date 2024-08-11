@@ -356,10 +356,55 @@ function public.toggle_install()
 
 		-- TODO: non plugins
 
+		vim.fn.mkdir(vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge", "p")
+
 		-- Make the plugin file
-		vim.fn.mkdir(vim.fn.stdpath("config") .. "/lua/plugins", ":p:h")
-		local plugin_file = assert(io.open(vim.fn.stdpath("config") .. "/lua/plugins/" .. tool.module .. ".lua", "w"))
+		local plugin_file = assert(
+			io.open(
+				vim.fn.stdpath("config")
+					.. "/lua/"
+					.. config.options.plugin_directory
+					.. "/forge/"
+					.. tool.module
+					.. ".lua",
+				"w"
+			)
+		)
 		plugin_file:write(('return {\n\t"%s",\n%s\n}'):format(tool.internal_name, unindent(tool.default_config) or "")) -- TODO: give all plugins default config and remove the default ""
+
+		-- Load all Forge plugins
+		local all_plugins = "return {\n"
+		for _, language_key in ipairs(registry.language_keys) do
+			local registry_language = registry.languages[language_key]
+			for _, additional_tool in ipairs(registry_language.additional_tools) do
+				-- Check if the tool is installed
+				local is_installed
+				for _, installed_additional_tool in ipairs(registry_language.installed_additional_tools) do
+					if installed_additional_tool.internal_name == additional_tool.internal_name then
+						is_installed = true
+					end
+				end
+				if not is_installed then
+					goto continue
+				end
+
+				-- If it is installed, add it to the plugins
+				if additional_tool.type == "plugin" then
+					all_plugins = ('%s\trequire("%s.forge.%s"),\n'):format(
+						all_plugins,
+						config.options.plugin_directory,
+						additional_tool.module
+					)
+				end
+
+				::continue::
+			end
+		end
+		all_plugins = all_plugins .. "}"
+
+		assert(io.open(vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge.lua", "w")):write(
+			all_plugins
+		)
 
 		---@type integer
 		local index = nil
@@ -493,7 +538,7 @@ function public.configure()
 		local plugin_file_path = vim.fn.stdpath("config")
 			.. "/lua/"
 			.. config.options.plugin_directory
-			.. "/"
+			.. "/forge/"
 			.. plugin.module
 			.. ".lua"
 		public.close_window()
