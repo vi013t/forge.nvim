@@ -41,7 +41,13 @@ function public.toggle_install()
 
 		-- Install compiler
 		else
-			os_utils.install_package(line.name, line.internal_name)
+			local package_manager = assert(os_utils.get_package_manager())
+			local name = assert(line.internal_name)
+			if language.packages and language.packages[package_manager.name] then
+				name = language.packages[package_manager.name]
+			end
+
+			os_utils.install_package(language.name, name)
 			table.insert(language.installed_compilers, { name = line.name, internal_name = line.internal_name })
 			registry.refresh_installed_totals(language)
 		end

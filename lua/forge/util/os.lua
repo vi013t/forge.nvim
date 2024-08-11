@@ -41,10 +41,12 @@ end
 
 ---@class PackageManager
 ---@field install function
+---@field name string
 
 ---@type table<string, PackageManager>
 public.package_managers = {
 	pacman = {
+		name = "pacman",
 		install = function(package)
 			-- --noconfirm: do not ask for confirmation
 			-- -q: quiet, only display a little information
@@ -59,38 +61,48 @@ public.package_managers = {
 		end,
 	},
 	apt = {
+		name = "apt",
 		install = function(package)
 			return ("apt install %s"):format(package)
 		end,
 	},
 	dnf = {
+		name = "dnf",
 		install = function(package)
 			return ("dnf install %s"):format(package)
 		end,
 	},
 	brew = {
+		name = "brew",
 		install = function(package)
 			return ("brew install %s"):format(package)
 		end,
 	},
 	choco = {
+		name = "choco",
 		install = function(package)
-			return ("choco install %s"):format(package)
+			return ("choco install %s -y"):format(package)
 		end,
 	},
 }
 
+local system_package_manager = nil
+
 --- Returns the system's package manager, or nil if none are found.
 ---
----@return PackageManager|nil, string|nil package_manager
+---@return PackageManager|nil package_manager
 function public.get_package_manager()
+	if system_package_manager ~= nil then
+		return system_package_manager
+	end
 	for package_manager, _ in pairs(public.package_managers) do
 		if public.command_exists(package_manager) then
-			return public.package_managers[package_manager], package_manager
+			system_package_manager = public.package_managers[package_manager]
+			return system_package_manager
 		end
 	end
 
-	return nil, nil
+	return nil
 end
 
 --- Installs a package with the system's package manager. This will prompt the user for their password,
@@ -98,30 +110,47 @@ end
 ---
 ---@param package_name string
 function public.install_package(language_name, package_name)
-	local package_manager, package_manager_name = public.get_package_manager()
+	local package_manager = public.get_package_manager()
 
 	-- If no package manager is found, print a message and return.
 	-- Technically we only need to check one of these for nil,
 	-- but checking both makes the LSP happy
-	if package_manager == nil or package_manager_name == nil then
+	if package_manager == nil then
 		print("No package manager found.")
 		return
 	end
 
-	-- Get password
-	local password = vim.fn.inputsecret(
-		("Enter your password to install %s (%s) with %s: "):format(language_name, package_name, package_manager_name)
-	)
-
 	-- Install package
-	-- NOTE: this may be be a security risk, as we are passing the password to the shell, and the password can end up
-	-- stored in plain text in the shell history. We should investigate how to avoid this if possible.
-	print("Installing " .. package_name .. " with " .. package_manager_name("..."))
-	-- NOTE: currently this does not work with `vim.system`, which the docs say is preferred over `vim.fn.system`.
-	-- In the event that `vim.fn.system` gets deprecated, we should investigate how to use `vim.system` instead.
-	local output = vim.fn.system(("echo %s | sudo -S %s"):format(password, package_manager.install(package_name)))
+
+	print("Installing " .. package_name)
+
+	local output
+
+	-- Windows: Requires gsudo (or similar)
+	if vim.fn.has("win32") then
+		output = vim.fn.system(("sudo %s"):format(package_manager.install(package_name)))
+
+	-- Unix; Standard sudo command
+	else
+		-- NOTE: this may be be a security risk, as we are passing the password to the shell, and the password can end up
+		-- stored in plain text in the shell history. We should investigate how to avoid this if possible. maybe looking
+		-- at the source for vim-suda can help here... though I don't speak vimscript.
+
+		-- NOTE: currently this does not work with `vim.system`, which the docs say is preferred over `vim.fn.system`.
+		-- In the event that `vim.fn.system` gets deprecated, we should investigate how to use `vim.system` instead.
+		local password = vim.fn.inputsecret(
+			("Enter your password to install %s (%s) with %s: "):format(
+				language_name,
+				package_name,
+				package_manager.name
+			)
+		)
+		output = vim.fn.system(("echo %s | sudo -S %s"):format(password, package_manager.install(package_name)))
+	end
+
 	print(output)
-	print("Installed " .. package_name .. " with " .. package_manager_name .. ".")
+	print("Installed " .. package_name .. " with " .. package_manager.name .. ".")
+
 	-- TODO: if for some reason the package manager fails, we should print an error message.
 	-- this could be due to no internet connection or something.
 end

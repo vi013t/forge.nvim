@@ -10,6 +10,7 @@ local public = {}
 ---
 ---@field name string
 ---@field compiler_type? string
+---@field packages? string
 ---
 ---@field highlighters tool[]
 ---@field compilers tool[]
@@ -172,6 +173,9 @@ public.languages = {
 				description = "A symbol list and outline for Go",
 				name = "Go Symbol Outline",
 			},
+		},
+		packages = {
+			choco = "golang",
 		},
 	},
 	haskell = {
