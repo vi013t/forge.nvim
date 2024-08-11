@@ -382,14 +382,13 @@ local function draw_tool(language, tool_name)
 				end
 			end
 
-			local installed_tools = language["installed_" .. tool_name] ---@type table
-
 			-- Add symbols to additional tools' internal names
 			local internal_name = tool.internal_name
 			if tool_name == "additional_tools" then
 				internal_name = icons()[tool.type] .. " " .. internal_name
 			end
 
+			-- Check if the tool is installed
 			local tool_is_installed = false
 			do
 				for _, language_tool in ipairs(language["installed_" .. tool_name]) do

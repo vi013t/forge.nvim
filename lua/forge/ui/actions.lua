@@ -306,25 +306,34 @@ function public.toggle_install()
 	elseif line.type == "additional_tools_listing" then
 		print("Installing " .. line.internal_name .. "...")
 
-		-- Add the additional tool to the list of installed additional tools
-		table.insert(language.installed_additional_tools, { name = line.name, internal_name = line.internal_name })
+		-- Get the full tool data
 		local tool
-		for _, language_key in ipairs(registry.language_keys) do
-			local other_language = registry.languages[language_key]
-			for _, additional_tool in ipairs(other_language.additional_tools) do
-				if additional_tool.internal_name == line.internal_name then
-					tool = additional_tool
-					table.insert(
-						other_language.installed_additional_tools,
-						{ name = line.name, internal_name = line.internal_name }
-					)
-					break
-				end
+		for _, additional_tool in ipairs(language.additional_tools) do
+			if additional_tool.internal_name == line.internal_name then
+				tool = additional_tool
 			end
 		end
 
+		-- Add the additional tool to the list of installed additional tools
+		for _, language_key in ipairs(registry.language_keys) do
+			local registry_language = registry.languages[language_key]
+			local is_installed = false
+			for _, installed_additional_tool in ipairs(registry_language.installed_additional_tools) do
+				if installed_additional_tool.internal_name == tool.internal_name then
+					is_installed = true
+				end
+			end
+			if not is_installed then
+				table.insert(
+					registry_language.installed_additional_tools,
+					{ name = tool.name, internal_name = tool.internal_name }
+				)
+			end
+		end
+
+		-- Tool not found
 		if not tool then
-			error("Error locating tool: " .. line.internal_name)
+			error("[Forge] Error locating tool: " .. line.internal_name)
 		end
 
 		local function unindent(text)
@@ -401,7 +410,6 @@ function public.toggle_install()
 			end
 		end
 		all_plugins = all_plugins .. "}"
-
 		assert(io.open(vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge.lua", "w")):write(
 			all_plugins
 		)

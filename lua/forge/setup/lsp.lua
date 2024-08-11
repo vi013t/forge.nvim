@@ -3,12 +3,6 @@ local config = require("forge.config")
 local public = {}
 
 function public.setup_lsps()
-	-- Neodev (must be set up before lspconfig)
-	local has_lazydev, lazydev = pcall(require, "lazydev")
-	if has_lazydev then
-		lazydev.setup({})
-	end
-
 	-- Fidget
 	local has_fidget, fidget = pcall(require, "fidget")
 	if has_fidget then
