@@ -16,7 +16,6 @@ Forge.nvim provides this window in which you can install language servers, forma
 
 Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future. Below, you can choose from a few different installation options, such as "give me everything" and "let me choose what I need".
 
-
 <details>
 <summary>Full-feature no-hassle setup</summary>
 

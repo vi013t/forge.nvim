@@ -790,7 +790,7 @@ function public.refresh_installations()
 		if language.installed_formatters[1] then
 			actual_installed = actual_installed + 1
 		end
-		if language.installed_additional_tools[1] then
+		if language.installed_debuggers[1] then
 			actual_installed = actual_installed + 1
 		end
 
