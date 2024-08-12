@@ -34,7 +34,32 @@ local public = {}
 public.global_tools = {
 	autocomplete = {
 		name = "Autocomplete",
-		entries = {},
+		entries = {
+			{
+				name = "Autocomplete Core",
+				internal_name = "hrsh7th/nvim-cmp",
+			},
+			{
+				name = "Autcomplete LSP integration",
+				internal_name = "hrsh7th/cmp-nvim-lsp",
+			},
+			{
+				name = "Command Line Autocompletion",
+				internal_name = "hrsh7th/cmp-cmdline",
+			},
+			{
+				name = "Buffer Content Autocompletion",
+				internal_name = "hrsh7th/cmp-buffer",
+			},
+			{
+				name = "File Path Autocompletion",
+				internal_name = "hrsh7th/cmp-path",
+			},
+			{
+				name = "Autocomplete Icons",
+				internal_name = "onsails/lspkind.nvim",
+			},
+		},
 	},
 	mouse_hovering = {
 		name = "Mouse Support",

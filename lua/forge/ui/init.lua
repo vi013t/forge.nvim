@@ -34,7 +34,18 @@ public.refresh_percentage = nil
 
 -- Resets the lines list
 function public.reset_lines()
-	public.lines = Table({ {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }) -- 10 lines before the first language
+	public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
+
+	-- Global Tools
+	for _, global_tool_key in ipairs(registry.global_tool_keys) do
+		public.lines:insert({ type = "global_tool", tool = global_tool_key })
+	end
+
+	-- Blank & "Language" lines
+	public.lines:insert({})
+	public.lines:insert({})
+
+	-- Languages
 	for _, language_key in ipairs(registry.language_keys) do
 		local language_name = registry.languages[language_key].name
 		public.lines:insert({ language = language_name, type = "language" })
@@ -650,8 +661,29 @@ local function draw_languages()
 end
 
 local function draw_global_tools()
-	for _, global_tool in pairs(registry.global_tools) do
-		write_line({ { text = "    " .. icons().progress[1][1] .. "  " .. global_tool.name } })
+	for _, global_tool_key in ipairs(registry.global_tool_keys) do
+		local line = Table({
+			{ text = "    " .. icons().progress[1][1] .. "  " .. registry.global_tools[global_tool_key].name },
+		})
+		if
+			public.lines[public.cursor_row].type == "global_tool"
+			and public.lines[public.cursor_row].tool == global_tool_key
+		then
+			line:insert({ text = "   (Press ", foreground = "Comment" })
+			line:insert({ text = "e", foreground = "#AAAA77" })
+			line:insert({ text = " to ", foreground = "Comment" })
+			line:insert({ text = "expand", foreground = "#AAAA77" })
+			line:insert({ text = ", ", foreground = "Comment" })
+			line:insert({ text = "i", foreground = "#77AAAA" })
+			line:insert({ text = " to ", foreground = "Comment" })
+			line:insert({ text = "install recommended", foreground = "#77AAAA" })
+			line:insert({ text = ", or ", foreground = "Comment" })
+			line:insert({ text = "u", foreground = "#AA77AA" })
+			line:insert({ text = " to ", foreground = "Comment" })
+			line:insert({ text = "uninstall all", foreground = "#AA77AA" })
+			line:insert({ text = ")", foreground = "Comment" })
+		end
+		write_line(line)
 	end
 end
 
