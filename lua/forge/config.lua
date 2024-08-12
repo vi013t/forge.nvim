@@ -13,6 +13,10 @@ public.default_config = {
 	--- Whether to autoformat buffers on save.
 	format_on_save = true,
 
+	install = {
+		global_tools = { "Autocomplete", "Language Server Progress", "Mouse Hovering" },
+	},
+
 	-- UI --
 	ui = {
 
@@ -139,7 +143,9 @@ public.default_config = {
 					--- The default icon for an "additional tool" thats a Neovim plugin.
 					plugin = "",
 					--- The default icon for an "additional tool" thats a `mason.nvim` installation.
-					mason = "",
+					mason = "󱌣",
+					--- The default icon for an "additional tool" thats a CLI tool installation.
+					cli = "",
 					--- The default icon to display on the left side of "instruction" (the keybind visuals at the top of the window)
 					instruction_left = "",
 					--- The default icon to display on the right side of "instruction" (the keybind visuals at the top of the window)

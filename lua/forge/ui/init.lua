@@ -27,14 +27,14 @@ end
 ---@alias line_type "language" | "compiler"
 
 ---@type { type: line_type, language: string, name?: string, internal_name?: string }[]
-public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
+public.lines = Table({ {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }) -- 10 lines before the first language
 
 ---@type number | nil
 public.refresh_percentage = nil
 
 -- Resets the lines list
 function public.reset_lines()
-	public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
+	public.lines = Table({ {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }) -- 10 lines before the first language
 	for _, language_key in ipairs(registry.language_keys) do
 		local language_name = registry.languages[language_key].name
 		public.lines:insert({ language = language_name, type = "language" })
@@ -288,9 +288,27 @@ local function draw_tool(language, tool_name)
 
 	-- Additional Tools
 	elseif tool_name == "additional_tools" and #language[tool_name] > 0 then
-		local color = colors().progress[#language.additional_tools + 1][#language.installed_additional_tools + 1]
-		local icon = icons().progress[#language.additional_tools + 1][#language.installed_additional_tools + 1]
-			or "󰽢"
+		local color
+		do
+			if #language.additional_tools <= 5 then
+				color = colors().progress[#language.additional_tools + 1][#language.installed_additional_tools + 1]
+			else
+				color = colors().progress[6][math.floor(
+					6 * ((#language.installed_additional_tools + 1) / (#language.additional_tools + 1))
+				)]
+			end
+		end
+
+		local icon
+		do
+			if #language.additional_tools <= 5 then
+				icon = icons().progress[#language.additional_tools + 1][#language.installed_additional_tools + 1]
+			else
+				icon = icons().progress[6][math.floor(
+					6 * ((#language.installed_additional_tools + 1) / (#language.additional_tools + 1))
+				)]
+			end
+		end
 		write_buffer:insert({ text = icon, foreground = color })
 		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
 		write_buffer:insert({
@@ -631,6 +649,12 @@ local function draw_languages()
 	end
 end
 
+local function draw_global_tools()
+	for _, global_tool in pairs(registry.global_tools) do
+		write_line({ { text = "    " .. icons().progress[1][1] .. "  " .. global_tool.name } })
+	end
+end
+
 -- The row that the cursor is on, used to keep the cursor in the same spot when reloading the window.
 ---@type integer
 public.cursor_row = 1
@@ -691,8 +715,18 @@ function public.update_view()
 		{ text = icons().instruction_right, foreground = colors().instructions },
 	}, true)
 	write_line({ { text = "" } })
+
+	-- Global tools
+	write_line({
+		{ text = "  Global Tools" },
+		{ text = (" (%s available)"):format(#registry.global_tool_keys), foreground = "Comment" },
+	})
+	draw_global_tools()
+	write_line({ { text = "" } })
+
 	draw_languages()
 	write_line({ { text = "" } })
+
 	vim.fn.cursor({ public.cursor_row, 0 })
 	vim.api.nvim_set_option_value("modifiable", false, { buf = public.buffer })
 end
