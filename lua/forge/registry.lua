@@ -27,9 +27,10 @@ local public = {}
 ---@field installed_linters? tool[]
 ---@field installed_additional_tools? tool[]
 ---@field installed_total? integer
----
+
 -- NOTE: when making dev changes to the registry, you'll need to delete your lockfile to see the changes.
--- This is located at vim.fn.stdpath("data") .. "/forge.lock", which in most cases for linux is ~/.local/share/nvim/forge.lock
+-- This is located at vim.fn.stdpath("data") .. "/forge.lock", which in most cases for linux is ~/.local/share/nvim/forge.lock,
+-- and for windows is %localappdata%/nvim-data/forge.lock
 
 public.global_tools = {
 	autocomplete = {
@@ -61,12 +62,71 @@ public.global_tools = {
 			},
 		},
 	},
+	lsp_status = {
+		name = "Language Server Status",
+		entries = {
+			{
+				name = "Language Server Loading Progress",
+				internal_name = "j-hui/fidget.nvim",
+			},
+			{
+				name = "Language Server Status Bar Components",
+				internal_name = "nvim-lua/lsp-status.nvim",
+			},
+		},
+	},
 	mouse_hovering = {
 		name = "Mouse Support",
-		entries = {},
+		entries = {
+			{
+				name = "Diagnostic Hover Info",
+				internal_name = "soulis-1256/eagle.nvim",
+			},
+		},
 	},
 	snippets = {
 		name = "Snippets",
+		entries = {
+			{
+				name = "Lua Snippets",
+				internal_name = "L3MON4D3/LuaSnip",
+			},
+			{
+				name = "Snippets",
+				internal_name = "norcalli/snippets.nvim",
+			},
+			{
+				name = "Snippy",
+				internal_name = "dcampos/nvim-snippy",
+			},
+			{
+				name = "Carbon Now",
+				internal_name = "ellisonleao/carbon-now.nvim",
+			},
+			{
+				name = "Ray So Snippets",
+				internal_name = "TobinPalmer/rayso.nvim",
+			},
+			{
+				name = "Friendly Snippets",
+				internal_name = "rafamadriz/friendly-snippets",
+			},
+			{
+				name = "Scissors",
+				internal_name = "chrisgrieser/nvim-scissors",
+			},
+			{
+				name = "Tesoura",
+				internal_name = "guilherme-puida/tesoura.nvim",
+			},
+			{
+				name = "Snippet Converter",
+				internal_name = "smjonas/snippet-converter.nvim",
+			},
+		},
+	},
+	code_actions = {
+		name = "Code Actions",
 		entries = {},
 	},
 }

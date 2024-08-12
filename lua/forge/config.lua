@@ -111,9 +111,9 @@ public.default_config = {
 			--- ```
 			presets = {
 
-				--- The default preset. This preset uses the default icons for Forge.nvim, and requires a nerd font or a glyph-rendering
-				--- terminal (like Kitty) to render correctly. If you don't want to use a nerd font, consider using `preset = "ascii"`
-				--- or making your own preset.
+				--- The default preset, if `nvim-web-devicons` is installed. This preset uses the default icons for Forge.nvim, and
+				--- requires a nerd font or a glyph-rendering terminal (like Kitty) to render correctly. If you don't want to use a
+				--- nerd font, consider using `preset = "ascii"` or making your own preset.
 				default = {
 					--- The default right arrow icon to display when languages or tools are not expanded.
 					right_arrow = "▸",
@@ -175,8 +175,9 @@ public.default_config = {
 				},
 			},
 
-			--- The icons preset. This should be a string such as "ascii". If this is `nil`, it will fallback to `"default"`. To use a
-			--- custom preset, create one in the `presets` table, and use the name of it here.
+			--- The icons preset. This should be a string such as "ascii". If this is `nil`, it will fallback to `"default"`
+			--- *if* `nvim-web-devicons` is installed, and `"ascii"` if not. To use a custom preset, create one in the
+			--- `presets` table, and use the name of it here.
 			preset = nil,
 		},
 

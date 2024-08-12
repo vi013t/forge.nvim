@@ -16,8 +16,7 @@ Forge.nvim provides this window in which you can install language servers, forma
 
 Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future. Below, you can choose from a few different installation options, such as "give me everything" and "let me choose what I need".
 
-<details>
-<summary>Full-feature no-hassle setup</summary>
+Furthermore, **you must be using a "structured setup" for lazy.nvim. This means passing a directory name to `lazy.setup(...)`, *NOT* a table of plugins.** See [the relevant part of the `lazy.nvim` documentation](https://lazy.folke.io/usage/structuring) for more information.
 
 ```lua
 {
@@ -27,54 +26,11 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
         "williamboman/mason.nvim", 
         "neovim/nvim-lspconfig", 
         "williamboman/mason-lspconfig.nvim", 
-        "hrsh7th/nvim-cmp",      
-        "hrsh7th/cmp-nvim-lsp",  
-        "hrsh7th/cmp-cmdline",   
-        "hrsh7th/cmp-buffer",    
-        "hrsh7th/cmp-path",      
-        "onsails/lspkind.nvim",  
         "stevearc/conform.nvim", 
-        "L3MON4D3/LuaSnip",      
-        "j-hui/fidget.nvim",     
-        "folke/lazydev.nvim",    
-        "soulis-1256/eagle.nvim" 
     },
     opts = {},
 }
 ```
-</details>
-
-<details>
-<summary>Detailed Opt-in/Opt-out Setup</summary>
-
-```lua
-{
-    dir = "vi013t/forge.nvim",
-    dependencies = {
-
-        -- REQUIRED
-        "nvim-treesitter/nvim-treesitter", -- Semantic highlighter
-        "williamboman/mason.nvim", -- LSP Installer
-        "neovim/nvim-lspconfig", -- LSP Configuration
-        "williamboman/mason-lspconfig.nvim", -- LSP Configuration for Mason
-        "stevearc/conform.nvim", -- Autoformatter
-
-        -- OPTIONAL
-        "hrsh7th/nvim-cmp",      -- Autocomplete
-        "hrsh7th/cmp-nvim-lsp",  -- LSP integration with autocomplete
-        "hrsh7th/cmp-cmdline",   -- Autocomplete in command line
-        "hrsh7th/cmp-buffer",    -- Autocomplete for the buffer
-        "hrsh7th/cmp-path",      -- Autocomplete for file paths
-        "onsails/lspkind.nvim",  -- Icons in autocomplete
-        "L3MON4D3/LuaSnip",      -- Snippets
-        "j-hui/fidget.nvim",     -- LSP progress updates
-        "folke/lazydev.nvim",    -- Lua development tools
-        "soulis-1256/eagle.nvim" -- LSP popups on mouse hovering
-    },
-    opts = {},
-}
-```
-</details>
 
 <details>
 	<summary>Advanced configuration (default options)</summary>
@@ -83,24 +39,11 @@ Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ab
 {
     "vi013t/forge.nvim",
     dependencies = {
-        -- REQUIRED
-        "nvim-treesitter/nvim-treesitter", -- Semantic highlighter
-        "williamboman/mason.nvim", -- LSP Installer
-        "neovim/nvim-lspconfig", -- LSP Configuration
-        "williamboman/mason-lspconfig.nvim", -- LSP Configuration for Mason
-        "stevearc/conform.nvim", -- Autoformatter
-
-        -- OPTIONAL
-        "hrsh7th/nvim-cmp",      -- Autocomplete
-        "hrsh7th/cmp-nvim-lsp",  -- LSP integration with autocomplete
-        "hrsh7th/cmp-cmdline",   -- Autocomplete in command line
-        "hrsh7th/cmp-buffer",    -- Autocomplete for the buffer
-        "hrsh7th/cmp-path",      -- Autocomplete for file paths
-        "onsails/lspkind.nvim",  -- Icons in autocomplete
-        "L3MON4D3/LuaSnip",      -- Snippets
-        "j-hui/fidget.nvim",     -- LSP progress updates
-        "folke/lazydev.nvim",    -- Lua development tools
-        "soulis-1256/eagle.nvim" -- LSP popups on mouse hovering
+        "nvim-treesitter/nvim-treesitter", 
+        "williamboman/mason.nvim", 
+        "neovim/nvim-lspconfig", 
+        "williamboman/mason-lspconfig.nvim", 
+        "stevearc/conform.nvim", 
     },
     opts = {
 
@@ -435,3 +378,18 @@ In general, `forge.nvim` does not aim to provide any new or groundbreaking funct
 ## Issues
 
 `Forge.nvim` is still in a pre-alpha state, and much of the promised functionality is not yet implemented. As such, many issues, bugs, and lacking features are known. However, feel free to make an issue regardless, and progress on that feature/bug can be tracked there.
+
+## Contributing
+
+### Language Support
+
+`Forge.nvim` will happily accept submissions for new languages/tools. Use the "New Language/Tool" issue template to create a new issue regarding the language or tool.
+
+### Themes
+
+`Forge.nvim` has a number of built-in presets for common themes, such as Catppuccin. If you'd like to add a new theme, submit an issue or a pull request adding your colors. However, note that only quite popular themes will likely be accepted. We can't add every theme under the sun, but we'd like to provide common ones that lots of people use, such as Catppuccin, Gruvbox, Neovim default, One Dark, etc.
+
+### features
+
+`Forge.nvim` likely won't receive major new features, as the core functionality of the plugin is done. Contrary to what some may think, this plugin is *not* designed to handle everything LSP related under the sun. If you have a feature request, create a new issue with the feature template.
+

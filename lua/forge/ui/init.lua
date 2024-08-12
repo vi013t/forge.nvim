@@ -21,12 +21,12 @@ local function colors()
 end
 
 local function icons()
-	return config.options.ui.symbols.presets[config.options.ui.symbols.preset or "default"]
+	return config.options.ui.symbols.presets[config.options.ui.symbols.preset or (pcall(require, "nvim-web-devicons") and "default" or "ascii")]
 end
 
 ---@alias line_type "language" | "compiler"
 
----@type { type: line_type, language: string, name?: string, internal_name?: string }[]
+---@type { type: line_type, language: string, name?: string, internal_name?: string, tool?: string }[]
 public.lines = Table({ {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }) -- 10 lines before the first language
 
 ---@type number | nil
@@ -39,6 +39,11 @@ function public.reset_lines()
 	-- Global Tools
 	for _, global_tool_key in ipairs(registry.global_tool_keys) do
 		public.lines:insert({ type = "global_tool", tool = global_tool_key })
+		if public.expanded_global_tools:contains(global_tool_key) then
+			for _, entry in ipairs(registry.global_tools[global_tool_key].entries) do
+				public.lines:insert({ type = "global_tool_listing", tool = global_tool_key, entry = entry })
+			end
+		end
 	end
 
 	-- Blank & "Language" lines
@@ -118,6 +123,9 @@ public.expanded_debuggers = Table({})
 
 ---@type string[]
 public.expanded_additional_tools = Table({})
+
+---@type string[]
+public.expanded_global_tools = Table({})
 
 ---@type table<string, string>
 local highlight_groups = Table({})
@@ -684,6 +692,20 @@ local function draw_global_tools()
 			line:insert({ text = ")", foreground = "Comment" })
 		end
 		write_line(line)
+
+		-- Draw sub-tool listings
+		if public.expanded_global_tools:contains(global_tool_key) then
+			for index, entry in ipairs(registry.global_tools[global_tool_key].entries) do
+				local write_buffer = Table({ { text = "    " } })
+				if index == #registry.global_tools[global_tool_key].entries then
+					write_buffer:insert({ text = "└ ", foreground = "Comment" })
+				else
+					write_buffer:insert({ text = "│ ", foreground = "Comment" })
+				end
+				write_buffer:insert({ text = icons().progress[1][1] .. "  " .. entry.name })
+				write_line(write_buffer)
+			end
+		end
 	end
 end
 
@@ -751,7 +773,7 @@ function public.update_view()
 	-- Global tools
 	write_line({
 		{ text = "  Global Tools" },
-		{ text = (" (%s available)"):format(#registry.global_tool_keys), foreground = "Comment" },
+		{ text = (" (%s types available)"):format(#registry.global_tool_keys), foreground = "Comment" },
 	})
 	draw_global_tools()
 	write_line({ { text = "" } })

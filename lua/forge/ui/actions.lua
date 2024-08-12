@@ -460,6 +460,19 @@ function public.expand()
 			ui.expanded_languages:insert(language_name)
 		end
 
+	-- Global tool
+	elseif ui.lines[ui.cursor_row].type == "global_tool" then
+		local tool_name = ui.lines[ui.cursor_row].tool
+
+		-- Collapse tool
+		if ui.expanded_global_tools:contains(tool_name) then
+			ui.expanded_global_tools:remove_value(tool_name)
+
+		-- Expand tool
+		else
+			ui.expanded_global_tools:insert(tool_name)
+		end
+
 	-- Expanding a tool
 	else
 		for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
