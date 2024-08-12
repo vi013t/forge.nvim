@@ -83,6 +83,9 @@ public.package_managers = {
 		install = function(package)
 			return ("choco install %s -y"):format(package)
 		end,
+		uninstall = function(package)
+			return ("choco uninstall %s -y"):format(package)
+		end,
 	},
 }
 
@@ -124,11 +127,9 @@ function public.install_package(language_name, package_name)
 
 	print("Installing " .. package_name)
 
-	local output
-
 	-- Windows: Requires gsudo (or similar)
 	if vim.fn.has("win32") then
-		output = vim.fn.system(("sudo %s"):format(package_manager.install(package_name)))
+		vim.fn.jobstart(("sudo %s"):format(package_manager.install(package_name)))
 
 	-- Unix; Standard sudo command
 	else
@@ -145,10 +146,9 @@ function public.install_package(language_name, package_name)
 				package_manager.name
 			)
 		)
-		output = vim.fn.system(("echo %s | sudo -S %s"):format(password, package_manager.install(package_name)))
+		vim.fn.jobstart(("echo %s | sudo -S %s"):format(password, package_manager.install(package_name)))
 	end
 
-	print(output)
 	print("Installed " .. package_name .. " with " .. package_manager.name .. ".")
 
 	-- TODO: if for some reason the package manager fails, we should print an error message.

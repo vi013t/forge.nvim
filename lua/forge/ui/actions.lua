@@ -530,6 +530,8 @@ function public.refresh()
 	print("[Forge] Refresh complete.")
 end
 
+--- Configure a plugin. This is called when you press "c" while the cursor line is on an additional tool
+--- of type "plugin". This will open the plugin's configuration file.
 function public.configure()
 	local language_name = ui.lines[ui.cursor_row].language
 
