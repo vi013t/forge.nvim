@@ -2,7 +2,7 @@
 
 <center>
 
-`Forge.nvim` provides a GUI organizing and collecting several essential plugins including `mason.nvim`, `nvim-treesitter`, and many more, as well as managing compiler and interpreter installations. `forge.nvim` also automatically sets up language servers, autocomplete, and autoformatters with no configuration necessary. The goal of Forge.nvim is to remove the hassle of setting up LSPs in Neovim.
+`Forge.nvim` provides a GUI organizing and collecting several essential plugins including `mason.nvim`, `nvim-treesitter`, and many more, as well as managing compiler and interpreter installations. `Forge.nvim` also automatically sets up language servers, autocomplete, and autoformatters with no configuration necessary. The goal of Forge.nvim is to remove the hassle of setting up LSPs in Neovim.
 
 </center>
 
@@ -14,13 +14,13 @@ Forge.nvim provides this window in which you can install language servers, forma
 
 # Example Installation & Configuration
 
-Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future. Below, you can choose from a few different installation options, such as "give me everything" and "let me choose what I need".
+Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future.
 
 Furthermore, **you must be using a "structured setup" for lazy.nvim. This means passing a directory name to `lazy.setup(...)`, *NOT* a table of plugins.** See [the relevant part of the `lazy.nvim` documentation](https://lazy.folke.io/usage/structuring) for more information.
 
 ```lua
 {
-    dir = "vi013t/forge.nvim",
+    "vi013t/Forge.nvim",
     dependencies = {
         "nvim-treesitter/nvim-treesitter", 
         "williamboman/mason.nvim", 
@@ -37,7 +37,7 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
 
 ```lua
 {
-    "vi013t/forge.nvim",
+    "vi013t/Forge.nvim",
     dependencies = {
         "nvim-treesitter/nvim-treesitter", 
         "williamboman/mason.nvim", 
@@ -355,7 +355,7 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
 
 <br/>
 
-That's it! `Forge.nvim` will automatically handle the hassle of setting up `lspconfig`, language servers, autocomplete, autoformatting, and more. Every plugin listed as a dependency here will be set up and configured automatically. If you do choose, you can set up specific options as well; See the advanced configuration above.
+That's it! `Forge.nvim` will automatically handle the hassle of setting up `lspconfig`, language servers, autocomplete, autoformatting, and more. If you do choose, you can set up specific options as well; See the advanced configuration above.
 
 ## What is `Forge.nvim`?
 
@@ -367,13 +367,15 @@ Syntax highlighters are mostly installed through `nvim-treesitter`, and linters 
 
 ## Why `Forge.nvim`?
 
-A common question might be what the purpose of making `forge.nvim` is when tools like `mason.nvim` and `nvim-treesitter` already exist. The reality is, learning to program is overwhelming, especially in Neovim; The amount of tools available is huge and understanding how to set up and use these tools can take a long time. The purpose of `forge.nvim` is to streamline the devtools installation and setup process. 
+A common question might be what the purpose of making `Forge.nvim` is when tools like `mason.nvim` and `nvim-treesitter` already exist. The reality is, learning to program is overwhelming, especially in Neovim; The amount of tools available is huge and understanding how to set up and use these tools can take a long time. The purpose of `Forge.nvim` is to streamline the devtools installation and setup process. 
 
 Want to write C, but you've never installed anything before? Press one button, and all the power of the language is at your fingertips: The compiler, LSP, semantic highlighter, auto-formatter, debugger, and additional support plugins can all be installed with a single button press. 
 
 `Forge.nvim` also aims to eliminate the "what's the name of the tool?" process, such as scrolling up and down `mason.nvim` looking for a Python debugger, when searching "Python" and checking under "P" doesn't seem to be helpful. Often, you'd have to search the web to discover that it's called `debugpy`. In some cases of poorly-named tools, this process is repeated for every tool of the language: the LSP, the formatter, the debugger, etc. `Forge.nvim` aims to wash away that headache by providing easy tool installation *under the name of the language*. 
 
-In general, `forge.nvim` does not aim to provide any new or groundbreaking functionality to Neovim; Instead, it aims simply to streamline the complex process of installing developer tools. Much of this is already possible and even simple using just `mason.nvim` and `nvim-treesitter`, but `forge.nvim` aims to be so dead simple that even a five year old could figure it out without looking anything up.
+In general, `Forge.nvim` does not aim to provide any new or groundbreaking functionality to Neovim; Instead, it aims simply to streamline the complex process of installing developer tools. Much of this is already possible and even simple using just `mason.nvim` and `nvim-treesitter`, but `Forge.nvim` aims to be so dead simple that even a five year old could figure it out without looking anything up.
+
+Additionally, `Forge.nvim` aims to minimize LSP setup in Neovim. Most users want the same features- diagnostics with virtual text, autocomplete, snippets, etc., and it's silly for every Neovim user to have to learn how to configure all of that. `Forge.nvim` attempts to setup all of the standard LSP tools without any configuration, and instead allowing users to opt *out* of features like autocomplete and snippets. The general philosophy is that *the most common preferences should be the default*.
 
 ## Issues
 
