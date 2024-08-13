@@ -44,7 +44,7 @@ end
 
 ---@alias line_type "language" | "compiler"
 
----@type { type: line_type, language: string, name?: string, internal_name?: string, tool?: string }[]
+---@type { type: line_type, language: string, name?: string, internal_name?: string, tool?: string, entry?: { name: string, module: string, default_config: string, internal_name: string } }[]
 public.lines = Table({ {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }) -- 10 lines before the first language
 
 ---@type number | nil
@@ -711,7 +711,10 @@ local function draw_global_tools()
 			line:insert({ text = " to ", foreground = "Comment" })
 			line:insert({ text = "uninstall all", foreground = "#AA77AA" })
 			line:insert({ text = ")", foreground = "Comment" })
+
+			-- global tool listing
 		end
+
 		write_line(line)
 
 		-- Draw sub-tool listings
@@ -732,6 +735,26 @@ local function draw_global_tools()
 				write_buffer:insert({ text = tool_icon, foreground = tool_color })
 				write_buffer:insert({ text = " " .. entry.name })
 				write_buffer:insert({ text = (" (%s)"):format(entry.internal_name), foreground = "Comment" })
+
+				-- global tool listing prompt
+				if
+					public.lines[public.cursor_row].type == "global_tool_listing"
+					and public.lines[public.cursor_row].entry.internal_name == entry.internal_name
+				then
+					if entry.is_installed then
+						write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
+						write_buffer:insert({ text = "u", foreground = "#AA77AA" })
+						write_buffer:insert({ text = " to ", foreground = "Comment" })
+						write_buffer:insert({ text = "uninstall", foreground = "#AA77AA" })
+						write_buffer:insert({ text = ")", foreground = "Comment" })
+					else
+						write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
+						write_buffer:insert({ text = "i", foreground = "#77AAAA" })
+						write_buffer:insert({ text = " to ", foreground = "Comment" })
+						write_buffer:insert({ text = "install", foreground = "#77AAAA" })
+						write_buffer:insert({ text = ")", foreground = "Comment" })
+					end
+				end
 				write_line(write_buffer)
 			end
 		end
