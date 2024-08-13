@@ -1,6 +1,7 @@
 local os_utils = require("forge.util.os")
 local parsers = require("nvim-treesitter.parsers")
 local mason_registry = require("mason-registry")
+local config = require("forge.config")
 
 local public = {}
 
@@ -39,26 +40,125 @@ public.global_tools = {
 			{
 				name = "Autocomplete Core",
 				internal_name = "hrsh7th/nvim-cmp",
+				recommended = true,
+				module = "cmp",
+				default_config = ([[
+					config = function()
+						local has_cmp, cmp = pcall(require, "cmp")
+
+						if has_cmp then
+							local primary_sources = {}
+							local secondary_sources = {}
+
+							-- lspkind
+							local has_lspkind, lspkind = pcall(require, "lspkind")
+							local formatting = nil
+							if has_lspkind then
+								formatting = {
+									format = lspkind.cmp_format(%s),
+								}
+							end
+
+							-- LuaSnip
+							local snippet = nil
+							local has_luasnip, luasnip = pcall(require, "luasnip")
+							if has_luasnip then
+								snippet = {
+									expand = function(args)
+										luasnip.lsp_expand(args.body)
+									end
+								}
+								table.insert(primary_sources, { name = "luasnip "})
+							end
+
+							-- CMP LSP
+							local has_cmp_lsp = pcall(require, "cmp_nvim_lsp")
+							if has_cmp_lsp then
+								table.insert(primary_sources, { name = "nvim_lsp"} )
+							end
+
+							-- CMP Buffer
+							local has_cmp_buffer = pcall(require, "cmp-buffer")
+							if has_cmp_buffer then
+								table.insert(secondary_sources, { name = "buffer" })
+							end
+
+							-- CMP
+							cmp.setup({
+								snippet = snippet,
+								mapping = cmp.mapping.preset.insert({
+									["<C-b>"] = cmp.mapping.scroll_docs(-4),
+									["<C-f>"] = cmp.mapping.scroll_docs(4),
+									["<C-Space>"] = cmp.mapping.complete(),
+									["<C-e>"] = cmp.mapping.abort(),
+									["<CR>"] = cmp.mapping.confirm({ select = true }),
+								}),
+								sources = cmp.config.sources(primary_sources, secondary_sources),
+								formatting = formatting,
+							})
+
+							-- CMDline
+							local has_cmp_cmd = pcall(require, "cmp_cmdline")
+							if has_cmp_cmd then
+								cmp.setup.cmdline({ "/", "?" }, {
+									mapping = cmp.mapping.preset.cmdline(),
+									sources = secondary_sources,
+								})
+
+								cmp.setup.cmdline(":", {
+									mapping = cmp.mapping.preset.cmdline(),
+									sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
+								})
+							end
+						end
+					end,
+					event = "InsertEnter"
+				]]):format(vim.inspect(config.options.autocomplete.format)),
 			},
 			{
 				name = "Autcomplete LSP integration",
 				internal_name = "hrsh7th/cmp-nvim-lsp",
+				recommended = true,
+				module = "cmp_nvim_lsp",
+				default_config = [[
+					event = "InsertEnter"
+				]],
 			},
 			{
 				name = "Command Line Autocompletion",
 				internal_name = "hrsh7th/cmp-cmdline",
+				recommended = true,
+				module = "cmp_cmdline",
+				default_config = [[
+					event = "InsertEnter"
+				]],
 			},
 			{
 				name = "Buffer Content Autocompletion",
 				internal_name = "hrsh7th/cmp-buffer",
+				recommended = true,
+				module = "cmp_buffer",
+				default_config = [[
+					event = "InsertEnter"
+				]],
 			},
 			{
 				name = "File Path Autocompletion",
 				internal_name = "hrsh7th/cmp-path",
+				recommended = true,
+				module = "cmp_path",
+				default_config = [[
+					event = "InsertEnter"
+				]],
 			},
 			{
 				name = "Autocomplete Icons",
 				internal_name = "onsails/lspkind.nvim",
+				recommended = true,
+				module = "lspkind",
+				default_config = [[
+					event = "InsertEnter"
+				]],
 			},
 		},
 	},
@@ -68,19 +168,28 @@ public.global_tools = {
 			{
 				name = "Language Server Loading Progress",
 				internal_name = "j-hui/fidget.nvim",
+				recommended = true,
+				module = "fidget",
+				default_config = [[
+					opts = {}
+				]],
 			},
 			{
 				name = "Language Server Status Bar Components",
 				internal_name = "nvim-lua/lsp-status.nvim",
+				module = "lsp-status",
+				recommended = false,
 			},
 		},
 	},
-	mouse_hovering = {
+	mouse_support = {
 		name = "Mouse Support",
 		entries = {
 			{
 				name = "Diagnostic Hover Info",
 				internal_name = "soulis-1256/eagle.nvim",
+				recommended = true,
+				module = "eagle",
 			},
 		},
 	},
@@ -90,44 +199,87 @@ public.global_tools = {
 			{
 				name = "Lua Snippets",
 				internal_name = "L3MON4D3/LuaSnip",
+				recommended = true,
+				module = "luasnip",
 			},
 			{
 				name = "Snippets",
 				internal_name = "norcalli/snippets.nvim",
+				recommended = false,
+				module = "snippsets",
 			},
 			{
 				name = "Snippy",
 				internal_name = "dcampos/nvim-snippy",
+				recommended = false,
+				module = "snippy",
 			},
 			{
 				name = "Carbon Now",
 				internal_name = "ellisonleao/carbon-now.nvim",
+				recommended = false,
+				module = "carbon-now",
 			},
 			{
 				name = "Ray So Snippets",
 				internal_name = "TobinPalmer/rayso.nvim",
+				recommended = false,
+				module = "rayso",
 			},
 			{
 				name = "Friendly Snippets",
 				internal_name = "rafamadriz/friendly-snippets",
+				recommended = false,
+				module = "friendly-snippets",
 			},
 			{
 				name = "Scissors",
 				internal_name = "chrisgrieser/nvim-scissors",
+				recommended = false,
+				module = "scissors",
 			},
 			{
 				name = "Tesoura",
 				internal_name = "guilherme-puida/tesoura.nvim",
+				recommended = false,
+				module = "tesoura",
 			},
 			{
 				name = "Snippet Converter",
 				internal_name = "smjonas/snippet-converter.nvim",
+				recommended = false,
+				module = "snippet-converter",
 			},
 		},
 	},
 	code_actions = {
 		name = "Code Actions",
-		entries = {},
+		entries = {
+			{
+				name = "Lightbulb",
+				internal_name = "kosayoda/nvim-lightbulb",
+				recommended = true,
+				module = "nvim-lightbulb",
+			},
+			{
+				name = "Actions Preview",
+				internal_name = "aznhe21/actions-preview.nvim",
+				recommended = false,
+				module = "actions-preview",
+			},
+			{
+				name = "Clear Action",
+				internal_name = "luckasRanarison/clear-action.nvim",
+				recommended = true,
+				module = "clear-action",
+			},
+			{
+				name = "Tiny Code Action",
+				internal_name = "rachartier/tiny-code-action.nvim",
+				recommended = false,
+				module = "tiny-code-action",
+			},
+		},
 	},
 }
 
@@ -935,6 +1087,8 @@ function public.refresh_installations()
 		public.refresh_installation(language)
 	end
 
+	public.refresh_global_tools()
+
 	-- Get the actual number of installatinons
 	for key, _ in pairs(public.languages) do
 		local language = public.languages[key]
@@ -1038,6 +1192,133 @@ function public.get_language_by_name(name)
 		end
 	end
 	return nil
+end
+
+function public.install_plugin(module_name, plugin_name, default_configuration)
+	print("Installing " .. plugin_name .. "...")
+
+	local function unindent(text)
+		-- Split the text into lines
+		local lines = {}
+		for text_line in text:gmatch("[^\r\n]+") do
+			table.insert(lines, text_line)
+		end
+
+		-- Find the minimum leading whitespace
+		local min_indent = math.huge
+		for _, text_line in ipairs(lines) do
+			local indent = text_line:match("^(%s*)")
+			if indent and #indent < min_indent then
+				min_indent = #indent
+			end
+		end
+
+		-- Remove the minimum leading whitespace from each line
+		local result = {}
+		for _, text_line in ipairs(lines) do
+			local trimmed_line = text_line:sub(min_indent + 1)
+			table.insert(result, trimmed_line)
+		end
+
+		-- Join the result into a single string
+		return table.concat(result, "\n")
+	end
+
+	vim.fn.mkdir(vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge", "p")
+
+	-- Make the plugin file
+	local plugin_file = assert(
+		io.open(
+			vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge/" .. module_name .. ".lua",
+			"w"
+		)
+	)
+	plugin_file:write(('return {\n\t"%s",\n%s\n}'):format(plugin_name, unindent(default_configuration) or "")) -- TODO: give all plugins default config and remove the default ""
+
+	-- Load all Forge plugins
+	local all_plugins = "return {\n"
+	for _, language_key in ipairs(public.language_keys) do
+		local registry_language = public.languages[language_key]
+		for _, additional_tool in ipairs(registry_language.additional_tools) do
+			-- Check if the tool is installed
+			local is_installed
+			for _, installed_additional_tool in ipairs(registry_language.installed_additional_tools) do
+				if installed_additional_tool.internal_name == additional_tool.internal_name then
+					is_installed = true
+				end
+			end
+			if not is_installed then
+				goto continue
+			end
+
+			-- If it is installed, add it to the plugins
+			if additional_tool.type == "plugin" then
+				all_plugins = ('%s\trequire("%s.forge.%s"),\n'):format(
+					all_plugins,
+					config.options.plugin_directory,
+					additional_tool.module
+				)
+			end
+
+			::continue::
+		end
+	end
+
+	-- Global tools
+	for _, global_tool in pairs(public.global_tools) do
+		for _, entry in ipairs(global_tool.entries) do
+			if entry.is_installed then
+				all_plugins = ('%s\trequire("%s.forge.%s"),\n'):format(
+					all_plugins,
+					config.options.plugin_directory,
+					entry.module
+				)
+			end
+		end
+	end
+
+	all_plugins = all_plugins .. "}"
+	local forge_file =
+		assert(io.open(("%s/lua/%s/forge.lua"):format(vim.fn.stdpath("config"), config.options.plugin_directory), "w"))
+	forge_file:write(all_plugins)
+	forge_file:close()
+
+	print("[Forge] Plugin installed. Reload Neovim to use it.")
+end
+
+function public.refresh_global_tools()
+	for tool_id, tool in pairs(public.global_tools) do
+		local installed_subtools = 0
+		for _, entry in ipairs(tool.entries) do
+			local has_plugin = pcall(require, entry.module)
+			entry.is_installed = has_plugin
+			if has_plugin then
+				installed_subtools = installed_subtools + 1
+			end
+
+			if table.contains(config.options.install.global_tools, tool_id) then
+				entry.is_installed = true
+				public.install_plugin(entry.module, entry.internal_name, entry.default_config)
+			end
+		end
+		tool.installed_entries = installed_subtools
+	end
+
+	-- Sort tools
+	public.global_tool_keys:sort(function(first, second)
+		local first_percent =
+			math.floor(100 * public.global_tools[first].installed_entries / #public.global_tools[first].entries)
+		local second_percent =
+			math.floor(100 * public.global_tools[second].installed_entries / #public.global_tools[second].entries)
+
+		if first_percent > second_percent then
+			return true
+		elseif first_percent < second_percent then
+			return false
+		else
+			return public.global_tools[first].name:lower() < public.global_tools[second].name:lower()
+		end
+	end)
 end
 
 return public

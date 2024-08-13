@@ -14,7 +14,7 @@ public.default_config = {
 	format_on_save = true,
 
 	install = {
-		global_tools = { "Autocomplete", "Language Server Progress", "Mouse Hovering" },
+		global_tools = { "autocomplete"  },
 	},
 
 	-- UI --

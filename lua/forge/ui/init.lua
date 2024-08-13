@@ -24,6 +24,24 @@ local function icons()
 	return config.options.ui.symbols.presets[config.options.ui.symbols.preset or (pcall(require, "nvim-web-devicons") and "default" or "ascii")]
 end
 
+local function progress(total, amount)
+	if amount > total then
+		error(("Error getting progress icon/color: Total (%d) is less than amount (%d)."):format(total, amount))
+	end
+
+	local color
+	local icon
+	if total <= 5 then
+		color = colors().progress[total + 1][amount + 1]
+		icon = icons().progress[total + 1][amount + 1]
+	else
+		color = colors().progress[6][math.floor(1 + 5 * ((amount + 1) / (total + 1)))]
+		icon = icons().progress[6][math.floor(1 + 5 * ((amount + 1) / (total + 1)))]
+	end
+
+	return color, icon
+end
+
 ---@alias line_type "language" | "compiler"
 
 ---@type { type: line_type, language: string, name?: string, internal_name?: string, tool?: string }[]
@@ -670,8 +688,11 @@ end
 
 local function draw_global_tools()
 	for _, global_tool_key in ipairs(registry.global_tool_keys) do
+		local global_tool = registry.global_tools[global_tool_key]
+		local color, icon = progress(#global_tool.entries, global_tool.installed_entries)
 		local line = Table({
-			{ text = "    " .. icons().progress[1][1] .. "  " .. registry.global_tools[global_tool_key].name },
+			{ text = "    " .. icon .. "  ", foreground = color },
+			{ text = registry.global_tools[global_tool_key].name },
 		})
 		if
 			public.lines[public.cursor_row].type == "global_tool"
@@ -702,7 +723,15 @@ local function draw_global_tools()
 				else
 					write_buffer:insert({ text = "│ ", foreground = "Comment" })
 				end
-				write_buffer:insert({ text = icons().progress[1][1] .. "  " .. entry.name })
+
+				local tool_icon, tool_color = icons().not_installed, colors().not_installed
+				if entry.is_installed then
+					tool_icon, tool_color = icons().installed, colors().installed
+				end
+
+				write_buffer:insert({ text = tool_icon, foreground = tool_color })
+				write_buffer:insert({ text = " " .. entry.name })
+				write_buffer:insert({ text = (" (%s)"):format(entry.internal_name), foreground = "Comment" })
 				write_line(write_buffer)
 			end
 		end

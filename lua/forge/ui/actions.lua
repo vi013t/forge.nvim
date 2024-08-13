@@ -310,7 +310,7 @@ function public.toggle_install()
 
 	-- Additional Tools
 	elseif line.type == "additional_tools_listing" then
-		print("Installing " .. line.internal_name .. "...")
+		-- TODO: non plugins
 
 		-- Get the full tool data
 		local tool
@@ -339,86 +339,10 @@ function public.toggle_install()
 
 		-- Tool not found
 		if not tool then
-			error("[Forge] Error locating tool: " .. line.internal_name)
+			error("[Forge] Error locating plugin: " .. line.internal_name)
 		end
 
-		local function unindent(text)
-			-- Split the text into lines
-			local lines = {}
-			for text_line in text:gmatch("[^\r\n]+") do
-				table.insert(lines, text_line)
-			end
-
-			-- Find the minimum leading whitespace
-			local min_indent = math.huge
-			for _, text_line in ipairs(lines) do
-				local indent = text_line:match("^(%s*)")
-				if indent and #indent < min_indent then
-					min_indent = #indent
-				end
-			end
-
-			-- Remove the minimum leading whitespace from each line
-			local result = {}
-			for _, text_line in ipairs(lines) do
-				local trimmed_line = text_line:sub(min_indent + 1)
-				table.insert(result, trimmed_line)
-			end
-
-			-- Join the result into a single string
-			return table.concat(result, "\n")
-		end
-
-		-- TODO: non plugins
-
-		vim.fn.mkdir(vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge", "p")
-
-		-- Make the plugin file
-		local plugin_file = assert(
-			io.open(
-				vim.fn.stdpath("config")
-					.. "/lua/"
-					.. config.options.plugin_directory
-					.. "/forge/"
-					.. tool.module
-					.. ".lua",
-				"w"
-			)
-		)
-		plugin_file:write(('return {\n\t"%s",\n%s\n}'):format(tool.internal_name, unindent(tool.default_config) or "")) -- TODO: give all plugins default config and remove the default ""
-
-		-- Load all Forge plugins
-		local all_plugins = "return {\n"
-		for _, language_key in ipairs(registry.language_keys) do
-			local registry_language = registry.languages[language_key]
-			for _, additional_tool in ipairs(registry_language.additional_tools) do
-				-- Check if the tool is installed
-				local is_installed
-				for _, installed_additional_tool in ipairs(registry_language.installed_additional_tools) do
-					if installed_additional_tool.internal_name == additional_tool.internal_name then
-						is_installed = true
-					end
-				end
-				if not is_installed then
-					goto continue
-				end
-
-				-- If it is installed, add it to the plugins
-				if additional_tool.type == "plugin" then
-					all_plugins = ('%s\trequire("%s.forge.%s"),\n'):format(
-						all_plugins,
-						config.options.plugin_directory,
-						additional_tool.module
-					)
-				end
-
-				::continue::
-			end
-		end
-		all_plugins = all_plugins .. "}"
-		assert(io.open(vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge.lua", "w")):write(
-			all_plugins
-		)
+		registry.install_plugin(tool.module, tool.internal_name, tool.default_config)
 
 		---@type integer
 		local index = nil
@@ -433,7 +357,10 @@ function public.toggle_install()
 
 		ui.cursor_row = index
 
-		print("[Forge] Plugin installed. Reload Neovim to use it.")
+	-- Global Tools
+	elseif line.type == "global_tool_listing" then
+		line.entry.is_installed = true
+		registry.install_plugin(line.entry.module, line.entry.internal_name, line.entry.default_config)
 	end
 
 	registry.sort_languages()

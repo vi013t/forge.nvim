@@ -26,6 +26,7 @@ function public.load()
 		registry.languages = vim.fn.json_decode(lockfile:read("*a"))
 		registry.generate_language_keys()
 		registry.sort_languages()
+		registry.refresh_global_tools()
 
 	-- No lockfile - Either first load or it was deleted. Locate installations and save to a new lockfile.
 	else
