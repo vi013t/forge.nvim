@@ -377,7 +377,7 @@ config.options = config.default_config
 --- In other words, the passed config table will be merged into the default config, overridding any
 --- options at any nesting level.
 --
----@param config table The configuration to set
+---@param user_config table The configuration to set
 function config.set_config(user_config)
 	config.options = vim.tbl_deep_extend("force", vim.deepcopy(config.options), user_config)
 end
