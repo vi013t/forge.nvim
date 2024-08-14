@@ -10,9 +10,9 @@
 
 ![demo](./docs/demo.png)
 
-Forge.nvim provides this window in which you can install language servers, formatters, highlighters, and more with a single button press. Forge will automatically set up your LSP and related tools. The only reason you'd have to write any LSP configuration at all would be if you wanted to customize the appearance, such as changing borders or colors or icons. Otherwise, you don't have to write a single line of LSP setup.
+`Forge.nvim` provides this window in which you can install language servers, formatters, highlighters, and more with a single button press. Forge will automatically set up your LSP and related tools. The only reason you'd have to write any LSP configuration at all would be if you wanted to customize the appearance, such as changing borders or colors or icons. Otherwise, you don't have to write a single line of LSP setup.
 
-# Example Installation & Configuration
+## Example Installation & Configuration
 
 Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future.
 
@@ -57,6 +57,20 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
         --- Whether to autoformat buffers on save.
         format_on_save = true,
 
+        --- Tools to "ensure installed". Every time you start Neovim, if any of these aren't installed, they will be installed automatically.
+        --- By default, this installs all of autocomplete, `LuaSnip`, and `fidget.nvim`
+        install = {
+            global_tools = {
+                "autocomplete",
+                snippets = {
+                    "luasnip",
+                },
+                lsp_status = {
+                    "fidget",
+                },
+            },
+        },
+
         -- UI --
         ui = {
 
@@ -68,8 +82,9 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
             mappings = {
                 q = "close_window",
                 e = "expand",
-                j = "move_cursor_down", -- TODO: Use CursorMove events so that these don't have to be done manually
-                k = "move_cursor_up", -- 		 which will also allow support for more motions
+                c = "configure",
+                j = "move_cursor_down",
+                k = "move_cursor_up",
                 gg = "set_cursor_to_top",
                 G = "set_cursor_to_bottom",
                 i = "toggle_install",
@@ -94,7 +109,6 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
                 --- changing it to suit your preferences to avoid errors.
                 ---
                 --- # Example configuration - Exising preset:
-                ---
                 --- opts = {
                 ---		ui = {
                 ---			symbols = {
@@ -104,7 +118,6 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
                 --- }
                 ---
                 --- # Example configuration - Modified preset
-                ---
                 --- opts = {
                 ---		ui = {
                 ---			symbols = {
@@ -118,10 +131,8 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
                 ---			}
                 ---		}
                 --- }
-                --- 
                 ---
                 --- # Example configuration - Custom preset
-                --- 
                 --- opts = {
                 ---		ui = {
                 ---			symbols = {
@@ -146,11 +157,22 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
                 ---			}
                 ---		}
                 --- }
-                ---
                 presets = {
+
+                    --- The default preset, if `nvim-web-devicons` is installed. This preset uses the default icons for Forge.nvim, and
+                    --- requires a nerd font or a glyph-rendering terminal (like Kitty) to render correctly. If you don't want to use a
+                    --- nerd font, consider using `preset = "ascii"` or making your own preset.
                     default = {
+                        --- The default right arrow icon to display when languages or tools are not expanded.
                         right_arrow = "▸",
+
+                        --- The default down arrow icon to display when languages or tools are expanded.
                         down_arrow = "▾",
+
+                        --- The default icons that appear next to languages showing how many tools have been installed relative to the number
+                        --- of available tools. This is an array of 6 elements, each listing the icons that should appear for languages that have
+                        --- 0, 1, 2, 3, 4, and 5 available tools. Each sub-array contains the icon present when you've installed 1 tool, 2 tools,
+                        --- etc.
                         progress = {
                             { "" },
                             { "", "" },
@@ -159,9 +181,23 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
                             { "", "", "", "", "" },
                             { "", "", "", "", "", "" },
                         },
+
+                        --- The default icon for when a tool is already installed, a checkmark.
                         installed = "",
+                        --- The default icon for when a tool is not installed, an "X".
                         not_installed = "",
+                        --- The default icon for when there is no tool available, an empty circle.
                         none_available = "󰽤",
+                        --- The default icon for an "additional tool" thats a Neovim plugin.
+                        plugin = "",
+                        --- The default icon for an "additional tool" thats a `mason.nvim` installation.
+                        mason = "󱌣",
+                        --- The default icon for an "additional tool" thats a CLI tool installation.
+                        cli = "",
+                        --- The default icon to display on the left side of "instruction" (the keybind visuals at the top of the window)
+                        instruction_left = "",
+                        --- The default icon to display on the right side of "instruction" (the keybind visuals at the top of the window)
+                        instruction_right = "",
                     },
 
                     --- An ASCII-only preset. Use this preset (with `preset = "ascii"`) if you don't want to use a nerd font or a terminal
@@ -180,13 +216,22 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
                         installed = "*",
                         not_installed = "X",
                         none_available = "O",
+                        plugin = "P",
+                        mason = ">_",
+                        instruction_left = "",
+                        instruction_right = "",
                     },
                 },
 
-                --- The icons preset. This should be a string such as "ascii". If this is `nil`, it will fallback to `"default"`. To use a
-                --- custom preset, create one in the `presets` table, and use the name of it here.
+                --- The icons preset. This should be a string such as "ascii". If this is `nil`, it will fallback to `"default"`
+                --- *if* `nvim-web-devicons` is installed, and `"ascii"` if not. To use a custom preset, create one in the
+                --- `presets` table, and use the name of it here.
                 preset = nil,
             },
+
+            --- Color configuration. This configures what colors are shown by the Forge buffer. The colors use the same preset
+            --- system as icons; See the documentation for `options.ui.symbols.presets` for more information. Each color can
+            --- be specified as a hex color, or the name of an *existing* highlight group, such as "Comment".
             colors = {
                 presets = {
 
@@ -204,6 +249,8 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
                         installed = "#00FF00",
                         not_installed = "#FF0000",
                         none_available = "#FFFF00",
+                        window_title = "#CC99FF",
+                        instructions = "#00FFFF",
                     },
                     ["catppuccin-mocha"] = {
                         progress = {
@@ -214,9 +261,21 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
                             { "#F38BA8", "#FA9D87", "#F9E2AF", "#DDF7A1", "#A6E3A1" }, -- Language has 4 tools available
                             { "#F38BA8", "#FA8387", "#FAB387", "#F9E2AF", "#DDF7A1", "#A6E3A1" }, -- Language has 5 tools available
                         },
+
+                        --- The color of the icon shown when a tool is installed.
                         installed = "#A6E3A1",
+
+                        --- The color of the icon shown when a tool is available for installation, but none is installed.
                         not_installed = "#F38BA8",
+
+                        --- The color of the icon shown when no tool is available for installation.
                         none_available = "#F9E2AF",
+
+                        --- The background color of the title at the top of the window that says "Forge".
+                        window_title = "#B4BEFE",
+
+                        --- The background of the instructions at the top of the window that say "Expand", "Install", etc.
+                        instructions = "#89DCEB",
                     },
                 },
 
