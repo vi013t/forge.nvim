@@ -1,8 +1,8 @@
 local config = require("forge.config")
 
-local public = {}
+local lsp = {}
 
-function public.setup_lsps()
+function lsp.setup_lsps()
 	-- Fidget
 	local has_fidget, fidget = pcall(require, "fidget")
 	if has_fidget then
@@ -109,4 +109,4 @@ function public.setup_lsps()
 	end
 end
 
-return public
+return lsp

@@ -1,7 +1,7 @@
 local registry = require("forge.tools.registry")
-local public = Table({})
+local formatter = Table({})
 
-function public.setup_formatters()
+function formatter.setup_formatters()
 	-- Get available formatters
 	local formatters_by_ft = Table({})
 	for _, language_key in ipairs(registry.language_keys) do
@@ -27,4 +27,4 @@ function public.setup_formatters()
 	})
 end
 
-return public
+return formatter

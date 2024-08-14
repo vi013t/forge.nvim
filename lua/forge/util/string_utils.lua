@@ -1,6 +1,6 @@
-local public = {}
+local string_utils = {}
 
-function public.unindent(text)
+function string_utils.unindent(text)
 	-- Split the text into lines
 	local lines = {}
 	for text_line in text:gmatch("[^\r\n]+") do
@@ -36,4 +36,4 @@ function public.unindent(text)
 	return table.concat(result, "\n")
 end
 
-return public
+return string_utils

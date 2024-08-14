@@ -1,8 +1,8 @@
 local mason_registry = require("mason-registry")
 
-local public = {}
+local mason_utils = {}
 
-function public.package_is_installed(package_name)
+function mason_utils.package_is_installed(package_name)
 	for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 		if internal_name == package_name then
 			return true
@@ -11,4 +11,4 @@ function public.package_is_installed(package_name)
 	return false
 end
 
-return public
+return mason_utils

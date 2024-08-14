@@ -1,5 +1,8 @@
 local config = require("forge.config")
 
+--- The registry module. This is where all of the languages and tools that Forge uses are stored. Additionally,
+--- there are some utility functions, such as getting a language object based on its name, or sorting the list
+--- of languages.
 local registry = {}
 
 ---@alias tool { name: string, internal_name: string }
@@ -1006,6 +1009,10 @@ registry.languages = {
 	},
 }
 
+--- Generates the language keys table. This creates a list of all unique language IDs, stored at
+--- `registry.language_keys`.
+---
+--- @return nil
 function registry.generate_language_keys()
 	registry.language_keys = Table({})
 	for key, _ in pairs(registry.languages) do
@@ -1013,6 +1020,10 @@ function registry.generate_language_keys()
 	end
 end
 
+--- Sorts `registry.language_keys`. Languages with more "percent installed" tools will be put first. If two
+--- languages have the same percent of tools installed, they will be sorted alphabetically.
+---
+--- @return nil
 function registry.sort_languages()
 	registry.language_keys:sort(function(first, second)
 		local first_percent =
@@ -1031,6 +1042,12 @@ function registry.sort_languages()
 	end)
 end
 
+--- Returns a reference to a language object with the given proper name (case insensitive).
+---
+--- @param name string The proper name of the language to get. This should be the human-readable name, like "C++"
+--- as opposed to the internal name, like "cpp". This is case insensitive.
+---
+--- @return Language | nil
 function registry.get_language_by_name(name)
 	if not name then
 		return nil

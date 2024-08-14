@@ -2,6 +2,9 @@ local config = require("forge.config")
 local registry = require("forge.tools.registry")
 local string_utils = require("forge.util.string_utils")
 
+--- The plugins module is a collection of functions for handling Neovim plugins that are managed by Forge. This
+--- includes things like installing plugins, uninstalling plugins, getting plugin config locations, reloading
+--- the Forge plugin cache, etc.
 local plugins = {}
 
 --- Returns the path of the plugin file for a plugin installed and managed by Forge. When Forge installs a plugin,
@@ -103,7 +106,27 @@ function plugins.reload_forge_plugin_file()
 	forge_file:close()
 end
 
-function plugins.install(module_name, plugin_name, default_configuration)
+--- Installs a plugin. By default, this will do nothing if the plugin is already installed, unless `forge_reinstall = true`.
+---
+--- @param module_name string The name of the plugin's Lua module. This determines the name of the plugin's config file.
+---
+--- @param plugin_name string The name of the plugin. This should be the name as displayed on GitHub, i.e., `userName/pluginName`,
+--- for example, `folke/noice.nvim`
+---
+--- @param default_configuration string The plugin's "default configuration" including default `opts` and `config`, etc. This should
+--- not include the plugin name itself. One example is `opts = {}, event = "InsertEnter"`.
+---
+--- @param force_reinstall? boolean Whether to force reinstall the plugin if it's already installed. This will wipe the plugin's
+--- existing configuration and replace it with a fresh one as well.
+---
+--- @return nil
+function plugins.install(module_name, plugin_name, default_configuration, force_reinstall)
+	-- Check if it's already installed
+	local is_installed = pcall(require, module_name)
+	if is_installed and not force_reinstall then
+		return
+	end
+
 	print("Installing " .. plugin_name .. "...")
 
 	-- Make the forge directory if it doesn't exist
@@ -120,13 +143,38 @@ function plugins.install(module_name, plugin_name, default_configuration)
 	print("[Forge] Plugin installed. Reload Neovim to use it.")
 end
 
+--- Uninstalls a plugin. This will do nothing if the plugin is not installed.
+---
+--- @param module_name string The name of the plugin's Lua module. This determines the name of the plugin's config file,
+--- which needs to be known so that it can be deleted.
+---
+--- @param plugin_name string The name of the plugin. This should be the name as displayed on GitHub, i.e., `userName/pluginName`,
+--- for example, `folke/noice.nvim`. This is used just to print an uninstallation message.
+---
+--- @return nil
 function plugins.uninstall(module_name, plugin_name)
+	-- Check if it's already not installed
+	local is_installed = pcall(require, module_name)
+	if not is_installed then
+		return
+	end
 	print("Uninstalling " .. plugin_name .. "...")
 	assert(os.remove(plugins.plugin_file(module_name)))
 	plugins.reload_forge_plugin_file()
 	print("[Forge] Plugin uninstalled. Reload Neovim to clear it.")
 end
 
+--- Installs a plugin if it's not installed already, and if it is, uninstalls it.
+---
+--- @param module_name string The name of the plugin's Lua module. This determines the name of the plugin's config file.
+---
+--- @param plugin_name string The name of the plugin. This should be the name as displayed on GitHub, i.e., `userName/pluginName`,
+--- for example, `folke/noice.nvim`
+---
+--- @param default_configuration string The plugin's "default configuration" including default `opts` and `config`, etc. This should
+--- not include the plugin name itself. One example is `opts = {}, event = "InsertEnter"`.
+---
+--- @return nil
 function plugins.toggle_install(module_name, plugin_name, default_configuration)
 	if plugins.is_installed(module_name) then
 		plugins.uninstall(module_name, plugin_name)

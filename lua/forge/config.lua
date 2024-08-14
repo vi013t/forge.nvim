@@ -1,7 +1,7 @@
-local public = Table({})
+local config = Table({})
 
 --- The default configuration options
-public.default_config = {
+config.default_config = {
 
 	--- The path to the file which saves what you have installed, so that we don't need to check every time.
 	lockfile = vim.fn.stdpath("data") .. "/forge.lock",
@@ -371,15 +371,15 @@ public.default_config = {
 }
 
 -- Set the initial config to the default
-public.options = public.default_config
+config.options = config.default_config
 
 --- Sets the config options to to the given table, or use the default for options which aren't given.
 --- In other words, the passed config table will be merged into the default config, overridding any
 --- options at any nesting level.
 --
 ---@param config table The configuration to set
-function public.set_config(config)
-	public.options = vim.tbl_deep_extend("force", vim.deepcopy(public.options), config)
+function config.set_config(config)
+	config.options = vim.tbl_deep_extend("force", vim.deepcopy(config.options), config)
 end
 
 --- Returns a table of colors to be used for displaying the "installation completeness" icons next to the languages.
@@ -389,15 +389,15 @@ end
 --- if a preset exists with that name. If not, the "default" preset is used.
 ---
 ---@return { progress: table, installed: string, not_installed: string, none_available: string, instructions: string, window_title: string }
-function public.colors()
-	return public.options.ui.colors.presets[public.options.ui.colors.preset or vim.api.nvim_exec2(
+function config.colors()
+	return config.options.ui.colors.presets[config.options.ui.colors.preset or vim.api.nvim_exec2(
 		"colorscheme",
 		{ output = true }
 	).output or "default"]
 end
 
-function public.icons()
-	return public.options.ui.symbols.presets[public.options.ui.symbols.preset or (pcall(require, "nvim-web-devicons") and "default" or "ascii")]
+function config.icons()
+	return config.options.ui.symbols.presets[config.options.ui.symbols.preset or (pcall(require, "nvim-web-devicons") and "default" or "ascii")]
 end
 
-return public
+return config

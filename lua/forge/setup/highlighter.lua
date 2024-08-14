@@ -1,6 +1,6 @@
-local public = {}
+local highlighter = {}
 
-function public.setup_highlighters()
+function highlighter.setup_highlighters()
 	require("nvim-treesitter.install").compilers = { "clang" }
 	require("nvim-treesitter.configs").setup({
 		ensure_installed = {},
@@ -14,4 +14,4 @@ function public.setup_highlighters()
 	})
 end
 
-return public
+return highlighter

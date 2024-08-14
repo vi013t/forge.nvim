@@ -4,7 +4,7 @@ local config = require("forge.config")
 
 -- The public exports of forge.ui
 ---@type table<any, any>
-local public = {}
+local ui = {}
 
 local function progress(total, amount)
 	if amount > total then
@@ -27,39 +27,39 @@ end
 ---@alias line_type "language" | "compiler"
 
 ---@type { type: line_type, language: string, name?: string, internal_name?: string, tool?: string, entry?: { name: string, module: string, default_config: string, internal_name: string } }[]
-public.lines = Table({ {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }) -- 10 lines before the first language
+ui.lines = Table({ {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }) -- 10 lines before the first language
 
 ---@type number | nil
-public.refresh_percentage = nil
+ui.refresh_percentage = nil
 
 -- Resets the lines list
-function public.reset_lines()
-	public.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
+function ui.reset_lines()
+	ui.lines = Table({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
 
 	-- Global Tools
 	for _, global_tool_key in ipairs(registry.global_tool_keys) do
-		public.lines:insert({ type = "global_tool", tool = global_tool_key })
-		if public.expanded_global_tools:contains(global_tool_key) then
+		ui.lines:insert({ type = "global_tool", tool = global_tool_key })
+		if ui.expanded_global_tools:contains(global_tool_key) then
 			for _, entry in ipairs(registry.global_tools[global_tool_key].entries) do
-				public.lines:insert({ type = "global_tool_listing", tool = global_tool_key, entry = entry })
+				ui.lines:insert({ type = "global_tool_listing", tool = global_tool_key, entry = entry })
 			end
 		end
 	end
 
 	-- Blank & "Language" lines
-	public.lines:insert({})
-	public.lines:insert({})
+	ui.lines:insert({})
+	ui.lines:insert({})
 
 	-- Languages
 	for _, language_key in ipairs(registry.language_keys) do
 		local language_name = registry.languages[language_key].name
-		public.lines:insert({ language = language_name, type = "language" })
+		ui.lines:insert({ language = language_name, type = "language" })
 
 		-- Expanded languages & tools
-		if public.expanded_languages:contains(language_name) then
+		if ui.expanded_languages:contains(language_name) then
 			for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
 				-- Main tool line (unexpanded)
-				public.lines:insert({ type = tool, language = language_name })
+				ui.lines:insert({ type = tool, language = language_name })
 
 				-- Get the name of the "plural" tool
 				local plural_tool = tool .. "s"
@@ -77,9 +77,9 @@ function public.reset_lines()
 				end
 
 				-- Expanded tool
-				if public["expanded_" .. plural_tool]:contains(language_name) then
+				if ui["expanded_" .. plural_tool]:contains(language_name) then
 					for _, language_tool in ipairs(language[plural_tool]) do
-						public.lines:insert({
+						ui.lines:insert({
 							type = tool .. "_listing",
 							language = language_name,
 							name = language_tool.name,
@@ -90,13 +90,13 @@ function public.reset_lines()
 
 					-- "None supported" additional line
 					if #language[plural_tool] == 0 then
-						public.lines:insert({})
+						ui.lines:insert({})
 					end
 				end
 			end
 		end
 	end
-	public.lines:insert({})
+	ui.lines:insert({})
 end
 
 --- The list of languages that are currently "expanded" meaning their tools are visible.
@@ -104,28 +104,28 @@ end
 --- like "registry.languages.c.name".
 ---
 ---@type string[]
-public.expanded_languages = Table({})
+ui.expanded_languages = Table({})
 
 ---@type string[]
-public.expanded_compilers = Table({})
+ui.expanded_compilers = Table({})
 
 ---@type string[]
-public.expanded_linters = Table({})
+ui.expanded_linters = Table({})
 
 ---@type string[]
-public.expanded_highlighters = Table({})
+ui.expanded_highlighters = Table({})
 
 ---@type string[]
-public.expanded_formatters = Table({})
+ui.expanded_formatters = Table({})
 
 ---@type string[]
-public.expanded_debuggers = Table({})
+ui.expanded_debuggers = Table({})
 
 ---@type string[]
-public.expanded_additional_tools = Table({})
+ui.expanded_additional_tools = Table({})
 
 ---@type string[]
-public.expanded_global_tools = Table({})
+ui.expanded_global_tools = Table({})
 
 ---@type table<string, string>
 local highlight_groups = Table({})
@@ -219,12 +219,12 @@ local function write_line(option_list, is_centered)
 	-- Alignment
 	local shift = 0
 	if is_centered then
-		shift = math.floor(public.width / 2) - math.floor(vim.fn.strdisplaywidth(text) / 2)
+		shift = math.floor(ui.width / 2) - math.floor(vim.fn.strdisplaywidth(text) / 2)
 		text = (" "):rep(shift) .. text
 	end
 
 	-- Line number
-	local line = vim.api.nvim_buf_line_count(public.buffer)
+	local line = vim.api.nvim_buf_line_count(ui.buffer)
 	if is_first_draw_call then
 		line = 0
 	end
@@ -237,7 +237,7 @@ local function write_line(option_list, is_centered)
 	is_first_draw_call = false
 
 	-- Write the line
-	vim.api.nvim_buf_set_lines(public.buffer, start, -1, false, { text })
+	vim.api.nvim_buf_set_lines(ui.buffer, start, -1, false, { text })
 
 	-- Highlighting (colors, italics, bold, etc.)
 	text = ""
@@ -255,7 +255,7 @@ local function write_line(option_list, is_centered)
 
 			-- Add the highlight
 			vim.api.nvim_buf_add_highlight(
-				public.buffer, -- Buffer
+				ui.buffer, -- Buffer
 				-1, -- Namespace ID
 				highlight_group, -- Highlight group
 				line, -- Line
@@ -343,7 +343,7 @@ local function draw_tool(language, tool_name)
 		write_buffer:insert({ text = "None Available", foreground = config.colors().none_available })
 	end
 
-	local is_expanded = public["expanded_" .. tool_name]:contains(language.name)
+	local is_expanded = ui["expanded_" .. tool_name]:contains(language.name)
 
 	-- Arrow
 	if is_expanded then
@@ -358,10 +358,7 @@ local function draw_tool(language, tool_name)
 	end
 
 	-- Prompt
-	if
-		public.lines[public.cursor_row].type == stubbed_name
-		and public.lines[public.cursor_row].language == language.name
-	then
+	if ui.lines[ui.cursor_row].type == stubbed_name and ui.lines[ui.cursor_row].language == language.name then
 		write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
 		write_buffer:insert({ text = "e", foreground = "#AAAA77" })
 		write_buffer:insert({ text = " to ", foreground = "Comment" })
@@ -384,11 +381,11 @@ local function draw_tool(language, tool_name)
 	write_line(write_buffer)
 
 	-- Expanded tool
-	if public["expanded_" .. tool_name]:contains(language.name) then
+	if ui["expanded_" .. tool_name]:contains(language.name) then
 		for index, tool in ipairs(language[tool_name]) do
 			-- Initialization
 			write_buffer = Table({})
-			local line = public.lines[public.cursor_row]
+			local line = ui.lines[ui.cursor_row]
 
 			-- Get indentationbars
 			local bars = "    │ │"
@@ -420,9 +417,9 @@ local function draw_tool(language, tool_name)
 
 			-- Tool is currently installing
 			if
-				public.currently_installing
-				and public.currently_installing.language == language.name
-				and public.currently_installing.type == tool_name .. "_listing"
+				ui.currently_installing
+				and ui.currently_installing.language == language.name
+				and ui.currently_installing.type == tool_name .. "_listing"
 			then
 				write_buffer:insert({ text = bars, foreground = "Comment" })
 				write_buffer:insert({ text = "  ", foreground = "#00AAFF" })
@@ -539,7 +536,7 @@ end
 ---@return nil
 local function draw_expanded_language(language)
 	-- Cursor is on this language - add prompt
-	if language.name == public.get_language_under_cursor() then
+	if language.name == ui.get_language_under_cursor() then
 		write_line({
 			{
 				text = "    " .. config.icons().progress[language.total][language.installed_total],
@@ -584,9 +581,9 @@ local function draw_languages()
 	local languages_line = Table({})
 	languages_line:insert({ text = "  Languages ", bold = true })
 	languages_line:insert({ text = ("(%s supported)"):format(#registry.language_keys), foreground = "Comment" })
-	if public.refresh_percentage ~= nil then
+	if ui.refresh_percentage ~= nil then
 		languages_line:insert({
-			text = ("    Refreshing... (%s%%)"):format(public.refresh_percentage),
+			text = ("    Refreshing... (%s%%)"):format(ui.refresh_percentage),
 			foreground = "Comment",
 		})
 	end
@@ -597,7 +594,7 @@ local function draw_languages()
 		language_index = language_index + 1
 		local language = registry.languages[key]
 
-		if public.expanded_languages:contains(language.name) then
+		if ui.expanded_languages:contains(language.name) then
 			draw_expanded_language(language)
 			draw_tool(language, "compilers")
 			draw_tool(language, "highlighters")
@@ -606,7 +603,7 @@ local function draw_languages()
 			draw_tool(language, "debuggers")
 			draw_tool(language, "additional_tools")
 		else
-			if language.name == public.get_language_under_cursor() then
+			if language.name == ui.get_language_under_cursor() then
 				local line_after_language = {
 					{
 						text = "    " .. config.icons().progress[language.total][language.installed_total],
@@ -629,13 +626,13 @@ local function draw_languages()
 					{ text = ")", foreground = "Comment" },
 				}
 
-				if public.current_description_lines then
+				if ui.current_description_lines then
 					local description_line_index = language_index - 2
-					if public.current_description_lines[description_line_index] then
+					if ui.current_description_lines[description_line_index] then
 						local offset = -language.name:len() + 27
 						table.insert(
 							line_after_language,
-							{ text = (" "):rep(offset) .. public.current_description_lines[description_line_index] }
+							{ text = (" "):rep(offset) .. ui.current_description_lines[description_line_index] }
 						)
 					end
 				end
@@ -668,10 +665,7 @@ local function draw_global_tools()
 			{ text = "    " .. icon .. "  ", foreground = color },
 			{ text = registry.global_tools[global_tool_key].name },
 		})
-		if
-			public.lines[public.cursor_row].type == "global_tool"
-			and public.lines[public.cursor_row].tool == global_tool_key
-		then
+		if ui.lines[ui.cursor_row].type == "global_tool" and ui.lines[ui.cursor_row].tool == global_tool_key then
 			line:insert({ text = "   (Press ", foreground = "Comment" })
 			line:insert({ text = "e", foreground = "#AAAA77" })
 			line:insert({ text = " to ", foreground = "Comment" })
@@ -692,7 +686,7 @@ local function draw_global_tools()
 		write_line(line)
 
 		-- Draw sub-tool listings
-		if public.expanded_global_tools:contains(global_tool_key) then
+		if ui.expanded_global_tools:contains(global_tool_key) then
 			for index, entry in ipairs(registry.global_tools[global_tool_key].entries) do
 				local write_buffer = Table({ { text = "    " } })
 				if index == #registry.global_tools[global_tool_key].entries then
@@ -712,8 +706,8 @@ local function draw_global_tools()
 
 				-- global tool listing prompt
 				if
-					public.lines[public.cursor_row].type == "global_tool_listing"
-					and public.lines[public.cursor_row].entry.internal_name == entry.internal_name
+					ui.lines[ui.cursor_row].type == "global_tool_listing"
+					and ui.lines[ui.cursor_row].entry.internal_name == entry.internal_name
 				then
 					if entry.is_installed then
 						write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
@@ -741,15 +735,15 @@ end
 
 -- The row that the cursor is on, used to keep the cursor in the same spot when reloading the window.
 ---@type integer
-public.cursor_row = 1
+ui.cursor_row = 1
 
 --- Updates the forge buffer. This should be called whenever state changes to the UI are made.
 --- This will clear the entire buffer and redraw it using the current state of the UI.
 ---
 --- @return nil
-function public.update_view()
+function ui.update_view()
 	is_first_draw_call = true
-	vim.api.nvim_set_option_value("modifiable", true, { buf = public.buffer })
+	vim.api.nvim_set_option_value("modifiable", true, { buf = ui.buffer })
 	write_line({
 		{ text = config.icons().instruction_left, foreground = config.colors().window_title },
 		{ text = " Forge ", background = config.colors().window_title, foreground = "#000000" },
@@ -811,8 +805,8 @@ function public.update_view()
 	draw_languages()
 	write_line({ { text = "" } })
 
-	vim.fn.cursor({ public.cursor_row, 0 })
-	vim.api.nvim_set_option_value("modifiable", false, { buf = public.buffer })
+	vim.fn.cursor({ ui.cursor_row, 0 })
+	vim.api.nvim_set_option_value("modifiable", false, { buf = ui.buffer })
 end
 
 -- Returns the langauge at the given line number, or `nil` if there is no language at the line
@@ -821,8 +815,8 @@ end
 --
 ---@return string | nil language_name The name of the language found
 local function get_language_at_line(line_number)
-	if public.lines[line_number].type == "language" then
-		return public.lines[line_number].language
+	if ui.lines[line_number].type == "language" then
+		return ui.lines[line_number].language
 	else
 		return nil
 	end
@@ -831,19 +825,19 @@ end
 -- Returns the language that the cursor is under, or `nil` if the cursor is not under a language
 --
 ---@return string | nil language_name The name of the language found
-function public.get_language_under_cursor()
-	return get_language_at_line(public.cursor_row)
+function ui.get_language_under_cursor()
+	return get_language_at_line(ui.cursor_row)
 end
 
 --- Opens the forge window. This is what happens when the ":Forge" command is executed.
 ---
 --- @return nil
-function public.open_window()
-	public.reset_lines()
+function ui.open_window()
+	ui.reset_lines()
 
 	-- Create the forge buffer
-	public.buffer = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = public.buffer })
+	ui.buffer = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = ui.buffer })
 
 	-- Hide the cursor in the buffer
 	if
@@ -851,14 +845,14 @@ function public.open_window()
 		or (config.options.ui.hide_cursor == nil and config.options.ui.window_options.cursorline)
 	then
 		vim.api.nvim_create_autocmd("BufEnter", {
-			buffer = public.buffer,
+			buffer = ui.buffer,
 			callback = function()
 				vim.cmd("hi Cursor blend=100")
 				vim.cmd("set guicursor+=a:Cursor/lCursor")
 			end,
 		})
 		vim.api.nvim_create_autocmd("BufLeave", {
-			buffer = public.buffer,
+			buffer = ui.buffer,
 			callback = function()
 				vim.cmd("hi Cursor blend=0")
 				vim.cmd("set guicursor-=a:Cursor/lCursor")
@@ -869,40 +863,34 @@ function public.open_window()
 	-- Calculate forge window dimensions
 	local vim_width = vim.api.nvim_get_option_value("columns", { scope = "global" })
 	local vim_height = vim.api.nvim_get_option_value("lines", { scope = "global" })
-	public.height = math.ceil(vim_height * 0.8 - 4)
-	public.width = 130
+	ui.height = math.ceil(vim_height * 0.8 - 4)
+	ui.width = 130
 
 	-- Set mappings
 	for key, action in pairs(config.options.ui.mappings) do
-		vim.api.nvim_buf_set_keymap(
-			public.buffer,
-			"n",
-			key,
-			(":lua require('forge.ui.actions').%s()<CR>"):format(action),
-			{
-				nowait = true,
-				noremap = true,
-				silent = true,
-			}
-		)
+		vim.api.nvim_buf_set_keymap(ui.buffer, "n", key, (":lua require('forge.ui.actions').%s()<CR>"):format(action), {
+			nowait = true,
+			noremap = true,
+			silent = true,
+		})
 	end
 
 	-- Create the Forge window
-	public.window = vim.api.nvim_open_win(
-		public.buffer,
+	ui.window = vim.api.nvim_open_win(
+		ui.buffer,
 		true,
 		vim.tbl_deep_extend("force", {
-			row = math.ceil((vim_height - public.height) / 2 - 1),
-			col = math.ceil((vim_width - public.width) / 2),
-			width = public.width,
-			height = public.height,
+			row = math.ceil((vim_height - ui.height) / 2 - 1),
+			col = math.ceil((vim_width - ui.width) / 2),
+			width = ui.width,
+			height = ui.height,
 		}, config.options.ui.window_config)
 	)
 
 	-- Window options
 	for option_name, option_value in pairs(config.options.ui.window_options) do
-		vim.api.nvim_set_option_value(option_name, option_value, { win = public.window })
+		vim.api.nvim_set_option_value(option_name, option_value, { win = ui.window })
 	end
 end
 
-return public
+return ui

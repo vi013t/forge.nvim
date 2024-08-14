@@ -1,11 +1,11 @@
-local public = {}
+local util = {}
 
 -- Checks whether the given string is a hex color.
 --
 ---@param color string The string to check
 --
 ---@return boolean is_hex_color Whether the given string is a hex color
-function public.is_hex_color(color)
+function util.is_hex_color(color)
 	if not color then
 		return false
 	end
@@ -17,7 +17,7 @@ end
 ---@param str string The string in snake case to convert.
 --
 ---@return string title_case The string in title case
-function public.snake_case_to_title_case(str)
+function util.snake_case_to_title_case(str)
 	local words = Table({})
 	for word in str:gmatch("([^_]+)") do
 		word = word:gsub("^%l", string.upper)
@@ -33,7 +33,7 @@ end
 ---@param o1 any|table First object to compare
 ---@param o2 any|table Second object to compare
 ---@param ignore_mt? boolean True to ignore metatables (a recursive function to tests tables inside tables)
-function public.equals(o1, o2, ignore_mt)
+function util.equals(o1, o2, ignore_mt)
 	if o1 == o2 then
 		return true
 	end
@@ -57,7 +57,7 @@ function public.equals(o1, o2, ignore_mt)
 
 	for key1, value1 in pairs(o1) do
 		local value2 = o2[key1]
-		if value2 == nil or public.equals(value1, value2, ignore_mt) == false then
+		if value2 == nil or util.equals(value1, value2, ignore_mt) == false then
 			return false
 		end
 		keySet[key1] = true
@@ -71,4 +71,4 @@ function public.equals(o1, o2, ignore_mt)
 	return true
 end
 
-return public
+return util

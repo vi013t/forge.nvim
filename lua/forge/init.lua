@@ -8,10 +8,10 @@ local lsp = require("forge.setup.lsp")
 local formatter = require("forge.setup.formatter")
 local highlighter = require("forge.setup.highlighter")
 
-local public = Table({})
+local forge = Table({})
 
 -- Sets up forge.nvim with the specified configuration.
-function public.setup(user_config)
+function forge.setup(user_config)
 	config.set_config(user_config)
 	lockfile.load()
 
@@ -25,4 +25,4 @@ function public.setup(user_config)
 	end, {})
 end
 
-return public
+return forge

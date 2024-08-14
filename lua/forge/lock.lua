@@ -2,12 +2,12 @@ local registry = require("forge.tools.registry")
 local config = require("forge.config")
 local refresher = require("forge.tools.refresher")
 
-local public = Table({})
+local lock = Table({})
 
 -- Saves the registry languages to the lockfile
 --
 ---@return nil
-function public.save()
+function lock.save()
 	vim.fn.mkdir(vim.fn.fnamemodify(config.options.lockfile, ":p:h"), "p")
 	local lock_file = assert(io.open(config.options.lockfile, "w"))
 	lock_file:write(vim.fn.json_encode(registry.languages))
@@ -16,7 +16,7 @@ end
 -- Load the lockfile if it exists, otherwise refresh the refresh_installations
 --
 ---@return nil
-function public.load()
+function lock.load()
 	local lockfile = io.open(config.options.lockfile, "r")
 
 	-- Lockfile exists! Load the cache
@@ -29,8 +29,8 @@ function public.load()
 	-- No lockfile - Either first load or it was deleted. Locate installations and save to a new lockfile.
 	else
 		refresher.refresh_installations()
-		public.save()
+		lock.save()
 	end
 end
 
-return public
+return lock

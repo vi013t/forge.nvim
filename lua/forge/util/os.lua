@@ -1,9 +1,9 @@
-local public = {}
+local os_utils = {}
 
 -- Gets the current operating system. Note that this returns "unix" for WSL.
 --
 ---@return string os the operating system
-function public.get_os()
+function os_utils.get_os()
 	if package.config:sub(1, 1) == "\\" then
 		return "windows"
 	else
@@ -18,8 +18,8 @@ end
 ---@param command_name string
 --
 ---@return boolean exists whether the command can be found
-function public.command_exists(command_name)
-	if public.get_os() == "windows" then
+function os_utils.command_exists(command_name)
+	if os_utils.get_os() == "windows" then
 		local exit_code = os.execute(("where %s > nul 2>&1"):format(command_name))
 		return exit_code == 0
 	end
@@ -30,9 +30,9 @@ end
 -- Checks if a compiler/interpreter is installed.
 --
 ---@return boolean is_installed whether the compiler is installed
-function public.language_is_installed(language)
+function os_utils.language_is_installed(language)
 	for _, command in ipairs(language.compilers) do
-		if public.command_exists(command) then
+		if os_utils.command_exists(command) then
 			return true
 		end
 	end
@@ -44,7 +44,7 @@ end
 ---@field name string
 
 ---@type table<string, PackageManager>
-public.package_managers = {
+os_utils.package_managers = {
 	pacman = {
 		name = "pacman",
 		install = function(package)
@@ -94,13 +94,13 @@ local system_package_manager = nil
 --- Returns the system's package manager, or nil if none are found.
 ---
 ---@return PackageManager|nil package_manager
-function public.get_package_manager()
+function os_utils.get_package_manager()
 	if system_package_manager ~= nil then
 		return system_package_manager
 	end
-	for package_manager, _ in pairs(public.package_managers) do
-		if public.command_exists(package_manager) then
-			system_package_manager = public.package_managers[package_manager]
+	for package_manager, _ in pairs(os_utils.package_managers) do
+		if os_utils.command_exists(package_manager) then
+			system_package_manager = os_utils.package_managers[package_manager]
 			return system_package_manager
 		end
 	end
@@ -112,8 +112,8 @@ end
 --- and execute the package manager's install command as root.
 ---
 ---@param package_name string
-function public.install_package(language_name, package_name)
-	local package_manager = public.get_package_manager()
+function os_utils.install_package(language_name, package_name)
+	local package_manager = os_utils.get_package_manager()
 
 	-- If no package manager is found, print a message and return.
 	-- Technically we only need to check one of these for nil,
@@ -155,4 +155,4 @@ function public.install_package(language_name, package_name)
 	-- this could be due to no internet connection or something.
 end
 
-return public
+return os_utils

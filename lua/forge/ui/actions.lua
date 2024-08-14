@@ -4,16 +4,15 @@ local treesitter_parsers = require("nvim-treesitter.parsers")
 local lock = require("forge.lock")
 local mason_utils = require("forge.util.mason_utils")
 local os_utils = require("forge.util.os")
-local config = require("forge.config")
 local refresher = require("forge.tools.refresher")
 local plugins = require("forge.tools.plugins")
 
-local public = Table({})
+local ui_actions = Table({})
 
-function public.do_nothing() end
+function ui_actions.do_nothing() end
 
 -- Closes the forge buffer
-function public.close_window()
+function ui_actions.close_window()
 	ui.expanded_languages = Table({})
 	ui.expanded_compilers = Table({})
 	ui.expanded_highlighters = Table({})
@@ -24,7 +23,7 @@ function public.close_window()
 	vim.api.nvim_win_close(ui.window, true)
 end
 
-function public.toggle_install()
+function ui_actions.toggle_install()
 	local line = ui.lines[ui.cursor_row]
 
 	---@type Language
@@ -375,7 +374,7 @@ end
 -- Expands a folder under the cursor.
 --
 ---@return nil
-function public.expand()
+function ui_actions.expand()
 	-- Expanding a language
 	if ui.lines[ui.cursor_row].type == "language" then
 		local language_name = ui.lines[ui.cursor_row].language
@@ -429,7 +428,7 @@ end
 -- Moves the cursor down one row in the buffer.
 --
 ---@return nil
-function public.move_cursor_down()
+function ui_actions.move_cursor_down()
 	ui.cursor_row = math.min(ui.cursor_row + 1, vim.api.nvim_buf_line_count(ui.buffer))
 	ui.update_view()
 end
@@ -437,7 +436,7 @@ end
 -- Moves the cursor up one row in the buffer.
 --
 ---@return nil
-function public.move_cursor_up()
+function ui_actions.move_cursor_up()
 	ui.cursor_row = math.max(ui.cursor_row - 1, 1)
 	ui.update_view()
 end
@@ -445,7 +444,7 @@ end
 -- Moves the cursor to the top of the buffer.
 --
 ---@return nil
-function public.set_cursor_to_top()
+function ui_actions.set_cursor_to_top()
 	ui.cursor_row = 1
 	ui.update_view()
 end
@@ -453,7 +452,7 @@ end
 -- Moves the cursor to the bottom of the buffer.
 --
 ---@return nil
-function public.set_cursor_to_bottom()
+function ui_actions.set_cursor_to_bottom()
 	ui.cursor_row = vim.api.nvim_buf_line_count(ui.buffer)
 	ui.update_view()
 end
@@ -461,7 +460,7 @@ end
 -- Refreshes installations
 --
 ---@return nil
-function public.refresh()
+function ui_actions.refresh()
 	ui.refresh_percentage = 0
 	ui.update_view()
 	vim.defer_fn(function()
@@ -474,7 +473,7 @@ end
 
 --- Configure a plugin. This is called when you press "c" while the cursor line is on an additional tool
 --- of type "plugin". This will open the plugin's configuration file.
-function public.configure()
+function ui_actions.configure()
 	if ui.lines[ui.cursor_row].type == "additional_tool_listing" then
 		local language_name = ui.lines[ui.cursor_row].language
 
@@ -494,13 +493,13 @@ function public.configure()
 		end
 
 		local plugin_file_path = plugins.plugin_file(plugin.module)
-		public.close_window()
+		ui_actions.close_window()
 		vim.cmd("ex " .. plugin_file_path)
 	elseif ui.lines[ui.cursor_row].type == "global_tool_listing" then
 		local plugin_file_path = plugins.plugin_file(ui.lines[ui.cursor_row].entry.module)
-		public.close_window()
+		ui_actions.close_window()
 		vim.cmd("ex " .. plugin_file_path)
 	end
 end
 
-return public
+return ui_actions
