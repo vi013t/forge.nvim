@@ -475,30 +475,29 @@ end
 --- Configure a plugin. This is called when you press "c" while the cursor line is on an additional tool
 --- of type "plugin". This will open the plugin's configuration file.
 function public.configure()
-	local language_name = ui.lines[ui.cursor_row].language
+	if ui.lines[ui.cursor_row].type == "additional_tool_listing" then
+		local language_name = ui.lines[ui.cursor_row].language
 
-	local language = registry.get_language_by_name(language_name)
+		local language = registry.get_language_by_name(language_name)
 
-	---@cast language Language
+		---@cast language Language
 
-	local plugin
-	for _, additional_tool in ipairs(language.additional_tools) do
-		if additional_tool.internal_name == ui.lines[ui.cursor_row].internal_name then
-			plugin = additional_tool
+		local plugin
+		for _, additional_tool in ipairs(language.additional_tools) do
+			if additional_tool.internal_name == ui.lines[ui.cursor_row].internal_name then
+				plugin = additional_tool
+			end
 		end
-	end
 
-	if not plugin then
-		return
-	end
+		if not plugin then
+			return
+		end
 
-	if ui.lines[ui.cursor_row].type == "additional_tools_listing" then
-		local plugin_file_path = vim.fn.stdpath("config")
-			.. "/lua/"
-			.. config.options.plugin_directory
-			.. "/forge/"
-			.. plugin.module
-			.. ".lua"
+		local plugin_file_path = plugins.plugin_file(plugin.module)
+		public.close_window()
+		vim.cmd("ex " .. plugin_file_path)
+	elseif ui.lines[ui.cursor_row].type == "global_tool_listing" then
+		local plugin_file_path = plugins.plugin_file(ui.lines[ui.cursor_row].entry.module)
 		public.close_window()
 		vim.cmd("ex " .. plugin_file_path)
 	end
