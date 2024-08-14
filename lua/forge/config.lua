@@ -378,8 +378,8 @@ config.options = config.default_config
 --- options at any nesting level.
 --
 ---@param config table The configuration to set
-function config.set_config(config)
-	config.options = vim.tbl_deep_extend("force", vim.deepcopy(config.options), config)
+function config.set_config(user_config)
+	config.options = vim.tbl_deep_extend("force", vim.deepcopy(config.options), user_config)
 end
 
 --- Returns a table of colors to be used for displaying the "installation completeness" icons next to the languages.
