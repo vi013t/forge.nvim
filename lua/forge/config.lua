@@ -13,8 +13,18 @@ public.default_config = {
 	--- Whether to autoformat buffers on save.
 	format_on_save = true,
 
+	--- Tools to "ensure installed". Every time you start Neovim, if any of these aren't installed, they will be installed automatically.
+	--- By default, this installs all of autocomplete, `LuaSnip`, and `fidget.nvim`
 	install = {
-		global_tools = { "autocomplete" },
+		global_tools = {
+			"autocomplete",
+			snippets = {
+				"luasnip",
+			},
+			lsp_status = {
+				"fidget",
+			},
+		},
 	},
 
 	-- UI --

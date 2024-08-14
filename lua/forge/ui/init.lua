@@ -310,28 +310,7 @@ local function draw_tool(language, tool_name)
 
 	-- Additional Tools
 	elseif tool_name == "additional_tools" and #language[tool_name] > 0 then
-		local color
-		do
-			if #language.additional_tools <= 5 then
-				color =
-					config.colors().progress[#language.additional_tools + 1][#language.installed_additional_tools + 1]
-			else
-				color = config.colors().progress[6][math.floor(
-					6 * ((#language.installed_additional_tools + 1) / (#language.additional_tools + 1))
-				)]
-			end
-		end
-
-		local icon
-		do
-			if #language.additional_tools <= 5 then
-				icon = config.icons().progress[#language.additional_tools + 1][#language.installed_additional_tools + 1]
-			else
-				icon = config.icons().progress[6][math.floor(
-					6 * ((#language.installed_additional_tools + 1) / (#language.additional_tools + 1))
-				)]
-			end
-		end
+		local color, icon = progress(#language.additional_tools, #language.installed_additional_tools)
 		write_buffer:insert({ text = icon, foreground = color })
 		write_buffer:insert({ text = " " .. proper_tool_name .. ": " })
 		write_buffer:insert({

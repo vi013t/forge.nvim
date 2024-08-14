@@ -198,6 +198,9 @@ registry.global_tools = {
 				internal_name = "L3MON4D3/LuaSnip",
 				recommended = true,
 				module = "luasnip",
+				default_config = [[
+					event = "InsertEnter"
+				]],
 			},
 			{
 				name = "Snippets",

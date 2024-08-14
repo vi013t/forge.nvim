@@ -22,6 +22,11 @@ function refresher.refresh_global_tools()
 				entry.is_installed = true
 				plugins.install(entry.module, entry.internal_name, entry.default_config)
 			end
+
+			if table.contains(config.options.install.global_tools[tool_id] or {}, entry.module) then
+				entry.is_installed = true
+				plugins.install(entry.module, entry.internal_name, entry.default_config)
+			end
 		end
 		tool.installed_entries = installed_subtools
 	end
