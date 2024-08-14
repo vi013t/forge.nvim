@@ -1,4 +1,4 @@
-local registry = require("forge.registry")
+local registry = require("forge.tools.registry")
 local public = Table({})
 
 function public.setup_formatters()

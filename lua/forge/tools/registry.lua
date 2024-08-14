@@ -1,9 +1,6 @@
-local os_utils = require("forge.util.os")
-local parsers = require("nvim-treesitter.parsers")
-local mason_registry = require("mason-registry")
 local config = require("forge.config")
 
-local public = {}
+local registry = {}
 
 ---@alias tool { name: string, internal_name: string }
 ---
@@ -33,7 +30,7 @@ local public = {}
 -- This is located at vim.fn.stdpath("data") .. "/forge.lock", which in most cases for linux is ~/.local/share/nvim/forge.lock,
 -- and for windows is %localappdata%/nvim-data/forge.lock
 
-public.global_tools = {
+registry.global_tools = {
 	autocomplete = {
 		name = "Autocomplete",
 		entries = {
@@ -215,12 +212,6 @@ public.global_tools = {
 				module = "snippy",
 			},
 			{
-				name = "Carbon Now",
-				internal_name = "ellisonleao/carbon-now.nvim",
-				recommended = false,
-				module = "carbon-now",
-			},
-			{
 				name = "Ray So Snippets",
 				internal_name = "TobinPalmer/rayso.nvim",
 				recommended = false,
@@ -283,15 +274,15 @@ public.global_tools = {
 	},
 }
 
-public.global_tool_keys = Table({})
+registry.global_tool_keys = Table({})
 do
-	for name, _ in pairs(public.global_tools) do
-		public.global_tool_keys:insert(name)
+	for name, _ in pairs(registry.global_tools) do
+		registry.global_tool_keys:insert(name)
 	end
 end
 
 ---@type table<string, Language>
-public.languages = {
+registry.languages = {
 	bash = {
 		name = "Bash",
 		compiler_type = "interpreter",
@@ -1012,181 +1003,36 @@ public.languages = {
 	},
 }
 
-function public.refresh_installation(language)
-	-- Compiler
-	local installed_compilers = Table({})
-	for _, compiler in ipairs(language.compilers) do
-		if os_utils.command_exists(compiler.internal_name) then
-			installed_compilers:insert(compiler)
-		end
-	end
-	language.installed_compilers = installed_compilers
-
-	-- Highlighter
-	local installed_highlighters = Table({})
-	for _, highlighter in ipairs(language.highlighters) do
-		if parsers.has_parser(highlighter.internal_name) then
-			installed_highlighters:insert(highlighter)
-		end
-	end
-	language.installed_highlighters = installed_highlighters
-
-	-- Linter
-	local installed_linters = Table({})
-	for _, linter in ipairs(language.linters) do
-		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
-			if internal_name == linter.internal_name then
-				installed_linters:insert(linter)
-				break
-			end
-		end
-	end
-	language.installed_linters = installed_linters
-
-	-- Formatter
-	local installed_formatters = Table({})
-	for _, formatter in ipairs(language.formatters) do
-		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
-			if internal_name == formatter.internal_name then
-				installed_formatters:insert(formatter)
-				break
-			end
-		end
-	end
-	language.installed_formatters = installed_formatters
-
-	-- Debugger
-	local installed_debuggers = Table({})
-	for _, debugger in ipairs(language.debuggers) do
-		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
-			if internal_name == debugger.internal_name then
-				installed_debuggers:insert(debugger)
-				break
-			end
-		end
-	end
-	language.installed_debuggers = installed_debuggers
-
-	local installed_additional_tools = Table({})
-	for _, additional_tool in ipairs(language.additional_tools) do
-		if additional_tool.type == "plugin" then
-			local has_plugin = pcall(require, additional_tool.module)
-			if has_plugin then
-				installed_additional_tools:insert(additional_tool)
-			end
-		end
-	end
-	language.installed_additional_tools = installed_additional_tools
-end
-
-function public.refresh_installations()
-	public.generate_language_keys()
-
-	for _, language_name in ipairs(public.language_keys) do
-		local language = public.languages[language_name]
-		public.refresh_installation(language)
-	end
-
-	public.refresh_global_tools()
-
-	-- Get the actual number of installatinons
-	for key, _ in pairs(public.languages) do
-		local language = public.languages[key]
-
-		language.total = 1
-		if #language.compilers > 0 then
-			language.total = language.total + 1
-		end
-		if #language.highlighters > 0 then
-			language.total = language.total + 1
-		end
-		if #language.linters > 0 then
-			language.total = language.total + 1
-		end
-		if #language.formatters > 0 then
-			language.total = language.total + 1
-		end
-		if #language.debuggers > 0 then
-			language.total = language.total + 1
-		end
-
-		local actual_installed = 1
-		if language.installed_compilers[1] then
-			actual_installed = actual_installed + 1
-		end
-		if language.installed_highlighters[1] then
-			actual_installed = actual_installed + 1
-		end
-		if language.installed_linters[1] then
-			actual_installed = actual_installed + 1
-		end
-		if language.installed_formatters[1] then
-			actual_installed = actual_installed + 1
-		end
-		if language.installed_debuggers[1] then
-			actual_installed = actual_installed + 1
-		end
-
-		language.installed_total = actual_installed
-	end
-
-	public.sort_languages()
-end
-
--- Refreshes the `installed_total` field of a language to accurately reflect the number of tool types installed for it.
---
----@param language Language
---
----@return nil
-function public.refresh_installed_totals(language)
-	local actual_installed = 1
-	if language.installed_compilers[1] then
-		actual_installed = actual_installed + 1
-	end
-	if language.installed_highlighters[1] then
-		actual_installed = actual_installed + 1
-	end
-	if language.installed_linters[1] then
-		actual_installed = actual_installed + 1
-	end
-	if language.installed_formatters[1] then
-		actual_installed = actual_installed + 1
-	end
-	if language.installed_additional_tools[1] then
-		actual_installed = actual_installed + 1
-	end
-	language.installed_total = actual_installed
-end
-
-function public.generate_language_keys()
-	public.language_keys = Table({})
-	for key, _ in pairs(public.languages) do
-		public.language_keys:insert(key)
+function registry.generate_language_keys()
+	registry.language_keys = Table({})
+	for key, _ in pairs(registry.languages) do
+		registry.language_keys:insert(key)
 	end
 end
 
-function public.sort_languages()
-	public.language_keys:sort(function(first, second)
+function registry.sort_languages()
+	registry.language_keys:sort(function(first, second)
 		local first_percent =
-			math.floor(100 * ((public.languages[first].installed_total - 1) / (public.languages[first].total - 1)))
-		local second_percent =
-			math.floor(100 * ((public.languages[second].installed_total - 1) / (public.languages[second].total - 1)))
+			math.floor(100 * ((registry.languages[first].installed_total - 1) / (registry.languages[first].total - 1)))
+		local second_percent = math.floor(
+			100 * ((registry.languages[second].installed_total - 1) / (registry.languages[second].total - 1))
+		)
 
 		if first_percent > second_percent then
 			return true
 		elseif first_percent < second_percent then
 			return false
 		else
-			return public.languages[first].name:lower() < public.languages[second].name:lower()
+			return registry.languages[first].name:lower() < registry.languages[second].name:lower()
 		end
 	end)
 end
 
-function public.get_language_by_name(name)
+function registry.get_language_by_name(name)
 	if not name then
 		return nil
 	end
-	for _, language in pairs(public.languages) do
+	for _, language in pairs(registry.languages) do
 		if language.name:lower() == name:lower() then
 			return language
 		end
@@ -1194,131 +1040,4 @@ function public.get_language_by_name(name)
 	return nil
 end
 
-function public.install_plugin(module_name, plugin_name, default_configuration)
-	print("Installing " .. plugin_name .. "...")
-
-	local function unindent(text)
-		-- Split the text into lines
-		local lines = {}
-		for text_line in text:gmatch("[^\r\n]+") do
-			table.insert(lines, text_line)
-		end
-
-		-- Find the minimum leading whitespace
-		local min_indent = math.huge
-		for _, text_line in ipairs(lines) do
-			local indent = text_line:match("^(%s*)")
-			if indent and #indent < min_indent then
-				min_indent = #indent
-			end
-		end
-
-		-- Remove the minimum leading whitespace from each line
-		local result = {}
-		for _, text_line in ipairs(lines) do
-			local trimmed_line = text_line:sub(min_indent + 1)
-			table.insert(result, trimmed_line)
-		end
-
-		-- Join the result into a single string
-		return table.concat(result, "\n")
-	end
-
-	vim.fn.mkdir(vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge", "p")
-
-	-- Make the plugin file
-	local plugin_file = assert(
-		io.open(
-			vim.fn.stdpath("config") .. "/lua/" .. config.options.plugin_directory .. "/forge/" .. module_name .. ".lua",
-			"w"
-		)
-	)
-	plugin_file:write(('return {\n\t"%s",\n%s\n}'):format(plugin_name, unindent(default_configuration) or "")) -- TODO: give all plugins default config and remove the default ""
-
-	-- Load all Forge plugins
-	local all_plugins = "return {\n"
-	for _, language_key in ipairs(public.language_keys) do
-		local registry_language = public.languages[language_key]
-		for _, additional_tool in ipairs(registry_language.additional_tools) do
-			-- Check if the tool is installed
-			local is_installed
-			for _, installed_additional_tool in ipairs(registry_language.installed_additional_tools) do
-				if installed_additional_tool.internal_name == additional_tool.internal_name then
-					is_installed = true
-				end
-			end
-			if not is_installed then
-				goto continue
-			end
-
-			-- If it is installed, add it to the plugins
-			if additional_tool.type == "plugin" then
-				all_plugins = ('%s\trequire("%s.forge.%s"),\n'):format(
-					all_plugins,
-					config.options.plugin_directory,
-					additional_tool.module
-				)
-			end
-
-			::continue::
-		end
-	end
-
-	-- Global tools
-	for _, global_tool in pairs(public.global_tools) do
-		for _, entry in ipairs(global_tool.entries) do
-			if entry.is_installed then
-				all_plugins = ('%s\trequire("%s.forge.%s"),\n'):format(
-					all_plugins,
-					config.options.plugin_directory,
-					entry.module
-				)
-			end
-		end
-	end
-
-	all_plugins = all_plugins .. "}"
-	local forge_file =
-		assert(io.open(("%s/lua/%s/forge.lua"):format(vim.fn.stdpath("config"), config.options.plugin_directory), "w"))
-	forge_file:write(all_plugins)
-	forge_file:close()
-
-	print("[Forge] Plugin installed. Reload Neovim to use it.")
-end
-
-function public.refresh_global_tools()
-	for tool_id, tool in pairs(public.global_tools) do
-		local installed_subtools = 0
-		for _, entry in ipairs(tool.entries) do
-			local has_plugin = pcall(require, entry.module)
-			entry.is_installed = has_plugin
-			if has_plugin then
-				installed_subtools = installed_subtools + 1
-			end
-
-			if table.contains(config.options.install.global_tools, tool_id) then
-				entry.is_installed = true
-				public.install_plugin(entry.module, entry.internal_name, entry.default_config)
-			end
-		end
-		tool.installed_entries = installed_subtools
-	end
-
-	-- Sort tools
-	public.global_tool_keys:sort(function(first, second)
-		local first_percent =
-			math.floor(100 * public.global_tools[first].installed_entries / #public.global_tools[first].entries)
-		local second_percent =
-			math.floor(100 * public.global_tools[second].installed_entries / #public.global_tools[second].entries)
-
-		if first_percent > second_percent then
-			return true
-		elseif first_percent < second_percent then
-			return false
-		else
-			return public.global_tools[first].name:lower() < public.global_tools[second].name:lower()
-		end
-	end)
-end
-
-return public
+return registry

@@ -7,7 +7,6 @@ local ui = require("forge.ui")
 local lsp = require("forge.setup.lsp")
 local formatter = require("forge.setup.formatter")
 local highlighter = require("forge.setup.highlighter")
-local autocomplete = require("forge.setup.autocomplete")
 
 local public = Table({})
 
@@ -19,7 +18,6 @@ function public.setup(user_config)
 	highlighter.setup_highlighters() -- Set up treesitter
 	formatter.setup_formatters() -- Set up conform.nvim
 	lsp.setup_lsps() -- Set up lspconfig / mason
-	autocomplete.setup_autocomplete() -- Set up nvim-cmp
 
 	vim.api.nvim_create_user_command("Forge", function()
 		ui.open_window()

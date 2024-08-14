@@ -1,10 +1,8 @@
-local registry = require("forge.registry")
+local registry = require("forge.tools.registry")
 local config = require("forge.config")
+local refresher = require("forge.tools.refresher")
 
 local public = Table({})
-
-public.install_chocolately =
-	[[@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))]]
 
 -- Saves the registry languages to the lockfile
 --
@@ -26,11 +24,11 @@ function public.load()
 		registry.languages = vim.fn.json_decode(lockfile:read("*a"))
 		registry.generate_language_keys()
 		registry.sort_languages()
-		registry.refresh_global_tools()
+		refresher.refresh_global_tools()
 
 	-- No lockfile - Either first load or it was deleted. Locate installations and save to a new lockfile.
 	else
-		registry.refresh_installations()
+		refresher.refresh_installations()
 		public.save()
 	end
 end

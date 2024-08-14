@@ -1,10 +1,12 @@
 local ui = require("forge.ui")
-local registry = require("forge.registry")
+local registry = require("forge.tools.registry")
 local treesitter_parsers = require("nvim-treesitter.parsers")
 local lock = require("forge.lock")
 local mason_utils = require("forge.util.mason_utils")
 local os_utils = require("forge.util.os")
 local config = require("forge.config")
+local refresher = require("forge.tools.refresher")
+local plugins = require("forge.tools.plugins")
 
 local public = Table({})
 
@@ -49,7 +51,7 @@ function public.toggle_install()
 
 			os_utils.install_package(language.name, name)
 			table.insert(language.installed_compilers, { name = line.name, internal_name = line.internal_name })
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 		end
 
 	-- Highlighter
@@ -66,11 +68,11 @@ function public.toggle_install()
 			end
 
 			table.remove(language.installed_highlighters, index)
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 		else
 			vim.cmd(("TSInstall %s"):format(line.internal_name))
 			table.insert(language.installed_highlighters, { name = line.name, internal_name = line.internal_name })
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 		end
 
 	-- Linter
@@ -102,7 +104,7 @@ function public.toggle_install()
 				end
 			end
 
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 
 			---@type integer
 			index = nil
@@ -135,7 +137,7 @@ function public.toggle_install()
 				end
 			end
 
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 
 			---@type integer
 			local index = nil
@@ -179,7 +181,7 @@ function public.toggle_install()
 				end
 			end
 
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 
 			---@type integer
 			index = nil
@@ -213,7 +215,7 @@ function public.toggle_install()
 				end
 			end
 
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 
 			---@type integer
 			local index = nil
@@ -258,7 +260,7 @@ function public.toggle_install()
 				end
 			end
 
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 
 			---@type integer
 			index = nil
@@ -294,7 +296,7 @@ function public.toggle_install()
 				end
 			end
 
-			registry.refresh_installed_totals(language)
+			refresher.refresh_installed_totals(language)
 
 			---@type integer
 			local index = nil
@@ -342,7 +344,7 @@ function public.toggle_install()
 			error("[Forge] Error locating plugin: " .. line.internal_name)
 		end
 
-		registry.install_plugin(tool.module, tool.internal_name, tool.default_config)
+		plugins.toggle_install(tool.module, tool.internal_name, tool.default_config)
 
 		---@type integer
 		local index = nil
@@ -360,7 +362,7 @@ function public.toggle_install()
 	-- Global Tools
 	elseif line.type == "global_tool_listing" then
 		line.entry.is_installed = true
-		registry.install_plugin(line.entry.module, line.entry.internal_name, line.entry.default_config)
+		plugins.toggle_install(line.entry.module, line.entry.internal_name, line.entry.default_config)
 	end
 
 	registry.sort_languages()
@@ -463,7 +465,7 @@ function public.refresh()
 	ui.refresh_percentage = 0
 	ui.update_view()
 	vim.defer_fn(function()
-		registry.refresh_installations()
+		refresher.refresh_installations()
 	end, 0)
 	ui.refresh_percentage = nil
 	ui.update_view()

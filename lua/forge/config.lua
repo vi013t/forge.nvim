@@ -14,7 +14,7 @@ public.default_config = {
 	format_on_save = true,
 
 	install = {
-		global_tools = { "autocomplete"  },
+		global_tools = { "autocomplete" },
 	},
 
 	-- UI --
@@ -370,6 +370,24 @@ public.options = public.default_config
 ---@param config table The configuration to set
 function public.set_config(config)
 	public.options = vim.tbl_deep_extend("force", vim.deepcopy(public.options), config)
+end
+
+--- Returns a table of colors to be used for displaying the "installation completeness" icons next to the languages.
+--- The spec of this table is shown in the config- one example is options.ui.colors.presets.default. This function
+--- will first check if the user has explicitly passed a preset name to options.ui.colors.preset, and if so, that
+--- preset will be used. If not, the output of running the vim command "colorscheme" is used as the preset name,
+--- if a preset exists with that name. If not, the "default" preset is used.
+---
+---@return { progress: table, installed: string, not_installed: string, none_available: string, instructions: string, window_title: string }
+function public.colors()
+	return public.options.ui.colors.presets[public.options.ui.colors.preset or vim.api.nvim_exec2(
+		"colorscheme",
+		{ output = true }
+	).output or "default"]
+end
+
+function public.icons()
+	return public.options.ui.symbols.presets[public.options.ui.symbols.preset or (pcall(require, "nvim-web-devicons") and "default" or "ascii")]
 end
 
 return public
