@@ -108,10 +108,12 @@ function lsp.setup_lsps()
 		signature.setup({})
 	end
 
-	vim.cmd("hi DiagnosticUnderlineError gui=undercurl term=undercurl cterm=undercurl")
-	vim.cmd("hi DiagnosticUnderlineWarn gui=undercurl term=undercurl cterm=undercurl")
-	vim.cmd("hi DiagnosticUnderlineHint gui=undercurl term=undercurl cterm=undercurl")
-	vim.cmd("hi DiagnosticUnderlineInfo gui=undercurl term=undercurl cterm=undercurl")
+	if not vim.fn.has("win32") then
+		vim.cmd("hi DiagnosticUnderlineError gui=undercurl term=undercurl cterm=undercurl")
+		vim.cmd("hi DiagnosticUnderlineWarn gui=undercurl term=undercurl cterm=undercurl")
+		vim.cmd("hi DiagnosticUnderlineHint gui=undercurl term=undercurl cterm=undercurl")
+		vim.cmd("hi DiagnosticUnderlineInfo gui=undercurl term=undercurl cterm=undercurl")
+	end
 end
 
 return lsp

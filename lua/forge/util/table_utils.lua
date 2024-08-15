@@ -56,6 +56,6 @@ end
 ---@param values table<any, any>
 ---
 ---@return table<any, any>
-function Table(values)
+function table_metatable(values)
 	return setmetatable(values, { __index = table })
 end

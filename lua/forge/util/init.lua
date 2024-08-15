@@ -18,7 +18,7 @@ end
 --
 ---@return string title_case The string in title case
 function util.snake_case_to_title_case(str)
-	local words = Table({})
+	local words = table_metatable({})
 	for word in str:gmatch("([^_]+)") do
 		word = word:gsub("^%l", string.upper)
 		words:insert(word)

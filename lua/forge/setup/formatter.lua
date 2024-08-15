@@ -1,9 +1,9 @@
 local registry = require("forge.tools.registry")
-local formatter = Table({})
+local formatter = table_metatable({})
 
 function formatter.setup_formatters()
 	-- Get available formatters
-	local formatters_by_ft = Table({})
+	local formatters_by_ft = table_metatable({})
 	for _, language_key in ipairs(registry.language_keys) do
 		local language = registry.languages[language_key]
 		if #language.installed_formatters > 0 then

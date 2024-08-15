@@ -50,7 +50,7 @@ end
 
 function refresher.refresh_installation(language)
 	-- Compiler
-	local installed_compilers = Table({})
+	local installed_compilers = table_metatable({})
 	for _, compiler in ipairs(language.compilers) do
 		if os_utils.command_exists(compiler.internal_name) then
 			installed_compilers:insert(compiler)
@@ -59,7 +59,7 @@ function refresher.refresh_installation(language)
 	language.installed_compilers = installed_compilers
 
 	-- Highlighter
-	local installed_highlighters = Table({})
+	local installed_highlighters = table_metatable({})
 	for _, highlighter in ipairs(language.highlighters) do
 		if parsers.has_parser(highlighter.internal_name) then
 			installed_highlighters:insert(highlighter)
@@ -68,7 +68,7 @@ function refresher.refresh_installation(language)
 	language.installed_highlighters = installed_highlighters
 
 	-- Linter
-	local installed_linters = Table({})
+	local installed_linters = table_metatable({})
 	for _, linter in ipairs(language.linters) do
 		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 			if internal_name == linter.internal_name then
@@ -80,7 +80,7 @@ function refresher.refresh_installation(language)
 	language.installed_linters = installed_linters
 
 	-- Formatter
-	local installed_formatters = Table({})
+	local installed_formatters = table_metatable({})
 	for _, formatter in ipairs(language.formatters) do
 		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 			if internal_name == formatter.internal_name then
@@ -92,7 +92,7 @@ function refresher.refresh_installation(language)
 	language.installed_formatters = installed_formatters
 
 	-- Debugger
-	local installed_debuggers = Table({})
+	local installed_debuggers = table_metatable({})
 	for _, debugger in ipairs(language.debuggers) do
 		for _, internal_name in ipairs(mason_registry.get_installed_package_names()) do
 			if internal_name == debugger.internal_name then
@@ -103,7 +103,7 @@ function refresher.refresh_installation(language)
 	end
 	language.installed_debuggers = installed_debuggers
 
-	local installed_additional_tools = Table({})
+	local installed_additional_tools = table_metatable({})
 	for _, additional_tool in ipairs(language.additional_tools) do
 		if additional_tool.type == "plugin" then
 			local has_plugin = pcall(require, additional_tool.module)

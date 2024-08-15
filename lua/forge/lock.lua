@@ -2,7 +2,7 @@ local registry = require("forge.tools.registry")
 local config = require("forge.config")
 local refresher = require("forge.tools.refresher")
 
-local lock = Table({})
+local lock = table_metatable({})
 
 -- Saves the registry languages to the lockfile
 --

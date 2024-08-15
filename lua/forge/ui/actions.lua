@@ -8,19 +8,19 @@ local refresher = require("forge.tools.refresher")
 local plugins = require("forge.tools.plugins")
 
 --- The public exports of `actions.lua`
-local ui_actions = Table({})
+local ui_actions = table_metatable({})
 
 function ui_actions.do_nothing() end
 
 -- Closes the forge buffer
 function ui_actions.close_window()
-	ui.expanded_languages = Table({})
-	ui.expanded_compilers = Table({})
-	ui.expanded_highlighters = Table({})
-	ui.expanded_linters = Table({})
-	ui.expanded_formatters = Table({})
-	ui.expanded_debuggers = Table({})
-	ui.expanded_additional_tools = Table({})
+	ui.expanded_languages = table_metatable({})
+	ui.expanded_compilers = table_metatable({})
+	ui.expanded_highlighters = table_metatable({})
+	ui.expanded_linters = table_metatable({})
+	ui.expanded_formatters = table_metatable({})
+	ui.expanded_debuggers = table_metatable({})
+	ui.expanded_additional_tools = table_metatable({})
 	vim.api.nvim_win_close(ui.window, true)
 end
 

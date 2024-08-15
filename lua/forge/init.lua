@@ -8,7 +8,7 @@ local lsp = require("forge.setup.lsp")
 local formatter = require("forge.setup.formatter")
 local highlighter = require("forge.setup.highlighter")
 
-local forge = Table({})
+local forge = table_metatable({})
 
 -- Sets up forge.nvim with the specified configuration.
 function forge.setup(user_config)

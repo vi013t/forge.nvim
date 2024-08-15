@@ -13,8 +13,6 @@ end
 
 -- Checks whether a shell command can be found
 --
--- PERF: make this async for better performance
---
 ---@param command_name string
 --
 ---@return boolean exists whether the command can be found
