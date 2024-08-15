@@ -7,6 +7,7 @@ local os_utils = require("forge.util.os")
 local refresher = require("forge.tools.refresher")
 local plugins = require("forge.tools.plugins")
 
+--- The public exports of `actions.lua`
 local ui_actions = Table({})
 
 function ui_actions.do_nothing() end
@@ -39,8 +40,7 @@ function ui_actions.toggle_install()
 	if line.type == "compiler_listing" then
 		-- Uninstall compiler
 		if os_utils.command_exists(line.internal_name) then
-
-		-- Install compiler
+			-- Install compiler
 		else
 			local package_manager = assert(os_utils.get_package_manager())
 			local name = assert(line.internal_name)
@@ -53,7 +53,7 @@ function ui_actions.toggle_install()
 			refresher.refresh_installed_totals(language)
 		end
 
-	-- Highlighter
+		-- Highlighter
 	elseif line.type == "highlighter_listing" then -- TODO: refactor this mess
 		if treesitter_parsers.has_parser(line.internal_name) then
 			vim.cmd(("TSUninstall %s"):format(line.internal_name))
@@ -74,7 +74,7 @@ function ui_actions.toggle_install()
 			refresher.refresh_installed_totals(language)
 		end
 
-	-- Linter
+		-- Linter
 	elseif line.type == "linter_listing" then
 		if mason_utils.package_is_installed(line.internal_name) then
 			print("Uninstalling " .. line.internal_name .. "...")
@@ -150,7 +150,7 @@ function ui_actions.toggle_install()
 			ui.cursor_row = index
 		end
 
-	-- Formatter
+		-- Formatter
 	elseif line.type == "formatter_listing" then
 		if mason_utils.package_is_installed(line.internal_name) then
 			print("Installing " .. line.internal_name .. "...")
@@ -228,7 +228,7 @@ function ui_actions.toggle_install()
 			ui.cursor_row = index
 		end
 
-	-- Debugger
+		-- Debugger
 	elseif line.type == "debugger_listing" then
 		-- Uninstall debugger
 		if mason_utils.package_is_installed(line.internal_name) then
@@ -272,7 +272,7 @@ function ui_actions.toggle_install()
 
 			ui.cursor_row = index
 
-		-- Install debugger
+			-- Install debugger
 		else
 			print("Installing " .. line.internal_name .. "...")
 			vim.cmd(("MasonInstall %s"):format(line.internal_name))
@@ -309,7 +309,7 @@ function ui_actions.toggle_install()
 			ui.cursor_row = index
 		end
 
-	-- Additional Tools
+		-- Additional Tools
 	elseif line.type == "additional_tools_listing" then
 		-- TODO: non plugins
 
@@ -358,7 +358,7 @@ function ui_actions.toggle_install()
 
 		ui.cursor_row = index
 
-	-- Global Tools
+		-- Global Tools
 	elseif line.type == "global_tool_listing" then
 		line.entry.is_installed = true
 		plugins.toggle_install(line.entry.module, line.entry.internal_name, line.entry.default_config)
@@ -383,12 +383,12 @@ function ui_actions.expand()
 		if ui.expanded_languages:contains(language_name) then
 			ui.expanded_languages:remove_value(language_name)
 
-		-- Expand language
+			-- Expand language
 		else
 			ui.expanded_languages:insert(language_name)
 		end
 
-	-- Global tool
+		-- Global tool
 	elseif ui.lines[ui.cursor_row].type == "global_tool" then
 		local tool_name = ui.lines[ui.cursor_row].tool
 
@@ -396,12 +396,12 @@ function ui_actions.expand()
 		if ui.expanded_global_tools:contains(tool_name) then
 			ui.expanded_global_tools:remove_value(tool_name)
 
-		-- Expand tool
+			-- Expand tool
 		else
 			ui.expanded_global_tools:insert(tool_name)
 		end
 
-	-- Expanding a tool
+		-- Expanding a tool
 	else
 		for _, tool in ipairs({ "compiler", "highlighter", "linter", "formatter", "debugger", "additional_tools" }) do
 			if ui.lines[ui.cursor_row].type == tool then

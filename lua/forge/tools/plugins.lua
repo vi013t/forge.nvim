@@ -135,7 +135,7 @@ function plugins.install(module_name, plugin_name, default_configuration, force_
 	-- Make the plugin file
 	local plugin_file = assert(io.open(plugins.plugin_file(module_name), "w"))
 	plugin_file:write(
-		('return {\n\t"%s",\n%s\n}'):format(plugin_name, string_utils.unindent(default_configuration) or "")
+		('return {\n\t"%s",\n%s}'):format(plugin_name, string_utils.unindent(default_configuration) or "")
 	)
 	-- TODO: give all plugins default config and remove the default ""
 	plugins.reload_forge_plugin_file()

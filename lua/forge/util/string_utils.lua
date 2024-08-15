@@ -27,6 +27,7 @@ function string_utils.unindent(text)
 			table.insert(result, text_line)
 			goto continue
 		end
+
 		local trimmed_line = text_line:sub(min_indent + 1)
 		table.insert(result, trimmed_line)
 		::continue::

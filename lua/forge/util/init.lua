@@ -30,40 +30,40 @@ end
 --
 -- https://stackoverflow.com/questions/20325332/how-to-check-if-two-tablesobjects-have-the-same-value-in-lua
 --
----@param o1 any|table First object to compare
----@param o2 any|table Second object to compare
----@param ignore_mt? boolean True to ignore metatables (a recursive function to tests tables inside tables)
-function util.equals(o1, o2, ignore_mt)
-	if o1 == o2 then
+---@param first any|table First object to compare
+---@param second any|table Second object to compare
+---@param ignore_metatable? boolean True to ignore metatables (a recursive function to tests tables inside tables)
+function util.equals(first, second, ignore_metatable)
+	if first == second then
 		return true
 	end
-	local o1Type = type(o1)
-	local o2Type = type(o2)
-	if o1Type ~= o2Type then
+	local first_type = type(first)
+	local second_type = type(second)
+	if first_type ~= second_type then
 		return false
 	end
-	if o1Type ~= "table" then
+	if first_type ~= "table" then
 		return false
 	end
 
-	if not ignore_mt then
-		local mt1 = getmetatable(o1)
+	if not ignore_metatable then
+		local mt1 = getmetatable(first)
 		if mt1 and mt1.__eq then
-			return o1 == o2
+			return first == second
 		end
 	end
 
 	local keySet = {}
 
-	for key1, value1 in pairs(o1) do
-		local value2 = o2[key1]
-		if value2 == nil or util.equals(value1, value2, ignore_mt) == false then
+	for key1, value1 in pairs(first) do
+		local value2 = second[key1]
+		if value2 == nil or util.equals(value1, value2, ignore_metatable) == false then
 			return false
 		end
 		keySet[key1] = true
 	end
 
-	for key2, _ in pairs(o2) do
+	for key2, _ in pairs(second) do
 		if not keySet[key2] then
 			return false
 		end

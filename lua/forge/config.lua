@@ -46,8 +46,8 @@ config.default_config = {
 			i = "toggle_install",
 			u = "toggle_install",
 			r = "refresh",
-			o = "open_options",
 			["<C-d>"] = "do_nothing",
+			["<C-u>"] = "do_nothing",
 			["<CR>"] = "move_cursor_down",
 			["<Up>"] = "move_cursor_up",
 			["<Down>"] = "move_cursor_down",
@@ -201,10 +201,10 @@ config.default_config = {
 				--- associated with it and you haven't set a particular preset.
 				default = {
 					progress = {
-						{ "#FF0000" }, -- Language has no tools available
-						{ "#FF0000", "#00FF00" }, -- Language has 1 tool available
-						{ "#FF0000", "#FFFF00", "#00FF00" }, -- Language has 2 tools available
-						{ "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" }, -- Language has 3 tools available
+						{ "#FF0000" },                                      -- Language has no tools available
+						{ "#FF0000", "#00FF00" },                           -- Language has 1 tool available
+						{ "#FF0000", "#FFFF00", "#00FF00" },                -- Language has 2 tools available
+						{ "#FF0000", "#FFAA00", "#BBFF00", "#00FF00" },     -- Language has 3 tools available
 						{ "#FF0000", "#FF8800", "#FFFF00", "#BBFF00", "#00FF00" }, -- Language has 4 tools available
 						{ "#FF0000", "#FF6600", "#FFAA00", "#FFFF00", "#BBFF00", "#00FF00" }, -- Language has 5 tools available
 					},
@@ -216,10 +216,10 @@ config.default_config = {
 				},
 				["catppuccin-mocha"] = {
 					progress = {
-						{ "#F38BA8" }, -- Language has no tools available
-						{ "#F38BA8", "#A6E3A1" }, -- Language has 1 tool available
-						{ "#F38BA8", "#F9E2AF", "#A6E3A1" }, -- Language has 2 tools available
-						{ "#F38BA8", "#FAB387", "#DDF7A1", "#A6E3A1" }, -- Language has 3 tools available
+						{ "#F38BA8" },                                      -- Language has no tools available
+						{ "#F38BA8", "#A6E3A1" },                           -- Language has 1 tool available
+						{ "#F38BA8", "#F9E2AF", "#A6E3A1" },                -- Language has 2 tools available
+						{ "#F38BA8", "#FAB387", "#DDF7A1", "#A6E3A1" },     -- Language has 3 tools available
 						{ "#F38BA8", "#FA9D87", "#F9E2AF", "#DDF7A1", "#A6E3A1" }, -- Language has 4 tools available
 						{ "#F38BA8", "#FA8387", "#FAB387", "#F9E2AF", "#DDF7A1", "#A6E3A1" }, -- Language has 5 tools available
 					},
@@ -397,7 +397,8 @@ function config.colors()
 end
 
 function config.icons()
-	return config.options.ui.symbols.presets[config.options.ui.symbols.preset or (pcall(require, "nvim-web-devicons") and "default" or "ascii")]
+	return config.options.ui.symbols.presets
+		[config.options.ui.symbols.preset or (pcall(require, "nvim-web-devicons") and "default" or "ascii")]
 end
 
 return config
