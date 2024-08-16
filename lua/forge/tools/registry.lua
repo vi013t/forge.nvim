@@ -391,7 +391,6 @@ registry.languages = {
 			{
 				type = "plugin",
 				internal_name = "iabdelkareem/csharp.nvim",
-				description = "Development enhancements for C# in Neovim",
 				name = "C# Tools for Neovim",
 			},
 		},
@@ -434,13 +433,11 @@ registry.languages = {
 			{
 				type = "plugin",
 				internal_name = "ray-x/go.nvim",
-				description = "Everything you need to develop Go in Neovim - including preproject setup, async jobs, improved highlighting, test coverage, and more.",
 				name = "Go Tools for Neovim",
 			},
 			{
 				type = "plugin",
 				internal_name = "crusj/structure-go.nvim",
-				description = "A symbol list and outline for Go",
 				name = "Go Symbol Outline",
 			},
 		},
@@ -487,7 +484,6 @@ registry.languages = {
 			{
 				type = "plugin",
 				internal_name = "roobert/tailwindcss-colorizer-cmp.nvim",
-				description = "Tailwind CSS completion addon for nvim-cmp",
 				name = "Tailwind CSS colorizer & autocomplete",
 			},
 		},
@@ -515,13 +511,11 @@ registry.languages = {
 			{
 				type = "mason",
 				internal_name = "vscode-java-decompiler",
-				description = "Java Decompiler",
 				name = "Java Decompiler",
 			},
 			{
 				type = "plugin",
 				internal_name = "simaxme/java.nvim",
-				description = "Refactoring tools such as renaming symbols, renaming files, and moving files.",
 				name = "Java Refactorer",
 			},
 		},
@@ -620,7 +614,6 @@ registry.languages = {
 			{
 				type = "plugin",
 				internal_name = "folke/lazydev.nvim",
-				description = "Lua & Neovim development tools",
 				name = "Lazydev",
 				module = "lazydev",
 				default_config = [[
@@ -647,7 +640,6 @@ registry.languages = {
 			{
 				type = "plugin",
 				internal_name = "OXY2DEV/markview.nvim",
-				description = "In-editor markdown previewer",
 				name = "Markview",
 				module = "markview",
 				default_config = [[
@@ -665,12 +657,12 @@ registry.languages = {
 							end,
 						},
 					},
+					ft = "markdown"
 				]],
 			},
 			{
 				type = "plugin",
 				internal_name = "iamcco/markdown-preview.nvim",
-				description = "Browser markdown previewer",
 				name = "Markdown Preview",
 				module = "markdown-preview",
 				default_config = [[
@@ -693,7 +685,6 @@ registry.languages = {
 				internal_name = "jghauser/follow-md-links.nvim",
 				name = "Follow Markdown Links",
 				module = "follow-md-links",
-				default_config = [[]],
 			},
 			{
 				type = "cli",
@@ -704,7 +695,6 @@ registry.languages = {
 				type = "plugin",
 				internal_name = "davidgranstrom/nvim-markdown-preview",
 				name = "Neovim Markdown Preview",
-				default_config = [[]],
 			},
 			{
 				type = "plugin",
@@ -712,8 +702,8 @@ registry.languages = {
 				name = "Markdown Evaluator",
 				module = "mdeval",
 				default_config = [[
-						opts = {}
-					]],
+					opts = {}
+				]],
 			},
 			{
 				type = "plugin",
@@ -721,8 +711,8 @@ registry.languages = {
 				name = "FeMaCo",
 				module = "femaco",
 				default_config = [[
-						opts = {}
-					]],
+					opts = {}
+				]],
 			},
 			{
 				type = "plugin",
@@ -730,15 +720,26 @@ registry.languages = {
 				name = "Markmap",
 				module = "markmap",
 				default_config = [[
-						build = "yarn global add markmap-cli",
-						cmd = { "MarkmapOpen", "MarkmapSave", "MarkmapWatch", "MarkmapWatchStop" },
-						opts = {
-							html_output = "/tmp/markmap.html", -- (default) Setting a empty string "" here means: [Current buffer path].html
-							hide_toolbar = false, -- (default)
-							grace_period = 3600000 -- (default) Stops markmap watch after 60 minutes. Set it to 0 to disable the grace_period.
-						},
-						config = function(_, opts) require("markmap").setup(opts) end
-					]],
+					build = "yarn global add markmap-cli",
+					cmd = { "MarkmapOpen", "MarkmapSave", "MarkmapWatch", "MarkmapWatchStop" },
+					opts = {
+						html_output = "/tmp/markmap.html", -- (default) Setting a empty string "" here means: [Current buffer path].html
+						hide_toolbar = false, -- (default)
+						grace_period = 3600000 -- (default) Stops markmap watch after 60 minutes. Set it to 0 to disable the grace_period.
+					},
+				]],
+			},
+			{
+				type = "plugin",
+				internal_name = "jmbuhr/otter.nvim",
+				name = "Otter",
+				module = "otter",
+				default_config = [[
+					dependencies = {
+						"nvim-treesitter/nvim-treesitter",
+					},
+					opts = {},
+				]],
 			},
 		},
 	},
@@ -784,7 +785,6 @@ registry.languages = {
 				type = "plugin",
 				internal_name = "AckslD/swenv.nvim",
 				module = "swenv",
-				description = "Quickly switch Python virtual environments without restarting",
 				name = "Swenv",
 				default_config = "",
 			},
@@ -852,8 +852,17 @@ registry.languages = {
 			{
 				type = "plugin",
 				internal_name = "rust-lang/rust.vim",
-				description = "Up-to-date support for Rust tooling in Neovim, including integration with Syntastic, Tagbar, Playpen, and more, and enables auto-formatting with rustfmt on save without an external formatter.",
 				name = "Rust Vim Support",
+			},
+			{
+				type = "plugin",
+				internal_name = "vxpm/ferris.nvim",
+				name = "Ferris",
+			},
+			{
+				type = "plugin",
+				internal_name = "mrcjkb/rustaceanvim",
+				name = "Rustaceaneovim",
 			},
 		},
 	},
@@ -939,14 +948,12 @@ registry.languages = {
 				type = "plugin",
 				internal_name = "marilari88/twoslash-queries.nvim",
 				name = "Two Slash Queries",
-				description = "Show TypeScript types as virtual text with `// ^?` comments",
 				module = "twoslash-queries",
 			},
 			{
 				type = "plugin",
 				internal_name = "dmmulroy/ts-error-translator.nvim",
 				name = "TypeScript Error Translator",
-				description = "Translate TypeScript errors into a readable form.",
 				module = "ts-error-translator",
 			},
 		},
@@ -987,7 +994,6 @@ registry.languages = {
 			{
 				type = "plugin",
 				internal_name = "someone-stole-my-name/yaml-companion.nvim",
-				description = "Get, set and autodetect YAML schemas in your buffers.",
 				name = "YAML Companion",
 				module = "yaml-companion",
 			},
@@ -995,7 +1001,6 @@ registry.languages = {
 				type = "plugin",
 				internal_name = "cuducos/yaml.nvim",
 				name = "YAML Path Tools",
-				description = "Show, yank, search, and generate YAML paths.",
 				module = "yaml",
 			},
 		},

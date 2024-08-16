@@ -474,11 +474,11 @@ end
 --- Configure a plugin. This is called when you press "c" while the cursor line is on an additional tool
 --- of type "plugin". This will open the plugin's configuration file.
 function ui_actions.configure()
-	if ui.lines[ui.cursor_row].type == "additional_tool_listing" then
+	-- Additional tool configuration
+	if ui.lines[ui.cursor_row].type == "additional_tools_listing" then
 		local language_name = ui.lines[ui.cursor_row].language
 
 		local language = registry.get_language_by_name(language_name)
-
 		---@cast language Language
 
 		local plugin
@@ -489,12 +489,14 @@ function ui_actions.configure()
 		end
 
 		if not plugin then
-			return
+			error("Cannot find plugin: " .. ui.lines[ui.cursor_row].internal_name)
 		end
 
 		local plugin_file_path = plugins.plugin_file(plugin.module)
 		ui_actions.close_window()
 		vim.cmd("ex " .. plugin_file_path)
+
+	-- Global tool configuration
 	elseif ui.lines[ui.cursor_row].type == "global_tool_listing" then
 		local plugin_file_path = plugins.plugin_file(ui.lines[ui.cursor_row].entry.module)
 		ui_actions.close_window()
