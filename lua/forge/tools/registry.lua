@@ -18,7 +18,7 @@ local registry = {}
 ---@field default_config string
 ---@field recommended boolean
 
----@alias tool { name: string, internal_name: string }
+---@alias Tool { name: string, internal_name: string }
 ---
 ---@class Language
 ---
@@ -26,20 +26,20 @@ local registry = {}
 ---@field compiler_type? string
 ---@field packages? table<string, string>
 ---
----@field highlighters tool[]
----@field compilers tool[]
----@field formatters tool[]
----@field debuggers tool[]
----@field linters tool[]
----@field additional_tools any[]
+---@field highlighters Tool[]
+---@field compilers Tool[]
+---@field formatters Tool[]
+---@field debuggers Tool[]
+---@field linters Tool[]
+---@field additional_Tools any[]
 ---@field total? integer
 ---
 ---@field installed_highlighters? string[]
----@field installed_debuggers? tool[]
----@field installed_formatters? tool[]
----@field installed_compilers? tool[]
----@field installed_linters? tool[]
----@field installed_additional_tools? tool[]
+---@field installed_debuggers? Tool[]
+---@field installed_formatters? Tool[]
+---@field installed_compilers? Tool[]
+---@field installed_linters? Tool[]
+---@field installed_additional_tools? Tool[]
 ---@field installed_total? integer
 
 -- NOTE: when making dev changes to the registry, you'll need to delete your lockfile to see the changes.
@@ -355,8 +355,8 @@ registry.languages = {
 			{ internal_name = "cc", name = "Custom C Compiler" },
 			{ internal_name = "gcc", name = "GNU C Compiler" },
 			{ internal_name = "tcc", name = "Tiny C Compiler" },
-			{ internal_name = "zig", name = "Zig C Compiler" },
 			{ internal_name = "clang", name = "Clang Compiler" },
+			{ internal_name = "zig", name = "Zig C Compiler" },
 		},
 		formatters = {
 			{ internal_name = "clang-format", name = "Clang Format" },
