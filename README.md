@@ -12,11 +12,15 @@
 
 `Forge.nvim` provides this window in which you can install language servers, formatters, highlighters, and more with a single button press. Forge will automatically set up your LSP and related tools. The only reason you'd have to write any LSP configuration at all would be if you wanted to customize the appearance, such as changing borders or colors or icons. Otherwise, you don't have to write a single line of LSP setup.
 
-## Example Installation & Configuration
+## Requirements 
 
-Note that `Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future.
+`Forge.nvim` currently **only works with lazy.nvim**. Forge has the ability to install plugins, and currently only has this ability with `lazy.nvim`. More package managers may be supported in the future.
 
 Furthermore, **you must be using a "structured setup" for lazy.nvim. This means passing a directory name to `lazy.setup(...)`, *NOT* a table of plugins.** See [the relevant part of the `lazy.nvim` documentation](https://lazy.folke.io/usage/structuring) for more information.
+
+Additionally, if you're on Windows, you need [gsudo](https://github.com/gerardog/gsudo) or something similar that allows running commands prefixed with `sudo` as an administrator.
+
+## Example Installation & Configuration
 
 ```lua
 {
@@ -416,6 +420,8 @@ Furthermore, **you must be using a "structured setup" for lazy.nvim. This means 
 
 That's it! `Forge.nvim` will automatically handle the hassle of setting up `lspconfig`, language servers, autocomplete, autoformatting, and more. If you do choose, you can set up specific options as well; See the advanced configuration above.
 
+Other plugins can be installed through `Forge.nvim`, and they don't need to be stated in your `dependencies`; `Forge.nvim` will automatically place them in your `lazy.nvim` config when you install them through `Forge.nvim`.
+
 ## What is `Forge.nvim`?
 
 `Forge.nvim` comes with a GUI floating window with a list of over 20 programming languages. Each language can have its compiler, syntax highlighter, linter, and formatter installed through the UI with no commands or manual downloads necessary. When multiple options are available (e.g. `gcc` vs `clang` vs `zig`), the user can pick a specific one, or install the recommended automatically.
@@ -426,7 +432,7 @@ Syntax highlighters are mostly installed through `nvim-treesitter`, and linters 
 
 ## Why `Forge.nvim`?
 
-A common question might be what the purpose of making `Forge.nvim` is when tools like `mason.nvim` and `nvim-treesitter` already exist. The reality is, learning to program is overwhelming, especially in Neovim; The amount of tools available is huge and understanding how to set up and use these tools can take a long time. The purpose of `Forge.nvim` is to streamline the devtools installation and setup process. 
+A fair question might be what the purpose of making `Forge.nvim` is when tools like `mason.nvim` and `nvim-treesitter` already exist. The reality is, learning to program is overwhelming, especially in Neovim; The amount of tools available is huge and understanding how to set up and use these tools can take a long time. The purpose of `Forge.nvim` is to streamline the devtools installation and setup process. 
 
 Want to write C, but you've never installed anything before? Press one button, and all the power of the language is at your fingertips: The compiler, LSP, semantic highlighter, auto-formatter, debugger, and additional support plugins can all be installed with a single button press. 
 
@@ -449,8 +455,3 @@ Additionally, `Forge.nvim` aims to minimize LSP setup in Neovim. Most users want
 ### Themes
 
 `Forge.nvim` has a number of built-in presets for common themes, such as Catppuccin. If you'd like to add a new theme, submit an issue or a pull request adding your colors. However, note that only quite popular themes will likely be accepted. We can't add every theme under the sun, but we'd like to provide common ones that lots of people use, such as Catppuccin, Gruvbox, Neovim default, One Dark, etc.
-
-### features
-
-`Forge.nvim` likely won't receive major new features, as the core functionality of the plugin is done. Contrary to what some may think, this plugin is *not* designed to handle everything LSP related under the sun. If you have a feature request, create a new issue with the feature template.
-

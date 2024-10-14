@@ -16,8 +16,8 @@ function forge.setup(user_config)
 	lockfile.load()
 
 	highlighter.setup_highlighters() -- Set up treesitter
-	formatter.setup_formatters() -- Set up conform.nvim
-	lsp.setup_lsps() -- Set up lspconfig / mason
+	formatter.setup_formatters()  -- Set up conform.nvim
+	lsp.setup_lsps()              -- Set up lspconfig / mason
 
 	vim.api.nvim_create_user_command("Forge", function()
 		ui.open_window()

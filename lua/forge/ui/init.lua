@@ -255,12 +255,12 @@ local function write_line(option_list, is_centered)
 
 			-- Add the highlight
 			vim.api.nvim_buf_add_highlight(
-				ui.buffer, -- Buffer
-				-1, -- Namespace ID
-				highlight_group, -- Highlight group
-				line, -- Line
+				ui.buffer,         -- Buffer
+				-1,                -- Namespace ID
+				highlight_group,   -- Highlight group
+				line,              -- Line
 				#text - #options.text + shift, -- Start column
-				#text + shift -- End column
+				#text + shift      -- End column
 			)
 		end
 	end
@@ -544,19 +544,19 @@ local function draw_expanded_language(language)
 			},
 			{ text = "  " .. language.name },
 			{ text = " " .. config.icons().down_arrow, foreground = "Comment" },
-			{ text = "   (Press ", foreground = "Comment" },
-			{ text = "e", foreground = "#AAAA77" },
-			{ text = " to ", foreground = "Comment" },
-			{ text = "collapse", foreground = "#AAAA77" },
-			{ text = ", ", foreground = "Comment" },
-			{ text = "i", foreground = "#77AAAA" },
-			{ text = " to ", foreground = "Comment" },
-			{ text = "install all", foreground = "#77AAAA" },
-			{ text = ", or ", foreground = "Comment" },
-			{ text = "u", foreground = "#AA77AA" },
-			{ text = " to ", foreground = "Comment" },
-			{ text = "uninstall all", foreground = "#AA77AA" },
-			{ text = ")", foreground = "Comment" },
+			{ text = "   (Press ",                     foreground = "Comment" },
+			{ text = "e",                              foreground = "#AAAA77" },
+			{ text = " to ",                           foreground = "Comment" },
+			{ text = "collapse",                       foreground = "#AAAA77" },
+			{ text = ", ",                             foreground = "Comment" },
+			{ text = "i",                              foreground = "#77AAAA" },
+			{ text = " to ",                           foreground = "Comment" },
+			{ text = "install all",                    foreground = "#77AAAA" },
+			{ text = ", or ",                          foreground = "Comment" },
+			{ text = "u",                              foreground = "#AA77AA" },
+			{ text = " to ",                           foreground = "Comment" },
+			{ text = "uninstall all",                  foreground = "#AA77AA" },
+			{ text = ")",                              foreground = "Comment" },
 		})
 
 		-- Cursor is not on this language - no prompt
@@ -611,19 +611,19 @@ local function draw_languages()
 					},
 					{ text = "  " .. language.name },
 					{ text = " " .. config.icons().right_arrow, foreground = "Comment" },
-					{ text = "   (Press ", foreground = "Comment" },
-					{ text = "e", foreground = "#AAAA77" },
-					{ text = " to ", foreground = "Comment" },
-					{ text = "expand", foreground = "#AAAA77" },
-					{ text = ", ", foreground = "Comment" },
-					{ text = "i", foreground = "#77AAAA" },
-					{ text = " to ", foreground = "Comment" },
-					{ text = "install all", foreground = "#77AAAA" },
-					{ text = ", or ", foreground = "Comment" },
-					{ text = "u", foreground = "#AA77AA" },
-					{ text = " to ", foreground = "Comment" },
-					{ text = "uninstall all", foreground = "#AA77AA" },
-					{ text = ")", foreground = "Comment" },
+					{ text = "   (Press ",                      foreground = "Comment" },
+					{ text = "e",                               foreground = "#AAAA77" },
+					{ text = " to ",                            foreground = "Comment" },
+					{ text = "expand",                          foreground = "#AAAA77" },
+					{ text = ", ",                              foreground = "Comment" },
+					{ text = "i",                               foreground = "#77AAAA" },
+					{ text = " to ",                            foreground = "Comment" },
+					{ text = "install all",                     foreground = "#77AAAA" },
+					{ text = ", or ",                           foreground = "Comment" },
+					{ text = "u",                               foreground = "#AA77AA" },
+					{ text = " to ",                            foreground = "Comment" },
+					{ text = "uninstall all",                   foreground = "#AA77AA" },
+					{ text = ")",                               foreground = "Comment" },
 				}
 
 				if ui.current_description_lines then
@@ -665,7 +665,7 @@ local function draw_global_tools()
 		local global_tool = registry.global_tools[global_tool_key]
 		local color, icon = progress(#global_tool.entries, global_tool.installed_entries)
 		local line = table_metatable({
-			{ text = "    " .. icon .. "  ", foreground = color },
+			{ text = "    " .. icon .. "  ",                     foreground = color },
 			{ text = registry.global_tools[global_tool_key].name },
 		})
 		if ui.lines[ui.cursor_row].type == "global_tool" and ui.lines[ui.cursor_row].tool == global_tool_key then
@@ -748,51 +748,51 @@ function ui.update_view()
 	is_first_draw_call = true
 	vim.api.nvim_set_option_value("modifiable", true, { buf = ui.buffer })
 	write_line({
-		{ text = config.icons().instruction_left, foreground = config.colors().window_title },
-		{ text = " Forge ", background = config.colors().window_title, foreground = "#000000" },
+		{ text = config.icons().instruction_left,  foreground = config.colors().window_title },
+		{ text = " Forge ",                        background = config.colors().window_title, foreground = "#000000" },
 		{ text = config.icons().instruction_right, foreground = config.colors().window_title },
 	}, true)
 	write_line({ { text = "" } })
 	write_line({
 
 		-- Expand
-		{ text = config.icons().instruction_left, foreground = config.colors().instructions },
-		{ text = " Expand (e) ", background = config.colors().instructions, foreground = "#000000" },
+		{ text = config.icons().instruction_left,  foreground = config.colors().instructions },
+		{ text = " Expand (e) ",                   background = config.colors().instructions, foreground = "#000000" },
 		{ text = config.icons().instruction_right, foreground = config.colors().instructions },
 
 		{ text = "   " },
 
 		-- Install
-		{ text = config.icons().instruction_left, foreground = config.colors().instructions },
-		{ text = " Install (i) ", background = config.colors().instructions, foreground = "#000000" },
+		{ text = config.icons().instruction_left,  foreground = config.colors().instructions },
+		{ text = " Install (i) ",                  background = config.colors().instructions, foreground = "#000000" },
 		{ text = config.icons().instruction_right, foreground = config.colors().instructions },
 
 		{ text = "   " },
 
 		-- Uninstall
-		{ text = config.icons().instruction_left, foreground = config.colors().instructions },
-		{ text = " Uninstall (u) ", background = config.colors().instructions, foreground = "#000000" },
+		{ text = config.icons().instruction_left,  foreground = config.colors().instructions },
+		{ text = " Uninstall (u) ",                background = config.colors().instructions, foreground = "#000000" },
 		{ text = config.icons().instruction_right, foreground = config.colors().instructions },
 
 		{ text = "   " },
 
 		-- Configure
-		{ text = config.icons().instruction_left, foreground = config.colors().instructions },
-		{ text = " Configure (c) ", background = config.colors().instructions, foreground = "#000000" },
+		{ text = config.icons().instruction_left,  foreground = config.colors().instructions },
+		{ text = " Configure (c) ",                background = config.colors().instructions, foreground = "#000000" },
 		{ text = config.icons().instruction_right, foreground = config.colors().instructions },
 
 		{ text = "   " },
 
 		-- Refresh
-		{ text = config.icons().instruction_left, foreground = config.colors().instructions },
-		{ text = " Refresh (r) ", background = config.colors().instructions, foreground = "#000000" },
+		{ text = config.icons().instruction_left,  foreground = config.colors().instructions },
+		{ text = " Refresh (r) ",                  background = config.colors().instructions, foreground = "#000000" },
 		{ text = config.icons().instruction_right, foreground = config.colors().instructions },
 
 		{ text = "   " },
 
 		-- Quit
-		{ text = config.icons().instruction_left, foreground = config.colors().instructions },
-		{ text = " Quit (q) ", background = config.colors().instructions, foreground = "#000000" },
+		{ text = config.icons().instruction_left,  foreground = config.colors().instructions },
+		{ text = " Quit (q) ",                     background = config.colors().instructions, foreground = "#000000" },
 		{ text = config.icons().instruction_right, foreground = config.colors().instructions },
 	}, true)
 	write_line({ { text = "" } })

@@ -112,10 +112,6 @@ end
 ---@param package_name string
 function os_utils.install_package(language_name, package_name)
 	local package_manager = os_utils.get_package_manager()
-
-	-- If no package manager is found, print a message and return.
-	-- Technically we only need to check one of these for nil,
-	-- but checking both makes the LSP happy
 	if package_manager == nil then
 		print("No package manager found.")
 		return
@@ -129,7 +125,7 @@ function os_utils.install_package(language_name, package_name)
 	if vim.fn.has("win32") then
 		vim.fn.jobstart(("sudo %s"):format(package_manager.install(package_name)))
 
-	-- Unix; Standard sudo command
+		-- Unix; Standard sudo command
 	else
 		-- NOTE: this may be be a security risk, as we are passing the password to the shell, and the password can end up
 		-- stored in plain text in the shell history. We should investigate how to avoid this if possible. maybe looking
