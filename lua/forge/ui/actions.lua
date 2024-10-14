@@ -39,28 +39,23 @@ function ui_actions.toggle_install()
 
 	-- Language
 	if line.type == "language" then
-		for _, highlighter in language.highlighters do
+		os_utils.install_package(language, language.compilers[1].internal_name, language.compilers[1].name)
+		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.install_highlighter(language, highlighter.internal_name, highlighter.name)
 		end
 
 		-- Compiler
 	elseif line.type == "compiler_listing" then
-		-- Uninstall compiler
-		if os_utils.command_exists(line.internal_name) then
-			-- Install compiler
-		else
-			local package_manager = assert(os_utils.get_package_manager())
-			local name = assert(line.internal_name)
-			if language.packages and language.packages[package_manager.name] then
-				name = language.packages[package_manager.name]
-			end
+		os_utils.toggle_package(language, line.internal_name, line.name)
+		refresher.refresh_installed_totals(language)
 
-			os_utils.install_package(language.name, name)
-			table.insert(language.installed_compilers, { name = line.name, internal_name = line.internal_name })
-			refresher.refresh_installed_totals(language)
+		-- All highlighters
+	elseif line.type == "highlighter" then
+		for _, highlighter in ipairs(language.highlighters) do
+			treesitter_utils.install_highlighter(language, highlighter.internal_name, highlighter.name)
 		end
 
-		-- Highlighter
+		-- Individual Highlighter
 	elseif line.type == "highlighter_listing" then
 		treesitter_utils.toggle_highlighter(language, line.internal_name, line.name)
 

@@ -26,7 +26,7 @@ function lock.load()
 		registry.sort_languages()
 		refresher.refresh_global_tools()
 
-	-- No lockfile - Either first load or it was deleted. Locate installations and save to a new lockfile.
+		-- No lockfile - Either first load or it was deleted. Locate installations and save to a new lockfile.
 	else
 		refresher.refresh_installations()
 		lock.save()

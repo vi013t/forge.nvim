@@ -13,7 +13,7 @@ function treesitter_utils.uninstall_highlighter(language, internal_name)
 	vim.cmd(("TSUninstall %s"):format(internal_name))
 
 	local index = nil
-	for linter_index, linter in ipairs(language.installed_linters) do
+	for linter_index, linter in ipairs(language.installed_highlighters) do
 		if linter.internal_name == internal_name then
 			index = linter_index
 			break

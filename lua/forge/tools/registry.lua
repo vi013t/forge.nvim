@@ -629,6 +629,7 @@ registry.languages = {
 		name = "Markdown",
 		highlighters = {
 			{ internal_name = "markdown", name = "TreeSitter" },
+			{ internal_name = "html",     name = "TreeSitter for HTML" },
 		},
 		compilers = {},
 		linters = {

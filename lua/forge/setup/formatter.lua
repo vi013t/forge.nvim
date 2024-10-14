@@ -11,14 +11,7 @@ function formatter.setup_formatters()
 		end
 	end
 
-	-- TODO: this was crashing forge if prettier (or a different js/tx formatter) isn't installed,
-	-- but ideally we want to add these formatters to these filetypes as well
-	local additional_filetypes = {
-		--typescriptreact = { registry.languages.typescript.installed_formatters[1].internal_name },
-		--javascriptreact = { registry.languages.javascript.installed_formatters[1].internal_name },
-	}
-
-	formatters_by_ft = vim.tbl_extend("force", formatters_by_ft, additional_filetypes)
+	formatters_by_ft = vim.tbl_extend("force", formatters_by_ft, {})
 
 	-- Set up formatters
 	require("conform").setup({

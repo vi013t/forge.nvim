@@ -61,19 +61,28 @@ os_utils.package_managers = {
 	apt = {
 		name = "apt",
 		install = function(package)
-			return ("apt install %s"):format(package)
+			return ("apt -y install %s"):format(package)
+		end,
+		uninstall = function(package)
+			return ("apt -y uninstall %s"):format(package)
 		end,
 	},
 	dnf = {
 		name = "dnf",
 		install = function(package)
-			return ("dnf install %s"):format(package)
+			return ("dnf -y install %s"):format(package)
+		end,
+		uninstall = function(package)
+			return ("dnf -y uninstall %s"):format(package)
 		end,
 	},
 	brew = {
 		name = "brew",
 		install = function(package)
 			return ("brew install %s"):format(package)
+		end,
+		uninstall = function(package)
+			return ("brew uninstall %s"):format(package)
 		end,
 	},
 	choco = {
@@ -108,9 +117,7 @@ end
 
 --- Installs a package with the system's package manager. This will prompt the user for their password,
 --- and execute the package manager's install command as root.
----
----@param package_name string
-function os_utils.install_package(language_name, package_name)
+function os_utils.install_package(language, internal_name, name)
 	local package_manager = os_utils.get_package_manager()
 	if package_manager == nil then
 		print("No package manager found.")
@@ -118,6 +125,11 @@ function os_utils.install_package(language_name, package_name)
 	end
 
 	-- Install package
+
+	local package_name = assert(internal_name)
+	if language.packages and language.packages[package_manager.name] then
+		package_name = language.packages[package_manager.name]
+	end
 
 	print("Installing " .. package_name)
 
@@ -135,7 +147,7 @@ function os_utils.install_package(language_name, package_name)
 		-- In the event that `vim.fn.system` gets deprecated, we should investigate how to use `vim.system` instead.
 		local password = vim.fn.inputsecret(
 			("Enter your password to install %s (%s) with %s: "):format(
-				language_name,
+				language.name,
 				package_name,
 				package_manager.name
 			)
@@ -147,6 +159,70 @@ function os_utils.install_package(language_name, package_name)
 
 	-- TODO: if for some reason the package manager fails, we should print an error message.
 	-- this could be due to no internet connection or something.
+
+	table.insert(language.installed_compilers, { name = name, internal_name = internal_name })
+end
+
+function os_utils.uninstall_package(language, internal_name)
+	local package_manager = os_utils.get_package_manager()
+	if package_manager == nil then
+		print("No package manager found.")
+		return
+	end
+
+	local package_name = assert(internal_name)
+	if language.packages and language.packages[package_manager.name] then
+		package_name = language.packages[package_manager.name]
+	end
+
+	local index = nil
+	for compiler_index, linter in ipairs(language.installed_compilers) do
+		if linter.internal_name == internal_name then
+			index = compiler_index
+			break
+		end
+	end
+
+	-- Install package
+
+	print("Uninstalling " .. package_name)
+
+	-- Windows: Requires gsudo (or similar)
+	if vim.fn.has("win32") then
+		vim.fn.jobstart(("sudo %s"):format(package_manager.uninstall(package_name)))
+
+		-- Unix; Standard sudo command
+	else
+		-- NOTE: this may be be a security risk, as we are passing the password to the shell, and the password can end up
+		-- stored in plain text in the shell history. We should investigate how to avoid this if possible. maybe looking
+		-- at the source for vim-suda can help here... though I don't speak vimscript.
+
+		-- NOTE: currently this does not work with `vim.system`, which the docs say is preferred over `vim.fn.system`.
+		-- In the event that `vim.fn.system` gets deprecated, we should investigate how to use `vim.system` instead.
+		local password = vim.fn.inputsecret(
+			("Enter your password to install %s (%s) with %s: "):format(
+				language.name,
+				package_name,
+				package_manager.name
+			)
+		)
+		vim.fn.jobstart(("echo %s | sudo -S %s"):format(password, package_manager.uninstall(package_name)))
+	end
+
+	print("Uninstalled " .. package_name .. " with " .. package_manager.name .. ".")
+
+	-- TODO: if for some reason the package manager fails, we should print an error message.
+	-- this could be due to no internet connection or something.
+
+	table.remove(language.installed_compilers, index)
+end
+
+function os_utils.toggle_package(language, internal_name, name)
+	if os_utils.command_exists(internal_name) then
+		os_utils.uninstall_package(language, internal_name)
+	else
+		os_utils.install_package(language, internal_name, name)
+	end
 end
 
 return os_utils
