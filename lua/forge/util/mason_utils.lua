@@ -14,6 +14,10 @@ function mason_utils.package_is_installed(package_name)
 	return false
 end
 
+---@param language Language
+---@param internal_name string
+---@param name string
+---@param type string
 function mason_utils.install_package(language, internal_name, name, type)
 	print("Installing " .. internal_name .. "...")
 	vim.cmd(("MasonInstall %s"):format(internal_name))
@@ -49,6 +53,9 @@ function mason_utils.install_package(language, internal_name, name, type)
 	ui.cursor_row = index
 end
 
+---@param language Language
+---@param internal_name string
+---@param type string
 function mason_utils.uninstall_package(language, internal_name, type)
 	print("Uninstalling " .. internal_name .. "...")
 	vim.cmd(("MasonUninstall %s"):format(internal_name))

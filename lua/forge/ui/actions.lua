@@ -43,42 +43,104 @@ function ui_actions.install()
 		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.install_highlighter(language, highlighter.internal_name, highlighter.name)
 		end
+		for _, linter in ipairs(language.linters) do
+			mason_utils.install_package(language, linter.internal_name, linter.name, "linter")
+		end
+		for _, formatter in ipairs(language.formatters) do
+			mason_utils.install_package(language, formatter.internal_name, formatter.name, "formatter")
+		end
+		for _, debugger in ipairs(language.debuggers) do
+			mason_utils.install_package(language, debugger.internal_name, debugger.name, "debugger")
+		end
+		for _, additional_tool in ipairs(language.additional_tools) do
+			if additional_tool.recommended then
+				lazy_utils.install_plugin(language, additional_tool.internal_name)
+			end
+		end
+		refresher.refresh_installed_totals(language)
 
-		-- Compiler
+	-- All compilers
+	elseif line.type == "compiler" then
+		for _, compiler in ipairs(language.compilers) do
+			os_utils.install_package(language, compiler.internal_name)
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Compiler
 	elseif line.type == "compiler_listing" then
 		os_utils.install_package(language, line.internal_name, line.name)
 		refresher.refresh_installed_totals(language)
 
-		-- All highlighters
+	-- All highlighters
 	elseif line.type == "highlighter" then
 		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.install_highlighter(language, highlighter.internal_name, highlighter.name)
 		end
+		refresher.refresh_installed_totals(language)
 
-		-- Individual Highlighter
+	-- Individual Highlighter
 	elseif line.type == "highlighter_listing" then
 		treesitter_utils.install_highlighter(language, line.internal_name, line.name)
+		refresher.refresh_installed_totals(language)
 
-		-- Linter
+	-- All linters
+	elseif line.type == "linter" then
+		for _, linter in ipairs(language.linters) do
+			mason_utils.install_package(language, linter.internal_name, linter.name, "linter")
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Linter
 	elseif line.type == "linter_listing" then
 		mason_utils.install_package(language, line.internal_name, line.name, "linter")
+		refresher.refresh_installed_totals(language)
 
-		-- Formatter
+	-- All formatters
+	elseif line.type == "formatter" then
+		for _, formatter in ipairs(language.formatters) do
+			mason_utils.install_package(language, formatter.internal_name, formatter.name, "formatter")
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Formatter
 	elseif line.type == "formatter_listing" then
 		mason_utils.install_package(language, line.internal_name, line.name, "formatter")
+		refresher.refresh_installed_totals(language)
 
-		-- Debugger
+	-- All debuggers
+	elseif line.type == "debugger" then
+		for _, debugger in ipairs(language.debuggers) do
+			mason_utils.install_package(language, debugger.internal_name, debugger.name, "debugger")
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Debugger
 	elseif line.type == "debugger_listing" then
 		mason_utils.install_package(language, line.internal_name, line.name, "debugger")
+		refresher.refresh_installed_totals(language)
 
-		-- Additional Tools
+	-- All additional tools
+	elseif line.type == "additional_tools" then
+		for _, additional_tool in ipairs(language.additional_tools) do
+			mason_utils.install_package(
+				language,
+				additional_tool.internal_name,
+				additional_tool.name,
+				"additional_tool"
+			)
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Additional Tools
 	elseif line.type == "additional_tools_listing" then
 		lazy_utils.install_plugin(language, line.internal_name)
+		refresher.refresh_installed_totals(language)
 
-		-- Global Tools
+	-- Global Tools
 	elseif line.type == "global_tool_listing" then
 		line.entry.is_installed = true
 		plugins.install(line.entry.module, line.entry.internal_name, line.entry.default_config)
+		refresher.refresh_installed_totals(language)
 	end
 
 	registry.sort_languages()
@@ -106,42 +168,97 @@ function ui_actions.uninstall()
 		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.uninstall_highlighter(language, highlighter.internal_name)
 		end
+		for _, linter in ipairs(language.linters) do
+			mason_utils.uninstall_package(language, linter.internal_name, "linter")
+		end
+		for _, formatter in ipairs(language.formatters) do
+			mason_utils.uninstall_package(language, formatter.internal_name, "formatter")
+		end
+		for _, debugger in ipairs(language.debuggers) do
+			mason_utils.uninstall_package(language, debugger.internal_name, "debugger")
+		end
+		for _, additional_tool in ipairs(language.additional_tools) do
+			lazy_utils.uninstall_plugin(language, additional_tool.internal_name)
+		end
+		refresher.refresh_installed_totals(language)
 
-		-- Compiler
+	-- All compilers
+	elseif line.type == "compiler" then
+		for _, compiler in ipairs(language.compilers) do
+			os_utils.uninstall_package(language, compiler.internal_name)
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Compiler
 	elseif line.type == "compiler_listing" then
 		os_utils.uninstall_package(language, line.internal_name)
 		refresher.refresh_installed_totals(language)
 
-		-- All highlighters
+	-- All highlighters
 	elseif line.type == "highlighter" then
 		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.uninstall_highlighter(language, highlighter.internal_name)
 		end
+		refresher.refresh_installed_totals(language)
 
-		-- Individual Highlighter
+	-- Individual Highlighter
 	elseif line.type == "highlighter_listing" then
-		treesitter_utils.install_highlighter(language, line.internal_name, line.name)
+		treesitter_utils.uninstall_highlighter(language, line.internal_name)
+		refresher.refresh_installed_totals(language)
 
-		-- Linter
+	-- All linters
+	elseif line.type == "linter" then
+		for _, linter in ipairs(language.linters) do
+			mason_utils.uninstall_package(language, linter.internal_name, "linter")
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Linter
 	elseif line.type == "linter_listing" then
 		mason_utils.uninstall_package(language, line.internal_name, "linter")
+		refresher.refresh_installed_totals(language)
 
-		-- Formatter
+	-- All formatters
+	elseif line.type == "formatter" then
+		for _, formatter in ipairs(language.formatters) do
+			mason_utils.uninstall_package(language, formatter.internal_name, "formatter")
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Formatter
 	elseif line.type == "formatter_listing" then
 		mason_utils.uninstall_package(language, line.internal_name, "formatter")
+		refresher.refresh_installed_totals(language)
 
-		-- Debugger
+	-- All debuggers
+	elseif line.type == "debugger" then
+		for _, debugger in ipairs(language.debuggers) do
+			mason_utils.uninstall_package(language, debugger.internal_name, "debugger")
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Debugger
 	elseif line.type == "debugger_listing" then
 		mason_utils.uninstall_package(language, line.internal_name, "debugger")
+		refresher.refresh_installed_totals(language)
 
-		-- Additional Tools
+	-- Additional Tools
 	elseif line.type == "additional_tools_listing" then
 		lazy_utils.uninstall_plugin(language, line.internal_name)
+		refresher.refresh_installed_totals(language)
 
-		-- Global Tools
+	-- All addtional tools
+	elseif line.type == "additional_tools" then
+		for _, additional_tool in ipairs(language.additional_tools) do
+			lazy_utils.uninstall_plugin(language, additional_tool.internal_name)
+		end
+		refresher.refresh_installed_totals(language)
+
+	-- Global Tools
 	elseif line.type == "global_tool_listing" then
 		line.entry.is_installed = false
 		plugins.uninstall(line.entry.module, line.entry.internal_name)
+		refresher.refresh_installed_totals(language)
 	end
 
 	registry.sort_languages()

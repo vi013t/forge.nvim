@@ -40,6 +40,7 @@ end
 ---@class PackageManager
 ---@field install function
 ---@field name string
+---@field uninstall function
 
 ---@type table<string, PackageManager>
 os_utils.package_managers = {
@@ -137,14 +138,8 @@ function os_utils.install_package(language, internal_name, name)
 	if vim.fn.has("win32") then
 		vim.fn.jobstart(("sudo %s"):format(package_manager.install(package_name)))
 
-		-- Unix; Standard sudo command
+	-- Unix; Standard sudo command
 	else
-		-- NOTE: this may be be a security risk, as we are passing the password to the shell, and the password can end up
-		-- stored in plain text in the shell history. We should investigate how to avoid this if possible. maybe looking
-		-- at the source for vim-suda can help here... though I don't speak vimscript.
-
-		-- NOTE: currently this does not work with `vim.system`, which the docs say is preferred over `vim.fn.system`.
-		-- In the event that `vim.fn.system` gets deprecated, we should investigate how to use `vim.system` instead.
 		local password = vim.fn.inputsecret(
 			("Enter your password to install %s (%s) with %s: "):format(
 				language.name,
@@ -156,9 +151,6 @@ function os_utils.install_package(language, internal_name, name)
 	end
 
 	print("Installed " .. package_name .. " with " .. package_manager.name .. ".")
-
-	-- TODO: if for some reason the package manager fails, we should print an error message.
-	-- this could be due to no internet connection or something.
 
 	table.insert(language.installed_compilers, { name = name, internal_name = internal_name })
 end
@@ -191,16 +183,10 @@ function os_utils.uninstall_package(language, internal_name)
 	if vim.fn.has("win32") then
 		vim.fn.jobstart(("sudo %s"):format(package_manager.uninstall(package_name)))
 
-		-- Unix; Standard sudo command
+	-- Unix; Standard sudo command
 	else
-		-- NOTE: this may be be a security risk, as we are passing the password to the shell, and the password can end up
-		-- stored in plain text in the shell history. We should investigate how to avoid this if possible. maybe looking
-		-- at the source for vim-suda can help here... though I don't speak vimscript.
-
-		-- NOTE: currently this does not work with `vim.system`, which the docs say is preferred over `vim.fn.system`.
-		-- In the event that `vim.fn.system` gets deprecated, we should investigate how to use `vim.system` instead.
 		local password = vim.fn.inputsecret(
-			("Enter your password to install %s (%s) with %s: "):format(
+			("Enter your password to uninstall %s (%s) with %s: "):format(
 				language.name,
 				package_name,
 				package_manager.name
@@ -210,9 +196,6 @@ function os_utils.uninstall_package(language, internal_name)
 	end
 
 	print("Uninstalled " .. package_name .. " with " .. package_manager.name .. ".")
-
-	-- TODO: if for some reason the package manager fails, we should print an error message.
-	-- this could be due to no internet connection or something.
 
 	table.remove(language.installed_compilers, index)
 end
