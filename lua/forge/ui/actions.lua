@@ -25,6 +25,9 @@ function ui_actions.close_window()
 	vim.api.nvim_win_close(ui.window, true)
 end
 
+--- Installs whatever is on the line that the cursor is on in the Forge window.
+---
+---@return nil
 function ui_actions.install()
 	local line = ui.lines[ui.cursor_row]
 
@@ -57,67 +60,56 @@ function ui_actions.install()
 				lazy_utils.install_plugin(language, additional_tool.internal_name)
 			end
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- All compilers
 	elseif line.type == "compiler" then
 		for _, compiler in ipairs(language.compilers) do
 			os_utils.install_package(language, compiler.internal_name)
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Compiler
 	elseif line.type == "compiler_listing" then
 		os_utils.install_package(language, line.internal_name, line.name)
-		refresher.refresh_installed_totals(language)
 
 	-- All highlighters
 	elseif line.type == "highlighter" then
 		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.install_highlighter(language, highlighter.internal_name, highlighter.name)
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Individual Highlighter
 	elseif line.type == "highlighter_listing" then
 		treesitter_utils.install_highlighter(language, line.internal_name, line.name)
-		refresher.refresh_installed_totals(language)
 
 	-- All linters
 	elseif line.type == "linter" then
 		for _, linter in ipairs(language.linters) do
 			mason_utils.install_package(language, linter.internal_name, linter.name, "linter")
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Linter
 	elseif line.type == "linter_listing" then
 		mason_utils.install_package(language, line.internal_name, line.name, "linter")
-		refresher.refresh_installed_totals(language)
 
 	-- All formatters
 	elseif line.type == "formatter" then
 		for _, formatter in ipairs(language.formatters) do
 			mason_utils.install_package(language, formatter.internal_name, formatter.name, "formatter")
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Formatter
 	elseif line.type == "formatter_listing" then
 		mason_utils.install_package(language, line.internal_name, line.name, "formatter")
-		refresher.refresh_installed_totals(language)
 
 	-- All debuggers
 	elseif line.type == "debugger" then
 		for _, debugger in ipairs(language.debuggers) do
 			mason_utils.install_package(language, debugger.internal_name, debugger.name, "debugger")
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Debugger
 	elseif line.type == "debugger_listing" then
 		mason_utils.install_package(language, line.internal_name, line.name, "debugger")
-		refresher.refresh_installed_totals(language)
 
 	-- All additional tools
 	elseif line.type == "additional_tools" then
@@ -129,20 +121,18 @@ function ui_actions.install()
 				"additional_tool"
 			)
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Additional Tools
 	elseif line.type == "additional_tools_listing" then
 		lazy_utils.install_plugin(language, line.internal_name)
-		refresher.refresh_installed_totals(language)
 
 	-- Global Tools
 	elseif line.type == "global_tool_listing" then
 		line.entry.is_installed = true
 		plugins.install(line.entry.module, line.entry.internal_name, line.entry.default_config)
-		refresher.refresh_installed_totals(language)
 	end
 
+	refresher.refresh_installed_totals(language)
 	registry.sort_languages()
 	ui.reset_lines()
 	ui.update_view()
@@ -150,6 +140,9 @@ function ui_actions.install()
 	lock.save()
 end
 
+--- Uninstalls whatever is on the line that the cursor is on in the Forge window.
+---
+---@return nil
 function ui_actions.uninstall()
 	local line = ui.lines[ui.cursor_row]
 
@@ -180,87 +173,74 @@ function ui_actions.uninstall()
 		for _, additional_tool in ipairs(language.additional_tools) do
 			lazy_utils.uninstall_plugin(language, additional_tool.internal_name)
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- All compilers
 	elseif line.type == "compiler" then
 		for _, compiler in ipairs(language.compilers) do
 			os_utils.uninstall_package(language, compiler.internal_name)
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Compiler
 	elseif line.type == "compiler_listing" then
 		os_utils.uninstall_package(language, line.internal_name)
-		refresher.refresh_installed_totals(language)
 
 	-- All highlighters
 	elseif line.type == "highlighter" then
 		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.uninstall_highlighter(language, highlighter.internal_name)
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Individual Highlighter
 	elseif line.type == "highlighter_listing" then
 		treesitter_utils.uninstall_highlighter(language, line.internal_name)
-		refresher.refresh_installed_totals(language)
 
 	-- All linters
 	elseif line.type == "linter" then
 		for _, linter in ipairs(language.linters) do
 			mason_utils.uninstall_package(language, linter.internal_name, "linter")
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Linter
 	elseif line.type == "linter_listing" then
 		mason_utils.uninstall_package(language, line.internal_name, "linter")
-		refresher.refresh_installed_totals(language)
 
 	-- All formatters
 	elseif line.type == "formatter" then
 		for _, formatter in ipairs(language.formatters) do
 			mason_utils.uninstall_package(language, formatter.internal_name, "formatter")
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Formatter
 	elseif line.type == "formatter_listing" then
 		mason_utils.uninstall_package(language, line.internal_name, "formatter")
-		refresher.refresh_installed_totals(language)
 
 	-- All debuggers
 	elseif line.type == "debugger" then
 		for _, debugger in ipairs(language.debuggers) do
 			mason_utils.uninstall_package(language, debugger.internal_name, "debugger")
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Debugger
 	elseif line.type == "debugger_listing" then
 		mason_utils.uninstall_package(language, line.internal_name, "debugger")
-		refresher.refresh_installed_totals(language)
 
 	-- Additional Tools
 	elseif line.type == "additional_tools_listing" then
 		lazy_utils.uninstall_plugin(language, line.internal_name)
-		refresher.refresh_installed_totals(language)
 
 	-- All addtional tools
 	elseif line.type == "additional_tools" then
 		for _, additional_tool in ipairs(language.additional_tools) do
 			lazy_utils.uninstall_plugin(language, additional_tool.internal_name)
 		end
-		refresher.refresh_installed_totals(language)
 
 	-- Global Tools
 	elseif line.type == "global_tool_listing" then
 		line.entry.is_installed = false
 		plugins.uninstall(line.entry.module, line.entry.internal_name)
-		refresher.refresh_installed_totals(language)
 	end
 
+	refresher.refresh_installed_totals(language)
 	registry.sort_languages()
 	ui.reset_lines()
 	ui.update_view()
@@ -398,6 +378,17 @@ function ui_actions.configure()
 		local plugin_file_path = plugins.plugin_file(ui.lines[ui.cursor_row].entry.module)
 		ui_actions.close_window()
 		vim.cmd("ex " .. plugin_file_path)
+	end
+end
+
+function ui_actions.pin()
+	if ui.lines[ui.cursor_row].type == "language" then
+		local language = assert(registry.get_language_by_name(ui.get_language_under_cursor()))
+		language.pinned = not language.pinned
+		lock.save()
+		registry.sort_languages()
+		ui.reset_lines()
+		ui.update_view()
 	end
 end
 

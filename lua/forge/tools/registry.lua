@@ -25,6 +25,7 @@ local registry = {}
 ---@field name string
 ---@field compiler_type? string
 ---@field packages? table<string, string>
+---@field pinned? boolean
 ---
 ---@field highlighters Tool[]
 ---@field compilers Tool[]
@@ -1079,16 +1080,26 @@ end
 --- @return nil
 function registry.sort_languages()
 	registry.language_keys:sort(function(first, second)
+		-- If one of them is pinned, that one comes first
+		if registry.languages[first].pinned and not registry.languages[second].pinned then
+			return true
+		end
+		if registry.languages[second].pinned and not registry.languages[first].pinned then
+			return false
+		end
+
+		-- Otherwise, we put the one with the greater percent installed first
 		local first_percent =
 			math.floor(100 * ((registry.languages[first].installed_total - 1) / (registry.languages[first].total - 1)))
 		local second_percent = math.floor(
 			100 * ((registry.languages[second].installed_total - 1) / (registry.languages[second].total - 1))
 		)
-
 		if first_percent > second_percent then
 			return true
 		elseif first_percent < second_percent then
 			return false
+
+		-- If they're the same, we sort them alphabetically
 		else
 			return registry.languages[first].name:lower() < registry.languages[second].name:lower()
 		end

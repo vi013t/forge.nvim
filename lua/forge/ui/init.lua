@@ -27,14 +27,14 @@ end
 ---@alias line_type "language" | "compiler"
 
 ---@type { type: line_type, language: string, name?: string, internal_name?: string, tool?: string, entry?: GlobalToolEntry }[]
-ui.lines = table_metatable({ {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }) -- 10 lines before the first language
+ui.lines = table_metatable({ {}, {}, {}, {}, {} }) -- 10 lines before the first language
 
 ---@type number | nil
 ui.refresh_percentage = nil
 
 -- Resets the lines list
 function ui.reset_lines()
-	ui.lines = table_metatable({ {}, {}, {}, {}, {} }) -- 5 lines before the first language
+	ui.lines = table_metatable({ {}, {}, {}, {}, {} }) -- 5 lines before the first global tool
 
 	-- Global Tools
 	for _, global_tool_key in ipairs(registry.global_tool_keys) do
@@ -537,31 +537,40 @@ end
 local function draw_expanded_language(language)
 	-- Cursor is on this language - add prompt
 	if language.name == ui.get_language_under_cursor() then
-		write_line({
+		local write_buffer = table_metatable({
 			{
 				text = "    " .. config.icons().progress[language.total][language.installed_total],
 				foreground = config.colors().progress[language.total][language.installed_total],
 			},
 			{ text = "  " .. language.name },
 			{ text = " " .. config.icons().down_arrow, foreground = "Comment" },
-			{ text = "   (Press ", foreground = "Comment" },
-			{ text = "e", foreground = "#AAAA77" },
-			{ text = " to ", foreground = "Comment" },
-			{ text = "collapse", foreground = "#AAAA77" },
-			{ text = ", ", foreground = "Comment" },
-			{ text = "i", foreground = "#77AAAA" },
-			{ text = " to ", foreground = "Comment" },
-			{ text = "install all", foreground = "#77AAAA" },
-			{ text = ", or ", foreground = "Comment" },
-			{ text = "u", foreground = "#AA77AA" },
-			{ text = " to ", foreground = "Comment" },
-			{ text = "uninstall all", foreground = "#AA77AA" },
-			{ text = ")", foreground = "Comment" },
 		})
+		if language.pinned then
+			table.insert(write_buffer, { text = " ", foreground = "#AA99FF" })
+		end
+		write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
+		write_buffer:insert({ text = "e", foreground = "#AAAA77" })
+		write_buffer:insert({ text = " to ", foreground = "Comment" })
+		write_buffer:insert({ text = "collapse", foreground = "#AAAA77" })
+		write_buffer:insert({ text = ", ", foreground = "Comment" })
+		write_buffer:insert({ text = "p", foreground = "#77AA77" })
+		write_buffer:insert({ text = " to ", foreground = "Comment" })
+		write_buffer:insert({ text = "pin", foreground = "#77AA77" })
+		write_buffer:insert({ text = ", ", foreground = "Comment" })
+		write_buffer:insert({ text = "i", foreground = "#77AAAA" })
+		write_buffer:insert({ text = " to ", foreground = "Comment" })
+		write_buffer:insert({ text = "install all", foreground = "#77AAAA" })
+		write_buffer:insert({ text = ", or ", foreground = "Comment" })
+		write_buffer:insert({ text = "u", foreground = "#AA77AA" })
+		write_buffer:insert({ text = " to ", foreground = "Comment" })
+		write_buffer:insert({ text = "uninstall all", foreground = "#AA77AA" })
+		write_buffer:insert({ text = ")", foreground = "Comment" })
+
+		write_line(write_buffer)
 
 		-- Cursor is not on this language - no prompt
 	else
-		write_line({
+		local write_buffer = {
 			{ text = "    " },
 			{
 				text = config.icons().progress[language.total][language.installed_total],
@@ -570,7 +579,13 @@ local function draw_expanded_language(language)
 			{ text = "  " },
 			{ text = language.name },
 			{ text = " " .. config.icons().down_arrow, foreground = "Comment" },
-		})
+		}
+
+		if language.pinned then
+			table.insert(write_buffer, { text = " ", foreground = "#AA99FF" })
+		end
+
+		write_line(write_buffer)
 	end
 end
 
@@ -604,38 +619,34 @@ local function draw_languages()
 			draw_tool(language, "additional_tools")
 		else
 			if language.name == ui.get_language_under_cursor() then
-				local line_after_language = {
-					{
-						text = "    " .. config.icons().progress[language.total][language.installed_total],
-						foreground = config.colors().progress[language.total][language.installed_total],
-					},
-					{ text = "  " .. language.name },
-					{ text = " " .. config.icons().right_arrow, foreground = "Comment" },
-					{ text = "   (Press ", foreground = "Comment" },
-					{ text = "e", foreground = "#AAAA77" },
-					{ text = " to ", foreground = "Comment" },
-					{ text = "expand", foreground = "#AAAA77" },
-					{ text = ", ", foreground = "Comment" },
-					{ text = "i", foreground = "#77AAAA" },
-					{ text = " to ", foreground = "Comment" },
-					{ text = "install all", foreground = "#77AAAA" },
-					{ text = ", or ", foreground = "Comment" },
-					{ text = "u", foreground = "#AA77AA" },
-					{ text = " to ", foreground = "Comment" },
-					{ text = "uninstall all", foreground = "#AA77AA" },
-					{ text = ")", foreground = "Comment" },
-				}
+				local line_after_language = table_metatable({})
 
-				if ui.current_description_lines then
-					local description_line_index = language_index - 2
-					if ui.current_description_lines[description_line_index] then
-						local offset = -language.name:len() + 27
-						table.insert(
-							line_after_language,
-							{ text = (" "):rep(offset) .. ui.current_description_lines[description_line_index] }
-						)
-					end
+				line_after_language:insert({
+					text = "    " .. config.icons().progress[language.total][language.installed_total],
+					foreground = config.colors().progress[language.total][language.installed_total],
+				})
+				line_after_language:insert({ text = "  " .. language.name })
+				line_after_language:insert({ text = " " .. config.icons().right_arrow, foreground = "Comment" })
+				if language.pinned then
+					table.insert(line_after_language, { text = " ", foreground = "#AA99FF" })
 				end
+				line_after_language:insert({ text = "   (Press ", foreground = "Comment" })
+				line_after_language:insert({ text = "e", foreground = "#AAAA77" })
+				line_after_language:insert({ text = " to ", foreground = "Comment" })
+				line_after_language:insert({ text = "expand", foreground = "#AAAA77" })
+				line_after_language:insert({ text = ", ", foreground = "Comment" })
+				line_after_language:insert({ text = "p", foreground = "#77AA77" })
+				line_after_language:insert({ text = " to ", foreground = "Comment" })
+				line_after_language:insert({ text = "pin", foreground = "#77AA77" })
+				line_after_language:insert({ text = ", ", foreground = "Comment" })
+				line_after_language:insert({ text = "i", foreground = "#77AAAA" })
+				line_after_language:insert({ text = " to ", foreground = "Comment" })
+				line_after_language:insert({ text = "install all", foreground = "#77AAAA" })
+				line_after_language:insert({ text = ", or ", foreground = "Comment" })
+				line_after_language:insert({ text = "u", foreground = "#AA77AA" })
+				line_after_language:insert({ text = " to ", foreground = "Comment" })
+				line_after_language:insert({ text = "uninstall all", foreground = "#AA77AA" })
+				line_after_language:insert({ text = ")", foreground = "Comment" })
 
 				write_line(line_after_language)
 			else
@@ -650,6 +661,10 @@ local function draw_languages()
 					{ text = language.name },
 					{ text = " " .. config.icons().right_arrow, foreground = "Comment" },
 				}
+
+				if language.pinned then
+					table.insert(post_line, { text = " ", foreground = "#AA99FF" })
+				end
 
 				write_line(post_line)
 			end
@@ -673,6 +688,10 @@ local function draw_global_tools()
 			line:insert({ text = "e", foreground = "#AAAA77" })
 			line:insert({ text = " to ", foreground = "Comment" })
 			line:insert({ text = "expand", foreground = "#AAAA77" })
+			line:insert({ text = ", ", foreground = "Comment" })
+			line:insert({ text = "p", foreground = "#77AA77" })
+			line:insert({ text = " to ", foreground = "Comment" })
+			line:insert({ text = "pin", foreground = "#77AA77" })
 			line:insert({ text = ", ", foreground = "Comment" })
 			line:insert({ text = "i", foreground = "#77AAAA" })
 			line:insert({ text = " to ", foreground = "Comment" })
@@ -717,6 +736,11 @@ local function draw_global_tools()
 						write_buffer:insert({ text = "u", foreground = "#AA77AA" })
 						write_buffer:insert({ text = " to ", foreground = "Comment" })
 						write_buffer:insert({ text = "uninstall", foreground = "#AA77AA" })
+						write_buffer:insert({ text = ", ", foreground = "Comment" })
+						write_buffer:insert({ text = "p", foreground = "#77AA77" })
+						write_buffer:insert({ text = " to ", foreground = "Comment" })
+						write_buffer:insert({ text = "pin", foreground = "#77AA77" })
+						write_buffer:insert({ text = ", ", foreground = "Comment" })
 						write_buffer:insert({ text = " or ", foreground = "Comment" })
 						write_buffer:insert({ text = "c", foreground = "#AA7777" })
 						write_buffer:insert({ text = " to ", foreground = "Comment" })
@@ -727,6 +751,10 @@ local function draw_global_tools()
 						write_buffer:insert({ text = "i", foreground = "#77AAAA" })
 						write_buffer:insert({ text = " to ", foreground = "Comment" })
 						write_buffer:insert({ text = "install", foreground = "#77AAAA" })
+						write_buffer:insert({ text = " or ", foreground = "Comment" })
+						write_buffer:insert({ text = "p", foreground = "#77AA77" })
+						write_buffer:insert({ text = " to ", foreground = "Comment" })
+						write_buffer:insert({ text = "pin", foreground = "#77AA77" })
 						write_buffer:insert({ text = ")", foreground = "Comment" })
 					end
 				end
@@ -772,6 +800,13 @@ function ui.update_view()
 		-- Uninstall
 		{ text = config.icons().instruction_left, foreground = config.colors().instructions },
 		{ text = " Uninstall (u) ", background = config.colors().instructions, foreground = "#000000" },
+		{ text = config.icons().instruction_right, foreground = config.colors().instructions },
+
+		{ text = "   " },
+
+		-- Pin
+		{ text = config.icons().instruction_left, foreground = config.colors().instructions },
+		{ text = " Pin (p) ", background = config.colors().instructions, foreground = "#000000" },
 		{ text = config.icons().instruction_right, foreground = config.colors().instructions },
 
 		{ text = "   " },
