@@ -188,12 +188,6 @@ registry.global_tools = {
 					opts = {}
 				]],
 			},
-			{
-				name = "Language Server Status Bar Components",
-				internal_name = "nvim-lua/lsp-status.nvim",
-				module = "lsp-status",
-				recommended = false,
-			},
 		},
 	},
 	mouse_support = {
@@ -204,6 +198,12 @@ registry.global_tools = {
 				internal_name = "soulis-1256/eagle.nvim",
 				recommended = true,
 				module = "eagle",
+				default_config = [[
+					config = function()
+						require("eagle").setup({})
+						vim.opt.mousemoveevent = true
+					end
+				]],
 			},
 		},
 	},
@@ -216,50 +216,67 @@ registry.global_tools = {
 				recommended = true,
 				module = "luasnip",
 				default_config = [[
-					event = "InsertEnter"
+					event = "InsertEnter",
+					build = "make install_jsregexp"
 				]],
 			},
 			{
 				name = "Snippets",
 				internal_name = "norcalli/snippets.nvim",
 				recommended = false,
-				module = "snippsets",
+				module = "snippets",
+				default_config = [[
+					event = "InsertEnter",
+				]],
 			},
 			{
 				name = "Snippy",
 				internal_name = "dcampos/nvim-snippy",
 				recommended = false,
 				module = "snippy",
-			},
-			{
-				name = "Ray So Snippets",
-				internal_name = "TobinPalmer/rayso.nvim",
-				recommended = false,
-				module = "rayso",
+				default_config = [[
+					event = "InsertEnter",
+					opts = {}
+				]],
 			},
 			{
 				name = "Friendly Snippets",
 				internal_name = "rafamadriz/friendly-snippets",
 				recommended = false,
 				module = "friendly-snippets",
+				default_config = [[
+					event = "InsertEnter",
+				]],
 			},
 			{
 				name = "Scissors",
 				internal_name = "chrisgrieser/nvim-scissors",
 				recommended = false,
 				module = "scissors",
+				default_config = [[
+					event = "InsertEnter",
+					opts = {}
+				]],
 			},
 			{
 				name = "Tesoura",
 				internal_name = "guilherme-puida/tesoura.nvim",
 				recommended = false,
 				module = "tesoura",
+				default_config = [[
+					event = "InsertEnter",
+					opts = {}
+				]],
 			},
 			{
 				name = "Snippet Converter",
 				internal_name = "smjonas/snippet-converter.nvim",
 				recommended = false,
 				module = "snippet-converter",
+				default_config = [[
+					event = "InsertEnter",
+					opts = {}
+				]],
 			},
 		},
 	},
@@ -271,24 +288,38 @@ registry.global_tools = {
 				internal_name = "kosayoda/nvim-lightbulb",
 				recommended = true,
 				module = "nvim-lightbulb",
+				default_config = [[
+					opts = {
+						autocmd = { enabled = true }
+					}
+				]],
 			},
 			{
 				name = "Actions Preview",
 				internal_name = "aznhe21/actions-preview.nvim",
 				recommended = false,
 				module = "actions-preview",
-			},
-			{
-				name = "Clear Action",
-				internal_name = "luckasRanarison/clear-action.nvim",
-				recommended = true,
-				module = "clear-action",
+				default_config = [[
+					config = function()
+						vim.keymap.set({ "v", "n" }, "gf", require("actions-preview").code_actions)
+					end,
+				]],
 			},
 			{
 				name = "Tiny Code Action",
 				internal_name = "rachartier/tiny-code-action.nvim",
 				recommended = false,
 				module = "tiny-code-action",
+				default_config = [[
+					dependencies = {
+						{"nvim-lua/plenary.nvim"},
+						{"nvim-telescope/telescope.nvim"},
+					},
+					event = "LspAttach",
+					config = function()
+						require('tiny-code-action').setup()
+					end
+				]],
 			},
 		},
 	},
@@ -328,11 +359,11 @@ registry.languages = {
 			{ internal_name = "c", name = "TreeSitter" },
 		},
 		compilers = {
-			{ internal_name = "cc",    name = "Custom C Compiler" },
+			{ internal_name = "cc", name = "Custom C Compiler" },
 			{ internal_name = "clang", name = "Clang Compiler" },
-			{ internal_name = "gcc",   name = "GNU C Compiler" },
-			{ internal_name = "tcc",   name = "Tiny C Compiler" },
-			{ internal_name = "zig",   name = "Zig C Compiler" },
+			{ internal_name = "gcc", name = "GNU C Compiler" },
+			{ internal_name = "tcc", name = "Tiny C Compiler" },
+			{ internal_name = "zig", name = "Zig C Compiler" },
 		},
 		formatters = {
 			{ internal_name = "clang-format", name = "Clang Format" },
@@ -352,17 +383,17 @@ registry.languages = {
 			{ internal_name = "cpp", name = "TreeSitter" },
 		},
 		compilers = {
-			{ internal_name = "cc",    name = "Custom C Compiler" },
-			{ internal_name = "gcc",   name = "GNU C Compiler" },
-			{ internal_name = "tcc",   name = "Tiny C Compiler" },
+			{ internal_name = "cc", name = "Custom C Compiler" },
+			{ internal_name = "gcc", name = "GNU C Compiler" },
+			{ internal_name = "tcc", name = "Tiny C Compiler" },
 			{ internal_name = "clang", name = "Clang Compiler" },
-			{ internal_name = "zig",   name = "Zig C Compiler" },
+			{ internal_name = "zig", name = "Zig C Compiler" },
 		},
 		formatters = {
 			{ internal_name = "clang-format", name = "Clang Format" },
 		},
 		linters = {
-			{ internal_name = "clangd",  name = "Clang Daemon" },
+			{ internal_name = "clangd", name = "Clang Daemon" },
 			{ internal_name = "cpplint", name = "C++ Linter" },
 		},
 		debuggers = {
@@ -473,11 +504,11 @@ registry.languages = {
 			{ internal_name = "prettier", name = "Prettier" },
 		},
 		linters = {
-			{ internal_name = "html-lsp",                    name = "HTML Language Server" },
-			{ internal_name = "emmet-language-server",       name = "Emmet Language Server" },
-			{ internal_name = "emmet-ls",                    name = "Emmet Language Server" },
+			{ internal_name = "html-lsp", name = "HTML Language Server" },
+			{ internal_name = "emmet-language-server", name = "Emmet Language Server" },
+			{ internal_name = "emmet-ls", name = "Emmet Language Server" },
 			{ internal_name = "tailwindcss-language-server", name = "Tailwind CSS Language Server" },
-			{ internal_name = "rustywind",                   name = "Rusty Wind" },
+			{ internal_name = "rustywind", name = "Rusty Wind" },
 		},
 		debuggers = {},
 		additional_tools = {
@@ -501,7 +532,7 @@ registry.languages = {
 			{ internal_name = "google-java-format", name = "Google Java Formatter" },
 		},
 		linters = {
-			{ internal_name = "java-language-server",   name = "Java Language Server" },
+			{ internal_name = "java-language-server", name = "Java Language Server" },
 			{ internal_name = "gradle-language-server", name = "Gradle Language Server" },
 		},
 		debuggers = {
@@ -536,7 +567,7 @@ registry.languages = {
 			{ internal_name = "prettier", name = "Prettier" },
 		},
 		debuggers = {
-			{ internal_name = "js-debug-adapter",     name = "JavaScript Debug Adapter" },
+			{ internal_name = "js-debug-adapter", name = "JavaScript Debug Adapter" },
 			{ internal_name = "chrome-debug-adapter", name = "Chrome Debug Adapter" },
 		},
 		additional_tools = {},
@@ -597,11 +628,11 @@ registry.languages = {
 		name = "Lua",
 		compiler_type = "interpreter",
 		highlighters = {
-			{ internal_name = "lua",    name = "TreeSitter" },
+			{ internal_name = "lua", name = "TreeSitter" },
 			{ internal_name = "luadoc", name = "TreeSitter for Documentation" },
 		},
 		compilers = {
-			{ internal_name = "lua",    name = "Lua Interpreter" },
+			{ internal_name = "lua", name = "Lua Interpreter" },
 			{ internal_name = "luajit", name = "Lua Just-in-Time Compiler" },
 		},
 		linters = {
@@ -629,7 +660,7 @@ registry.languages = {
 		name = "Markdown",
 		highlighters = {
 			{ internal_name = "markdown", name = "TreeSitter" },
-			{ internal_name = "html",     name = "TreeSitter for HTML" },
+			{ internal_name = "html", name = "TreeSitter for HTML" },
 		},
 		compilers = {},
 		linters = {
@@ -777,7 +808,7 @@ registry.languages = {
 			{ internal_name = "pyright", name = "Pyright" },
 		},
 		formatters = {
-			{ internal_name = "black",     name = "Black PEP8 Formatter" },
+			{ internal_name = "black", name = "Black PEP8 Formatter" },
 			{ internal_name = "autoflake", name = "Autoflake" },
 		},
 		debuggers = {
@@ -797,7 +828,7 @@ registry.languages = {
 		name = "R",
 		compiler_type = "interpreter",
 		compilers = {
-			{ internal_name = "R",       name = "R Interpreter" },
+			{ internal_name = "R", name = "R Interpreter" },
 			{ internal_name = "Rscript", name = "R-Script" },
 		},
 		highlighters = {
@@ -933,14 +964,14 @@ registry.languages = {
 		compiler_type = "transpiler",
 		highlighters = {
 			{ internal_name = "typescript", name = "TypeScript TreeSitter" },
-			{ internal_name = "tsx",        name = "TypeScript + React TreeSitter" },
+			{ internal_name = "tsx", name = "TypeScript + React TreeSitter" },
 		},
 		compilers = {
 			{ internal_name = "tsc", name = "TypeScript Transpiler" },
 		},
 		linters = {
 			{ internal_name = "typescript-language-server", name = "TypeScript Language Server" },
-			{ internal_name = "angular-language-server",    name = "Angular Language Server" },
+			{ internal_name = "angular-language-server", name = "Angular Language Server" },
 		},
 		formatters = {
 			{ internal_name = "prettier", name = "Prettier" },
