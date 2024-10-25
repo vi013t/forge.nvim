@@ -1,3 +1,5 @@
+**Warning! Forge.nvim is still in Beta. Things may (and probably will) break. Feel free to submit issues.**
+
 ![banner](./docs/forge-banner.png)
 
 <center>
