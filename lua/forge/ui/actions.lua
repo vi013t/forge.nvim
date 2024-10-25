@@ -25,7 +25,7 @@ function ui_actions.close_window()
 	vim.api.nvim_win_close(ui.window, true)
 end
 
-function ui_actions.toggle_install()
+function ui_actions.install()
 	local line = ui.lines[ui.cursor_row]
 
 	---@type Language
@@ -46,7 +46,7 @@ function ui_actions.toggle_install()
 
 		-- Compiler
 	elseif line.type == "compiler_listing" then
-		os_utils.toggle_package(language, line.internal_name, line.name)
+		os_utils.install_package(language, line.internal_name, line.name)
 		refresher.refresh_installed_totals(language)
 
 		-- All highlighters
@@ -57,28 +57,91 @@ function ui_actions.toggle_install()
 
 		-- Individual Highlighter
 	elseif line.type == "highlighter_listing" then
-		treesitter_utils.toggle_highlighter(language, line.internal_name, line.name)
+		treesitter_utils.install_highlighter(language, line.internal_name, line.name)
 
 		-- Linter
 	elseif line.type == "linter_listing" then
-		mason_utils.toggle_package(language, line.internal_name, line.name, "linter")
+		mason_utils.install_package(language, line.internal_name, line.name, "linter")
 
 		-- Formatter
 	elseif line.type == "formatter_listing" then
-		mason_utils.toggle_package(language, line.internal_name, line.name, "formatter")
+		mason_utils.install_package(language, line.internal_name, line.name, "formatter")
 
 		-- Debugger
 	elseif line.type == "debugger_listing" then
-		mason_utils.toggle_package(language, line.internal_name, line.name, "debugger")
+		mason_utils.install_package(language, line.internal_name, line.name, "debugger")
 
 		-- Additional Tools
 	elseif line.type == "additional_tools_listing" then
-		lazy_utils.toggle_plugin(language, line.internal_name)
+		lazy_utils.install_plugin(language, line.internal_name)
 
 		-- Global Tools
 	elseif line.type == "global_tool_listing" then
 		line.entry.is_installed = true
-		plugins.toggle_install(line.entry.module, line.entry.internal_name, line.entry.default_config)
+		plugins.install(line.entry.module, line.entry.internal_name, line.entry.default_config)
+	end
+
+	registry.sort_languages()
+	ui.reset_lines()
+	ui.update_view()
+
+	lock.save()
+end
+
+function ui_actions.uninstall()
+	local line = ui.lines[ui.cursor_row]
+
+	---@type Language
+	local language = nil
+	for _, registered_language in pairs(registry.languages) do
+		if registered_language.name == line.language then
+			language = registered_language
+			break
+		end
+	end
+
+	-- Language
+	if line.type == "language" then
+		os_utils.uninstall_package(language, language.compilers[1].internal_name)
+		for _, highlighter in ipairs(language.highlighters) do
+			treesitter_utils.uninstall_highlighter(language, highlighter.internal_name)
+		end
+
+		-- Compiler
+	elseif line.type == "compiler_listing" then
+		os_utils.uninstall_package(language, line.internal_name)
+		refresher.refresh_installed_totals(language)
+
+		-- All highlighters
+	elseif line.type == "highlighter" then
+		for _, highlighter in ipairs(language.highlighters) do
+			treesitter_utils.uninstall_highlighter(language, highlighter.internal_name)
+		end
+
+		-- Individual Highlighter
+	elseif line.type == "highlighter_listing" then
+		treesitter_utils.install_highlighter(language, line.internal_name, line.name)
+
+		-- Linter
+	elseif line.type == "linter_listing" then
+		mason_utils.uninstall_package(language, line.internal_name, "linter")
+
+		-- Formatter
+	elseif line.type == "formatter_listing" then
+		mason_utils.uninstall_package(language, line.internal_name, "formatter")
+
+		-- Debugger
+	elseif line.type == "debugger_listing" then
+		mason_utils.uninstall_package(language, line.internal_name, "debugger")
+
+		-- Additional Tools
+	elseif line.type == "additional_tools_listing" then
+		lazy_utils.uninstall_plugin(language, line.internal_name)
+
+		-- Global Tools
+	elseif line.type == "global_tool_listing" then
+		line.entry.is_installed = false
+		plugins.uninstall(line.entry.module, line.entry.internal_name)
 	end
 
 	registry.sort_languages()
