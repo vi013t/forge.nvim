@@ -546,7 +546,7 @@ local function draw_expanded_language(language)
 			{ text = " " .. config.icons().down_arrow, foreground = "Comment" },
 		})
 		if language.pinned then
-			table.insert(write_buffer, { text = " ", foreground = "#AA99FF" })
+			table.insert(write_buffer, { text = " " .. config.icons().pin, foreground = "#AA99FF" })
 		end
 		write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
 		write_buffer:insert({ text = "e", foreground = "#AAAA77" })
@@ -582,7 +582,7 @@ local function draw_expanded_language(language)
 		}
 
 		if language.pinned then
-			table.insert(write_buffer, { text = " ", foreground = "#AA99FF" })
+			table.insert(write_buffer, { text = " " .. config.icons().pin, foreground = "#AA99FF" })
 		end
 
 		write_line(write_buffer)
@@ -628,7 +628,7 @@ local function draw_languages()
 				line_after_language:insert({ text = "  " .. language.name })
 				line_after_language:insert({ text = " " .. config.icons().right_arrow, foreground = "Comment" })
 				if language.pinned then
-					table.insert(line_after_language, { text = " ", foreground = "#AA99FF" })
+					table.insert(line_after_language, { text = " " .. config.icons().pin, foreground = "#AA99FF" })
 				end
 				line_after_language:insert({ text = "   (Press ", foreground = "Comment" })
 				line_after_language:insert({ text = "e", foreground = "#AAAA77" })
@@ -663,7 +663,7 @@ local function draw_languages()
 				}
 
 				if language.pinned then
-					table.insert(post_line, { text = " ", foreground = "#AA99FF" })
+					table.insert(post_line, { text = " " .. config.icons().pin, foreground = "#AA99FF" })
 				end
 
 				write_line(post_line)

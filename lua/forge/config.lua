@@ -161,6 +161,7 @@ config.default_config = {
 					instruction_left = "",
 					--- The default icon to display on the right side of "instruction" (the keybind visuals at the top of the window)
 					instruction_right = "",
+					pin = "",
 				},
 
 				--- An ASCII-only preset. Use this preset (with `preset = "ascii"`) if you don't want to use a nerd font or a terminal
@@ -183,6 +184,7 @@ config.default_config = {
 					mason = ">_",
 					instruction_left = "",
 					instruction_right = "",
+					pin = "^",
 				},
 			},
 

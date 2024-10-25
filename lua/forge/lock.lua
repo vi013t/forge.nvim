@@ -11,6 +11,7 @@ function lock.save()
 	vim.fn.mkdir(vim.fn.fnamemodify(config.options.lockfile, ":p:h"), "p")
 	local lock_file = assert(io.open(config.options.lockfile, "w"))
 	lock_file:write(vim.fn.json_encode(registry.languages))
+	lock_file:close()
 end
 
 -- Load the lockfile if it exists, otherwise refresh the refresh_installations
@@ -22,6 +23,7 @@ function lock.load()
 	-- Lockfile exists! Load the cache
 	if lockfile then
 		registry.languages = vim.fn.json_decode(lockfile:read("*a"))
+		lockfile:close()
 		registry.generate_language_keys()
 		registry.sort_languages()
 		refresher.refresh_global_tools()
