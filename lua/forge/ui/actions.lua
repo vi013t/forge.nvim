@@ -42,7 +42,9 @@ function ui_actions.install()
 
 	-- Language
 	if line.type == "language" then
-		os_utils.install_package(language, language.compilers[1].internal_name, language.compilers[1].name)
+		if #language.compilers > 0 then
+			os_utils.install_package(language, language.compilers[1].internal_name, language.compilers[1].name)
+		end
 		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.install_highlighter(language, highlighter.internal_name, highlighter.name)
 		end
@@ -157,7 +159,11 @@ function ui_actions.uninstall()
 
 	-- Language
 	if line.type == "language" then
-		os_utils.uninstall_package(language, language.compilers[1].internal_name)
+		for _, compiler in ipairs(language.compilers) do
+			if table.contains(language.installed_compilers, compiler.internal_name) then
+				os_utils.uninstall_package(language, language.compilers[1].internal_name)
+			end
+		end
 		for _, highlighter in ipairs(language.highlighters) do
 			treesitter_utils.uninstall_highlighter(language, highlighter.internal_name)
 		end
@@ -177,7 +183,9 @@ function ui_actions.uninstall()
 	-- All compilers
 	elseif line.type == "compiler" then
 		for _, compiler in ipairs(language.compilers) do
-			os_utils.uninstall_package(language, compiler.internal_name)
+			if table.contains(language.installed_compilers, compiler.internal_name) then
+				os_utils.uninstall_package(language, language.compilers[1].internal_name)
+			end
 		end
 
 	-- Compiler
