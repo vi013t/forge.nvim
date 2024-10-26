@@ -1,4 +1,4 @@
-**Warning! Forge.nvim is still in Beta. Things may (and probably will) break. Feel free to submit issues.**
+**Warning! Forge.nvim is still in beta. Things may (and probably will) break. Feel free to submit issues.**
 
 ![banner](./docs/forge-banner.png)
 
@@ -204,6 +204,7 @@ Additionally, if you're on Windows, you need [gsudo](https://github.com/gerardog
                         instruction_left = "",
                         --- The default icon to display on the right side of "instruction" (the keybind visuals at the top of the window)
                         instruction_right = "",
+                        pin = ""
                     },
 
                     --- An ASCII-only preset. Use this preset (with `preset = "ascii"`) if you don't want to use a nerd font or a terminal
@@ -226,6 +227,7 @@ Additionally, if you're on Windows, you need [gsudo](https://github.com/gerardog
                         mason = ">_",
                         instruction_left = "",
                         instruction_right = "",
+                        pin = "^"
                     },
                 },
 
