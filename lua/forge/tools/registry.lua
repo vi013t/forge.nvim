@@ -9,6 +9,7 @@ local registry = {}
 ---@field name string
 ---@field entries GlobalToolEntry[]
 ---@field installed_entries number | nil
+---@field pinned? boolean
 
 ---@class GlobalToolEntry
 ---@field name string
@@ -17,8 +18,9 @@ local registry = {}
 ---@field is_installed boolean | nil
 ---@field default_config string
 ---@field recommended boolean
+---@field pinned? boolean
 
----@alias Tool { name: string, internal_name: string }
+---@alias Tool { name: string, internal_name: string, pinned?: boolean }
 ---
 ---@class Language
 ---
