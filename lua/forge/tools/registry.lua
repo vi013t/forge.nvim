@@ -507,7 +507,7 @@ registry.languages = {
 		linters = {
 			{ internal_name = "html-lsp", name = "HTML Language Server" },
 			{ internal_name = "emmet-language-server", name = "Emmet Language Server" },
-			{ internal_name = "emmet-ls", name = "Emmet Language Server" },
+			{ internal_name = "emmet-ls", name = "Emmet Language Server (2)" },
 			{ internal_name = "tailwindcss-language-server", name = "Tailwind CSS Language Server" },
 			{ internal_name = "rustywind", name = "Rusty Wind" },
 		},
