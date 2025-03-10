@@ -371,6 +371,11 @@ config.default_config = {
 			},
 		},
 	},
+
+	-- Auto formatting
+	autoformat = {
+		ignore = {},
+	},
 }
 
 -- Set the initial config to the default
@@ -393,10 +398,7 @@ end
 ---
 ---@return { progress: table, installed: string, not_installed: string, none_available: string, instructions: string, window_title: string }
 function config.colors()
-	return config.options.ui.colors.presets[config.options.ui.colors.preset or vim.api.nvim_exec2(
-		"colorscheme",
-		{ output = true }
-	).output or "default"]
+	return config.options.ui.colors.presets[config.options.ui.colors.preset or vim.api.nvim_exec2("colorscheme", { output = true }).output or "default"]
 end
 
 function config.icons()

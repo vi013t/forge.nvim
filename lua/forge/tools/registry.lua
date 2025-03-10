@@ -55,128 +55,146 @@ registry.global_tools = {
 		name = "Autocomplete",
 		entries = {
 			{
-				name = "Autocomplete Core",
-				internal_name = "hrsh7th/nvim-cmp",
+				name = "Blink Autocomplete",
+				internal_name = "saghen/blink.cmp",
 				recommended = true,
-				module = "cmp",
-				default_config = ([[
-					config = function()
-						local has_cmp, cmp = pcall(require, "cmp")
-
-						if has_cmp then
-							local primary_sources = {}
-							local secondary_sources = {}
-
-							-- lspkind
-							local has_lspkind, lspkind = pcall(require, "lspkind")
-							local formatting = nil
-							if has_lspkind then
-								formatting = {
-									format = lspkind.cmp_format(%s),
-								}
-							end
-
-							-- LuaSnip
-							local snippet = nil
-							local has_luasnip, luasnip = pcall(require, "luasnip")
-							if has_luasnip then
-								snippet = {
-									expand = function(args)
-										luasnip.lsp_expand(args.body)
-									end
-								}
-								table.insert(primary_sources, { name = "luasnip "})
-							end
-
-							-- CMP LSP
-							local has_cmp_lsp = pcall(require, "cmp_nvim_lsp")
-							if has_cmp_lsp then
-								table.insert(primary_sources, { name = "nvim_lsp"} )
-							end
-
-							-- CMP Buffer
-							local has_cmp_buffer = pcall(require, "cmp-buffer")
-							if has_cmp_buffer then
-								table.insert(secondary_sources, { name = "buffer" })
-							end
-
-							-- CMP
-							cmp.setup({
-								snippet = snippet,
-								mapping = cmp.mapping.preset.insert({
-									["<C-b>"] = cmp.mapping.scroll_docs(-4),
-									["<C-f>"] = cmp.mapping.scroll_docs(4),
-									["<C-Space>"] = cmp.mapping.complete(),
-									["<C-e>"] = cmp.mapping.abort(),
-									["<CR>"] = cmp.mapping.confirm({ select = true }),
-								}),
-								sources = cmp.config.sources(primary_sources, secondary_sources),
-								formatting = formatting,
-							})
-
-							-- CMDline
-							local has_cmp_cmd = pcall(require, "cmp_cmdline")
-							if has_cmp_cmd then
-								cmp.setup.cmdline({ "/", "?" }, {
-									mapping = cmp.mapping.preset.cmdline(),
-									sources = secondary_sources,
-								})
-
-								cmp.setup.cmdline(":", {
-									mapping = cmp.mapping.preset.cmdline(),
-									sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
-								})
-							end
-						end
-					end,
-					event = "InsertEnter"
-				]]):format(vim.inspect(config.options.autocomplete.format)),
-			},
-			{
-				name = "Autcomplete LSP integration",
-				internal_name = "hrsh7th/cmp-nvim-lsp",
-				recommended = true,
-				module = "cmp_nvim_lsp",
+				module = "blink_cmp",
 				default_config = [[
-					event = "InsertEnter"
+					version = "*",
+					event = "InsertEnter",
+					opts = {
+						keymap = { preset = 'super-tab' },
+						appearance = { nerd_font_variant = 'normal' },
+						sources = {
+							default = { 'lsp', 'path', 'snippets', 'buffer' },
+						},
+					},
+					opts_extend = { "sources.default" }
 				]],
 			},
-			{
-				name = "Command Line Autocompletion",
-				internal_name = "hrsh7th/cmp-cmdline",
-				recommended = true,
-				module = "cmp_cmdline",
-				default_config = [[
-					event = "InsertEnter"
-				]],
-			},
-			{
-				name = "Buffer Content Autocompletion",
-				internal_name = "hrsh7th/cmp-buffer",
-				recommended = true,
-				module = "cmp_buffer",
-				default_config = [[
-					event = "InsertEnter"
-				]],
-			},
-			{
-				name = "File Path Autocompletion",
-				internal_name = "hrsh7th/cmp-path",
-				recommended = true,
-				module = "cmp_path",
-				default_config = [[
-					event = "InsertEnter"
-				]],
-			},
-			{
-				name = "Autocomplete Icons",
-				internal_name = "onsails/lspkind.nvim",
-				recommended = true,
-				module = "lspkind",
-				default_config = [[
-					event = "InsertEnter"
-				]],
-			},
+			-- {
+			-- 	name = "Autocomplete Core",
+			-- 	internal_name = "hrsh7th/nvim-cmp",
+			-- 	recommended = false,
+			-- 	module = "cmp",
+			-- 	default_config = ([[
+			-- 		config = function()
+			-- 			local has_cmp, cmp = pcall(require, "cmp")
+			--
+			-- 			if has_cmp then
+			-- 				local primary_sources = {}
+			-- 				local secondary_sources = {}
+			--
+			-- 				-- lspkind
+			-- 				local has_lspkind, lspkind = pcall(require, "lspkind")
+			-- 				local formatting = nil
+			-- 				if has_lspkind then
+			-- 					formatting = {
+			-- 						format = lspkind.cmp_format(%s),
+			-- 					}
+			-- 				end
+			--
+			-- 				-- LuaSnip
+			-- 				local snippet = nil
+			-- 				local has_luasnip, luasnip = pcall(require, "luasnip")
+			-- 				if has_luasnip then
+			-- 					snippet = {
+			-- 						expand = function(args)
+			-- 							luasnip.lsp_expand(args.body)
+			-- 						end
+			-- 					}
+			-- 					table.insert(primary_sources, { name = "luasnip "})
+			-- 				end
+			--
+			-- 				-- CMP LSP
+			-- 				local has_cmp_lsp = pcall(require, "cmp_nvim_lsp")
+			-- 				if has_cmp_lsp then
+			-- 					table.insert(primary_sources, { name = "nvim_lsp"} )
+			-- 				end
+			--
+			-- 				-- CMP Buffer
+			-- 				local has_cmp_buffer = pcall(require, "cmp-buffer")
+			-- 				if has_cmp_buffer then
+			-- 					table.insert(secondary_sources, { name = "buffer" })
+			-- 				end
+			--
+			-- 				-- CMP
+			-- 				cmp.setup({
+			-- 					snippet = snippet,
+			-- 					mapping = cmp.mapping.preset.insert({
+			-- 						["<C-b>"] = cmp.mapping.scroll_docs(-4),
+			-- 						["<C-f>"] = cmp.mapping.scroll_docs(4),
+			-- 						["<C-Space>"] = cmp.mapping.complete(),
+			-- 						["<C-e>"] = cmp.mapping.abort(),
+			-- 						["<CR>"] = cmp.mapping.confirm({ select = true }),
+			-- 					}),
+			-- 					sources = cmp.config.sources(primary_sources, secondary_sources),
+			-- 					formatting = formatting,
+			-- 				})
+			--
+			-- 				-- CMDline
+			-- 				local has_cmp_cmd = pcall(require, "cmp_cmdline")
+			-- 				if has_cmp_cmd then
+			-- 					cmp.setup.cmdline({ "/", "?" }, {
+			-- 						mapping = cmp.mapping.preset.cmdline(),
+			-- 						sources = secondary_sources,
+			-- 					})
+			--
+			-- 					cmp.setup.cmdline(":", {
+			-- 						mapping = cmp.mapping.preset.cmdline(),
+			-- 						sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
+			-- 					})
+			-- 				end
+			-- 			end
+			-- 		end,
+			-- 		event = "InsertEnter"
+			-- 	]]):format(vim.inspect(config.options.autocomplete.format)),
+			-- },
+			-- {
+			-- 	name = "Autcomplete LSP integration",
+			-- 	internal_name = "hrsh7th/cmp-nvim-lsp",
+			-- 	recommended = false,
+			-- 	module = "cmp_nvim_lsp",
+			-- 	default_config = [[
+			-- 		event = "InsertEnter"
+			-- 	]],
+			-- },
+			-- {
+			-- 	name = "Command Line Autocompletion",
+			-- 	internal_name = "hrsh7th/cmp-cmdline",
+			-- 	recommended = false,
+			-- 	module = "cmp_cmdline",
+			-- 	default_config = [[
+			-- 		event = "InsertEnter"
+			-- 	]],
+			-- },
+			-- {
+			-- 	name = "Buffer Content Autocompletion",
+			-- 	internal_name = "hrsh7th/cmp-buffer",
+			-- 	recommended = true,
+			-- 	module = "cmp_buffer",
+			-- 	default_config = [[
+			-- 		event = "InsertEnter"
+			-- 	]],
+			-- },
+			-- {
+			-- 	name = "File Path Autocompletion",
+			-- 	internal_name = "hrsh7th/cmp-path",
+			-- 	recommended = false,
+			-- 	module = "cmp_path",
+			-- 	default_config = [[
+			-- 		event = "InsertEnter"
+			-- 	]],
+			-- },
+			-- {
+			-- 	name = "Autocomplete Icons",
+			-- 	internal_name = "onsails/lspkind.nvim",
+			-- 	recommended = false,
+			-- 	module = "lspkind",
+			-- 	default_config = [[
+			-- 		event = "InsertEnter"
+			-- 	]],
+			-- },
 		},
 	},
 	lsp_status = {
@@ -1091,17 +1109,14 @@ function registry.sort_languages()
 		end
 
 		-- Otherwise, we put the one with the greater percent installed first
-		local first_percent =
-			math.floor(100 * ((registry.languages[first].installed_total - 1) / (registry.languages[first].total - 1)))
-		local second_percent = math.floor(
-			100 * ((registry.languages[second].installed_total - 1) / (registry.languages[second].total - 1))
-		)
+		local first_percent = math.floor(100 * ((registry.languages[first].installed_total - 1) / (registry.languages[first].total - 1)))
+		local second_percent = math.floor(100 * ((registry.languages[second].installed_total - 1) / (registry.languages[second].total - 1)))
 		if first_percent > second_percent then
 			return true
 		elseif first_percent < second_percent then
 			return false
 
-		-- If they're the same, we sort them alphabetically
+			-- If they're the same, we sort them alphabetically
 		else
 			return registry.languages[first].name:lower() < registry.languages[second].name:lower()
 		end

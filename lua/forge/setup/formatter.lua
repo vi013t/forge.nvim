@@ -1,4 +1,5 @@
 local registry = require("forge.tools.registry")
+local config = require("forge.config")
 local formatter = table_metatable({})
 
 function formatter.setup_formatters()
@@ -16,7 +17,13 @@ function formatter.setup_formatters()
 	-- Set up formatters
 	require("conform").setup({
 		formatters_by_ft = formatters_by_ft,
-		format_on_save = { timeout_ms = 500, lsp_fallback = true },
+		format_on_save = function(bufnr)
+			if vim.tbl_contains(config.options.autoformat.ignore, vim.bo[bufnr].filetype) then
+				return
+			end
+
+			return { timeout_ms = 500, lsp_fallback = true }
+		end
 	})
 end
 

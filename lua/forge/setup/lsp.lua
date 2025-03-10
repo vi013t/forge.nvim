@@ -38,10 +38,8 @@ function lsp.setup_lsps()
 		vim.api.nvim_create_autocmd("LspAttach", {
 			callback = function(args)
 				local client = vim.lsp.get_client_by_id(args.data.client_id)
-				if client and client.supports_method("textDocument/inlayHint") then
-					if inlay_hint then
-						inlay_hint.enable()
-					end
+				if client and client:supports_method("textDocument/inlayHint") and inlay_hint then
+					inlay_hint.enable()
 				end
 			end,
 		})
