@@ -319,6 +319,17 @@ config.default_config = {
 				},
 			},
 
+			-- Rust
+			rust_analyzer = {
+				settings = {
+					["rust-analyzer"] = {
+						checkOnSave = {
+							command = "clippy",
+						},
+					},
+				},
+			},
+
 			-- C#
 			omnisharp_mono = {
 				cmd = {

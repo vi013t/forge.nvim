@@ -20,7 +20,7 @@
 
 Furthermore, **you must be using a "structured setup" for lazy.nvim. This means passing a directory name to `lazy.setup(...)`, *NOT* a table of plugins.** See [the relevant part of the `lazy.nvim` documentation](https://lazy.folke.io/usage/structuring) for more information.
 
-Additionally, if you're on Windows, you need [gsudo](https://github.com/gerardog/gsudo) or something similar that allows running commands prefixed with `sudo` as an administrator.
+Additionally, if you're on Windows, you need [gsudo](https://github.com/gerardog/gsudo) or something similar that allows running commands prefixed with `sudo` as an administrator. `Forge.nvim` can install compilers and interpreters onto your system, and often needs administrator access to do so.
 
 ## Example Installation & Configuration
 

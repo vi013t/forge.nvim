@@ -3,7 +3,7 @@ local platform = require("mason-core.platform")
 
 local mason_registry = require("mason-registry")
 local registry = require("forge.tools.registry")
-local refresher = require("forge.tools.refresher")
+require("forge.tools.refresher")
 local ui = require("forge.ui")
 
 local mason_utils = {}
@@ -58,9 +58,7 @@ local function join_handles(handles)
 			a.wait(vim.schedule) -- wait for scheduler for logs to finalize
 			a.wait(vim.schedule) -- logs have been written
 			vim.api.nvim_err_writeln("")
-			vim.api.nvim_err_writeln(
-				("The following packages failed to install: %s"):format(_.join(", ", failed_packages))
-			)
+			vim.api.nvim_err_writeln(("The following packages failed to install: %s"):format(_.join(", ", failed_packages)))
 			vim.cmd([[1cq]])
 		end
 	end)
@@ -124,10 +122,7 @@ function mason_utils.install_package(language, internal_name, name, type)
 		local other_language = registry.languages[language_key]
 		for _, tool in ipairs(other_language["installed_" .. type .. "s"]) do
 			if tool.internal_name == internal_name then
-				table.insert(
-					other_language["installed_" .. type .. "s"],
-					{ name = name, internal_name = internal_name }
-				)
+				table.insert(other_language["installed_" .. type .. "s"], { name = name, internal_name = internal_name })
 				break
 			end
 		end

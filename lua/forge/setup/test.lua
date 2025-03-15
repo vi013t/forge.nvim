@@ -1,8 +1,50 @@
-local config = require("forge.config")
+config = function()
+	local config = {
+		options = {
+			lsp = {
+				icons = {
+					Error = "",
+					Warn = "",
+					Hint = "󰌵",
+					Info = "",
+				},
+				diagnostics = {
+					underline = true,
+					update_in_insert = false,
+					virtual_text = {
+						spacing = 4,
+						source = "if_many",
+					},
+					severity_sort = true,
+				},
+				inlay_hints = {
+					enabled = true,
+				},
+				capabilities = {},
+				format = {
+					formatting_options = nil,
+					timeout_ms = nil,
+				},
+				servers = {
+					lua_ls = {
+						settings = {
+							Lua = {
+								workspace = {
+									checkThirdParty = false,
+								},
+								completion = {
+									callSnippet = "Replace",
+								},
+							},
+						},
+					},
+				},
 
-local lsp = {}
+				setup = {},
+			},
+		},
+	}
 
-function lsp.setup_lsps()
 	-- Fidget
 	local has_fidget, fidget = pcall(require, "fidget")
 	if has_fidget then
@@ -86,20 +128,18 @@ function lsp.setup_lsps()
 		require("lspconfig")[server].setup(server_opts)
 	end
 	local mlsp = require("mason-lspconfig")
+	local all_mslp_servers = vim.tbl_keys(require("mason-lspconfig.mappings.server").lspconfig_to_package)
 	local ensure_installed = {} ---@type string[]
-
-	-- local all_mslp_servers = vim.tbl_keys(require("mason-lspconfig.mappings.server").lspconfig_to_package)
-	-- for server, server_opts in pairs(servers) do
-	-- 	if server_opts then
-	-- 		server_opts = server_opts == true and {} or server_opts
-	-- 		if server_opts.mason == false or not vim.tbl_contains(all_mslp_servers, server) then
-	-- 			setup_server(server)
-	-- 		else
-	-- 			ensure_installed[#ensure_installed + 1] = server
-	-- 		end
-	-- 	end
-	-- end
-
+	for server, server_opts in pairs(servers) do
+		if server_opts then
+			server_opts = server_opts == true and {} or server_opts
+			if server_opts.mason == false or not vim.tbl_contains(all_mslp_servers, server) then
+				setup_server(server)
+			else
+				ensure_installed[#ensure_installed + 1] = server
+			end
+		end
+	end
 	mlsp.setup({ ensure_installed = ensure_installed, handlers = { setup_server }, automatic_installation = false })
 
 	-- lsp_signature.nvim
@@ -113,5 +153,3 @@ function lsp.setup_lsps()
 	vim.cmd("hi DiagnosticUnderlineHint gui=undercurl term=undercurl cterm=undercurl")
 	vim.cmd("hi DiagnosticUnderlineInfo gui=undercurl term=undercurl cterm=undercurl")
 end
-
-return lsp

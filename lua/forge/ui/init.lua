@@ -203,6 +203,8 @@ end
 
 local is_first_draw_call = true
 
+local highlight_ns_id = vim.api.nvim_create_namespace("forge")
+
 -- Writes a line at the end of the forge buffer
 ---
 ---@param option_list { text: string, foreground?: string, background?: string, italicize?: boolean, bold?: boolean }[] A list of text segments, which each can have their own color and styles. The foreground can be a hex color, or the name of a highlight group.
@@ -254,13 +256,12 @@ local function write_line(option_list, is_centered)
 			---@cast highlight_group string
 
 			-- Add the highlight
-			vim.api.nvim_buf_add_highlight(
+			vim.hl.range(
 				ui.buffer, -- Buffer
-				-1, -- Namespace ID
+				highlight_ns_id, -- Namespace ID
 				highlight_group, -- Highlight group
-				line, -- Line
-				#text - #options.text + shift, -- Start column
-				#text + shift -- End column
+				{ line, #text - #options.text + shift }, -- Start column
+				{ line, #text + shift } -- End column
 			)
 		end
 	end
@@ -322,10 +323,7 @@ local function draw_tool(language, tool_name)
 			more_text = " more"
 		end
 		write_buffer:insert({
-			text = " ("
-				.. (#language.additional_tools - #language.installed_additional_tools)
-				.. more_text
-				.. " available)",
+			text = " (" .. (#language.additional_tools - #language.installed_additional_tools) .. more_text .. " available)",
 			foreground = "Comment",
 		})
 
@@ -441,11 +439,7 @@ local function draw_tool(language, tool_name)
 				write_buffer:insert({ text = " (" .. internal_name .. ") ", foreground = "Comment" })
 
 				-- Prompt
-				if
-					line.type == stubbed_name .. "_listing"
-					and line.language == language.name
-					and line.name == tool.name
-				then
+				if line.type == stubbed_name .. "_listing" and line.language == language.name and line.name == tool.name then
 					write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
 					write_buffer:insert({ text = "u", foreground = "#AA77AA" })
 					write_buffer:insert({ text = " to ", foreground = "Comment" })
@@ -470,11 +464,7 @@ local function draw_tool(language, tool_name)
 				write_buffer:insert({ text = " (" .. internal_name .. ") ", foreground = "Comment" })
 
 				-- Prompt
-				if
-					line.type == stubbed_name .. "_listing"
-					and line.language == language.name
-					and line.name == tool.name
-				then
+				if line.type == stubbed_name .. "_listing" and line.language == language.name and line.name == tool.name then
 					write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
 					write_buffer:insert({ text = "i", foreground = "#77AAAA" })
 					write_buffer:insert({ text = " to ", foreground = "Comment" })
@@ -723,10 +713,7 @@ local function draw_global_tools()
 				write_buffer:insert({ text = (" (%s)"):format(entry.internal_name), foreground = "Comment" })
 
 				-- global tool listing prompt
-				if
-					ui.lines[ui.cursor_row].type == "global_tool_listing"
-					and ui.lines[ui.cursor_row].entry.internal_name == entry.internal_name
-				then
+				if ui.lines[ui.cursor_row].type == "global_tool_listing" and ui.lines[ui.cursor_row].entry.internal_name == entry.internal_name then
 					if entry.is_installed then
 						write_buffer:insert({ text = "   (Press ", foreground = "Comment" })
 						write_buffer:insert({ text = "u", foreground = "#AA77AA" })
@@ -865,10 +852,7 @@ function ui.open_window()
 	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = ui.buffer })
 
 	-- Hide the cursor in the buffer
-	if
-		config.options.ui.hide_cursor
-		or (config.options.ui.hide_cursor == nil and config.options.ui.window_options.cursorline)
-	then
+	if config.options.ui.hide_cursor or (config.options.ui.hide_cursor == nil and config.options.ui.window_options.cursorline) then
 		vim.api.nvim_create_autocmd("BufEnter", {
 			buffer = ui.buffer,
 			callback = function()
